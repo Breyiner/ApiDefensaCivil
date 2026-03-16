@@ -2,9 +2,8 @@
 
 use App\Enums\TokenAbility;
 use App\Http\Controllers\API\Account\AccountController;
+use App\Http\Controllers\API\Account\AccountPasswordController;
 use App\Http\Controllers\API\Account\AccountVerificationController;
-use Illuminate\Http\Request;
-use App\Http\Middleware\DecodeBearerToken;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\StateUser\StateUserController;
 use App\Http\Controllers\API\User\UserController;
@@ -115,9 +114,15 @@ Route::middleware('auth:sanctum')->group(function () {
         // -------------------------------------------------------------------------
         Route::middleware('password.verify:change_email')
             ->patch('/email', [AccountController::class, 'updateEmail']);
+
+        // -------------------------------------------------------------------------
+        // Cambio de contraseña
+        // Verifica contraseña actual en el body, no requiere token previo
+        // -------------------------------------------------------------------------
+        Route::patch('/password', [AccountPasswordController::class, 'updatePassword']);
     });
 
-    
+
     Route::prefix('statusPlans')->group(function () {
         Route::get('/', [StatusPlanController::class, 'index']);
 
@@ -809,9 +814,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index']);
 
-        Route::get( '/user/count/{id}',[NotificationController::class, 'countUnreadByUser']);
+        Route::get('/user/count/{id}', [NotificationController::class, 'countUnreadByUser']);
 
-        Route::get('/user/unread/{id}',[NotificationController::class, 'getUnreadByUser']);
+        Route::get('/user/unread/{id}', [NotificationController::class, 'getUnreadByUser']);
 
         Route::get('/user/{id}', [NotificationController::class, 'getByUser']);
 

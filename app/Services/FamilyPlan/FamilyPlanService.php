@@ -403,6 +403,53 @@ class FamilyPlanService
         }
     }
 
+    /**
+     * Obtiene los planes familiares filtrados por estado.
+     *
+     * Retorna una lista paginada de planes familiares que coinciden con el ID de estado
+     * proporcionado. Cada plan incluye información básica: apellidos, ubicación geográfica,
+     * estado actual y fecha de creación.
+     *
+     * @param int $statusId ID del estado por el cual filtrar los planes
+     * @return array Respuesta estructurada con datos paginados y metainformación
+     */
+    public function getByStatus(int $statusId)
+    {
+        // Obtiene planes familiares filtrados por estado con paginación de 10 registros
+        $data = FamilyPlan::where('status_plan_id', $statusId)->paginate(10);
+
+        // Transforma cada plan al formato de respuesta esperado
+        $plans = $data->map(function ($plan) {
+            return [
+                "id" => $plan->id,
+                "last_names" => $plan->last_names,
+                "city" => $plan->city->name,
+                "department" => $plan->city->department->name,
+                "status" => $plan->statusPlan->name,
+                "status_id" => $plan->statusPlan->id,
+                "date_create" => $plan->created_at->format('d/m/Y'),
+            ];
+        });
+
+        // Retorna respuesta estructurada con datos y metadatos de paginación
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => $plans->isEmpty()
+                ? "No hay planes familiares disponibles"
+                : "Planes familiares obtenidos exitosamente",
+            "data" => $plans,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
+        ];
+    }
+
     public function generatePdf($id)
     {
         $plan = FamilyPlan::findOrFail($id);

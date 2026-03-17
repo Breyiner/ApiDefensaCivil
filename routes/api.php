@@ -337,6 +337,9 @@ Route::middleware('auth:sanctum')->group(function () {
     route::prefix('familyPlans')->group(function () {
         route::get('/', [FamilyPlanController::class, 'index']);
 
+        // Ruta para filtrar por estado usando query param (?status=1)
+        Route::get('/by-status', [FamilyPlanController::class, 'getByStatus']);
+
         route::get('/byUser', [FamilyPlanController::class, 'getFamilyPlanByUser']);
 
         route::get('/{familyPlan_id}', [FamilyPlanController::class, 'show'])->middleware('permission:family-plans.show');

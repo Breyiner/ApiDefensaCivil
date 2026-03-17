@@ -10,6 +10,7 @@ use App\Http\Requests\FamilyPlan\ChangeStatusFamilyPlanRequest;
 use App\Http\Requests\FamilyPlan\GeoreFamilyPlanRequest;
 use App\Http\Requests\FamilyPlan\IdentifyFamilyPlanRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FamilyPlan\FilterByStatusFamilyPlanRequest;
 use App\Services\FamilyPlan\FamilyPlanService;
 use Illuminate\Http\JsonResponse;
 
@@ -206,6 +207,60 @@ class FamilyPlanController extends Controller
             $response['message'],
             $response['code'],
             $response['data']
+        );
+    }
+
+    /**
+     * Obtiene planes familiares filtrados por estado.
+     *
+     * Endpoint para consultar planes familiares según su estado actual.
+     * Recibe el ID del estado como query parameter y retorna una lista paginada.
+     *
+     * GET /familyPlans/by-status?status={statusId}
+     *
+     * Query Parameters:
+     * - status (required, int): ID del estado por el cual filtrar
+     *
+     * Response 200:
+     * {
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "last_names": "García Pérez",
+     *       "city": "Bogotá",
+     *       "department": "Cundinamarca",
+     *       "status": "En Proceso",
+     *       "status_id": 2,
+     *       "date_create": "15/03/2026"
+     *     }
+     *   ],
+     *   "paginate": {
+     *     "current_page": 1,
+     *     "per_page": 10,
+     *     "total": 25,
+     *     "last_page": 3,
+     *     "from": 1,
+     *     "to": 10
+     *   }
+     * }
+     *
+     * @param FilterByStatusFamilyPlanRequest $request Validación del query parameter
+     * @return JsonResponse
+     */
+    public function getByStatus(FilterByStatusFamilyPlanRequest $request)
+    {
+        $statusId = $request->validated()['status'];
+        $response = $this->service->getByStatus($statusId);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? [],
+            $response['paginate']
         );
     }
 }

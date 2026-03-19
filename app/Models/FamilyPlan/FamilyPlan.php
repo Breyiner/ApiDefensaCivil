@@ -8,6 +8,7 @@ use App\Models\Audit\Audit; // 🔹 Importar Audit para la relación
 
 /** * Importación de modelos relacionados para definir las relaciones Eloquent 
  */
+
 use App\Models\Zone\Zone;
 use App\Models\City\City;
 use App\Models\HousingQuality\HousingQuality;
@@ -19,6 +20,10 @@ use App\Models\HousingGraphic\HousingGraphic;
 use App\Models\VulnerableTest\VulnerableTest;
 use App\Models\FamilyMember\FamilyMember;
 use App\Models\Pet\Pet;
+use App\Models\RiskFactor\RiskFactor;
+use App\Models\User\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Clase FamilyPlan
@@ -124,7 +129,7 @@ class FamilyPlan extends Model
     {
         return $this->hasOne(HousingInfo::class, 'family_plan_id');
     }
-        public function housingGraphic()
+    public function housingGraphic()
     {
         return $this->hasMany(housingGraphic::class, 'family_plan_id');
     }
@@ -144,5 +149,60 @@ class FamilyPlan extends Model
     public function audits()
     {
         return $this->morphMany(Audit::class, 'historiable');
+    }
+
+    /**
+     * --- SCOPES PARA FILTRADO POR ROL ---
+     */
+
+    /**
+     * Scope para Administradores: pueden ver todos los planes
+     */
+    public function scopeForAdministrador(Builder $query): Builder
+    {
+        return $query;
+    }
+
+    /**
+     * Scope para Supervisores: pueden ver todos los planes de su seccional
+     */
+    public function scopeForSupervisor(Builder $query): Builder
+    {
+        $user = Auth::user();
+
+        // Si el supervisor tiene seccional asignado, filtrar por esa seccional
+        if ($user->sectional_id) {
+            return $query->where('sectional_id', $user->sectional_id);
+        }
+
+        // Si no tiene seccional, ver todos
+        return $query;
+    }
+
+    /**
+     * Scope para Voluntarios: solo ven los planes que ellos crearon
+     */
+    public function scopeForVoluntario(Builder $query): Builder
+    {
+        return $query->where('user_id', Auth::id());
+    }
+
+    /**
+     * Scope principal: aplica el filtro automático según el rol del usuario autenticado
+     */
+    public function scopeForAuthUser(Builder $query): Builder
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return match (true) {
+            $user->hasRole('Administrador') => $query->forAdministrador(),
+            $user->hasRole('Supervisor') => $query->forSupervisor(),
+            $user->hasRole('Voluntario') => $query->forVoluntario(),
+            default => $query->whereRaw('1 = 0')
+        };
     }
 }

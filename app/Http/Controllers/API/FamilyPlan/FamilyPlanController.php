@@ -10,6 +10,7 @@ use App\Http\Requests\FamilyPlan\ChangeStatusFamilyPlanRequest;
 use App\Http\Requests\FamilyPlan\GeoreFamilyPlanRequest;
 use App\Http\Requests\FamilyPlan\IdentifyFamilyPlanRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FamilyPlan\FilterByStatusFamilyPlanRequest;
 use App\Services\FamilyPlan\FamilyPlanService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

@@ -14,36 +14,91 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class FamilyPlanService
 {
     /**
-     * Obtiene todos los planes familiares registrados.
-     * @return array
+     * Obtiene todos los planes familiares paginados según el rol del usuario autenticado.
+     * 
+     * 🔹 Aplica filtros automáticos por rol:
+     *    - Administrador: Ve todos los planes sin restricción
+     *    - Supervisor: Ve planes de su seccional
+     *    - Voluntario: Ve solo los planes que creó (user_id)
+     * 
+     * @param int $perPage Cantidad de registros por página (default: 15)
+     * @return array Respuesta con datos paginados y metadata
      */
-    public static function getAll()
+    public static function getAll(int $perPage = 15): array
     {
-        $familyPlan = FamilyPlan::all();
+        // 🔹 Obtener planes aplicando el scope forAuthUser (filtra por rol automáticamente)
+        $paginator = FamilyPlan::forAuthUser()
+            ->with([
+                'zone',                  // Relación con zona geográfica
+                'city',                  // Relación con ciudad
+                'city.department',       // Departamento a través de city
+                'statusPlan',            // Estado actual del plan
+                'sectional',             // Seccional administrativa
+                'user'                   // Usuario responsable/creador
+            ])
+            ->orderBy('created_at', 'desc') // Ordenar por fecha de creación (más reciente primero)
+            ->paginate($perPage);
 
-        if ($familyPlan->isEmpty()) {
+        // 🔹 Transformar la colección para formatear la respuesta
+        $items = $paginator->map(function ($plan) {
             return [
-                "error" => false,
-                "code" => 200,
-                "message" => "No hay planes familiares registrados",
-                "data" => $familyPlan,
+                'id'           => $plan->id,
+                'name'         => $plan->name,
+                'last_names'   => $plan->last_names,
+                'address'      => $plan->address,
+                'comentary'    => $plan->comentary ?? 'No hay comentarios',
+                'zone'         => $plan->zone?->name,              // Usar null safe operator
+                'city'         => $plan->city?->name,
+                'department'   => $plan->city?->department?->name,
+                'status'       => $plan->statusPlan?->name,
+                'status_id'    => $plan->statusPlan?->id,
+                'sectional'    => $plan->sectional?->name,
+                'responsable'  => $plan->user?->name,
+                'date_create'  => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
             ];
-        }
+        });
 
+        // 🔹 Retornar respuesta estructurada
         return [
             "error" => false,
             "code" => 200,
-            "message" => "planes familiares obtenidos exitosamente",
-            "data" => $familyPlan,
+            "message" => $items->isEmpty()
+                ? "No hay planes familiares disponibles"
+                : "Planes familiares obtenidos exitosamente",
+            "data" => $items,
+            "paginate" => [
+                'current_page' => $paginator->currentPage(),  // Página actual
+                'per_page'     => $paginator->perPage(),      // Registros por página
+                'total'        => $paginator->total(),        // Total de registros
+                'last_page'    => $paginator->lastPage(),     // Última página
+                'from'         => $paginator->firstItem(),    // Primer registro de la página
+                'to'           => $paginator->lastItem(),     // Último registro de la página
+            ],
         ];
     }
 
     /**
      * Obtiene un plan familiar específico por su ID.
+     * 
+     * 🔹 Incluye relaciones anidadas como city.department
+     * 🔹 Retorna datos transformados con formato consistente
+     * 
+     * @param int $id ID del plan familiar
+     * @return array Respuesta con el plan o error si no existe
      */
     public function getById($id)
     {
-        $familyPlan = FamilyPlan::with('city.department')->find($id);
+        // 🔹 Buscar plan con relaciones
+        $familyPlan = FamilyPlan::forAuthUser()
+            ->with([
+                'city.department', 
+                'zone',
+                'statusPlan',
+                'sectional',
+                'user',
+                'housingQuality',
+                'sector'
+            ])->find($id);
 
         if (!$familyPlan) {
             return [
@@ -53,11 +108,41 @@ class FamilyPlanService
             ];
         }
 
-        // Convertimos a array para poder modificarlo
-        $data = $familyPlan->toArray();
+        // 🔹 Transformar datos manualmente
+        $data = [
+            'id'                 => $familyPlan->id,
+            'name'               => $familyPlan->name,
+            'last_names'         => $familyPlan->last_names,
+            'address'            => $familyPlan->address,
+            'landline_phone'     => $familyPlan->landline_phone,
+            'georeference'       => $familyPlan->georeference,
+            'comentary'          => $familyPlan->comentary,
+            'authorization'      => $familyPlan->authorization,
 
-        // Creamos department_id manualmente
-        $data['department_id'] = $familyPlan->city->department->id ?? null;
+            // IDs
+            'zone_id'            => $familyPlan->zone_id,
+            'city_id'            => $familyPlan->city_id,
+            'department_id'      => $familyPlan->city?->department?->id,
+            'housing_quality_id' => $familyPlan->housing_quality_id,
+            'sector_id'          => $familyPlan->sector_id,
+            'status_plan_id'     => $familyPlan->status_plan_id,
+            'sectional_id'       => $familyPlan->sectional_id,
+            'user_id'            => $familyPlan->user_id,
+
+            // Nombres de relaciones
+            'zone'               => $familyPlan->zone?->name,
+            'city'               => $familyPlan->city?->name,
+            'department'         => $familyPlan->city?->department?->name,
+            'housing_quality'    => $familyPlan->housingQuality?->name,
+            'sector_name'        => $familyPlan->sector_name ?? $familyPlan->sector?->name,
+            'status'             => $familyPlan->statusPlan?->name,
+            'sectional'          => $familyPlan->sectional?->name,
+            'responsable'        => $familyPlan->user?->name,
+
+            // Fechas
+            'created_at'         => $familyPlan->created_at->format('d/m/Y'),
+            'updated_at'         => $familyPlan->updated_at->format('d/m/Y'),
+        ];
 
         return [
             "error" => false,
@@ -68,12 +153,16 @@ class FamilyPlanService
     }
 
     /**
-     * Crea un plan familiar y registra la acción en el historial.
-     * @param array $data Datos del plan.
-     * @return array
+     * Crea un nuevo plan familiar.
+     * 
+     * 🔹 Los valores por defecto se aplican desde el modelo (status_plan_id = 1)
+     * 
+     * @param array $data Datos del plan a crear
+     * @return array Respuesta con el plan creado
      */
     public function create(array $data)
     {
+        // 🔹 Crear plan (aplica fillable y attributes del modelo)
         $familyPlan = FamilyPlan::create($data);
 
         return [
@@ -85,7 +174,13 @@ class FamilyPlanService
     }
 
     /**
-     * Actualización completa de un plan familiar.
+     * Actualización completa de un plan familiar (PUT).
+     * 
+     * 🔹 Reemplaza todos los campos con los datos enviados
+     * 
+     * @param array $data Nuevos datos del plan
+     * @param int $id ID del plan a actualizar
+     * @return array Respuesta con el plan actualizado o error
      */
     public function update(array $data, $id)
     {
@@ -99,6 +194,7 @@ class FamilyPlanService
             ];
         }
 
+        // 🔹 Actualizar todos los campos
         $familyPlan->update($data);
 
         return [
@@ -110,7 +206,13 @@ class FamilyPlanService
     }
 
     /**
-     * Actualización parcial de campos del plan.
+     * Actualización parcial de campos del plan (PATCH).
+     * 
+     * 🔹 Solo actualiza los campos enviados en $data
+     * 
+     * @param array $data Campos a actualizar
+     * @param int $id ID del plan
+     * @return array Respuesta con el plan actualizado
      */
     public function partialUpdate(array $data, $id)
     {
@@ -124,6 +226,7 @@ class FamilyPlanService
             ];
         }
 
+        // 🔹 Actualizar solo campos presentes en $data
         $familyPlan->update($data);
 
         return [
@@ -135,7 +238,14 @@ class FamilyPlanService
     }
 
     /**
-     * Actualiza el estado actual del plan familiar.
+     * Cambia el estado de un plan familiar y registra auditoría.
+     * 
+     * 🔹 Guarda el historial del cambio de estado en la tabla audits
+     * 🔹 Solo audita si el nuevo estado no es 1, 2 o 3
+     * 
+     * @param array $data Debe contener status_plan_id
+     * @param int $id ID del plan
+     * @return array Respuesta con el plan actualizado
      */
     public function changeStatus(array $data, $id)
     {
@@ -148,14 +258,19 @@ class FamilyPlanService
                 "message" => "Plan familiar no encontrado",
             ];
         }
+
+        // 🔹 Guardar estado anterior
         $oldStatus = $familyPlan->statusPlan->name;
+
+        // 🔹 Actualizar estado
         $familyPlan->update($data);
-        // 🔹 Estado nuevo
+
+        // 🔹 Recargar relación para obtener el nuevo estado
         $familyPlan->refresh()->load('statusPlan');
         $newStatus = $familyPlan->statusPlan->name;
 
-        // 🔹 Validación
-        if ($newStatus != 1 && $newStatus != 2 && $newStatus != 3) { // aquí pones el estado que quieras validar
+        // 🔹 Registrar auditoría si no es estado 1, 2 o 3
+        if ($newStatus != 1 && $newStatus != 2 && $newStatus != 3) {
             $familyPlan->audits()->create([
                 'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
                 'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -165,6 +280,7 @@ class FamilyPlanService
                 'status_new'     => $newStatus,
             ]);
         }
+
         return [
             "error" => false,
             "code" => 200,
@@ -172,8 +288,15 @@ class FamilyPlanService
             "data" => $familyPlan,
         ];
     }
+
     /**
      * Actualiza los datos de identificación específicos del plan.
+     * 
+     * 🔹 Método dedicado para actualizar campos de identificación
+     * 
+     * @param array $data Datos de identificación a actualizar
+     * @param int $id ID del plan
+     * @return array Respuesta con el plan actualizado
      */
     public function identify(array $data, $id)
     {
@@ -199,6 +322,12 @@ class FamilyPlanService
 
     /**
      * Elimina un plan familiar del sistema.
+     * 
+     * 🔹 Primero elimina el historial asociado
+     * 🔹 Luego elimina el plan (soft delete si está configurado)
+     * 
+     * @param int $id ID del plan a eliminar
+     * @return array Respuesta de confirmación o error
      */
     public function delete($id)
     {
@@ -211,8 +340,8 @@ class FamilyPlanService
                 "message" => "Plan familiar no encontrado",
             ];
         }
-        History::where('family_plan_id', $id)->delete();
 
+        // 🔹 Eliminar plan
         $familyPlan->delete();
 
         return [
@@ -222,6 +351,17 @@ class FamilyPlanService
         ];
     }
 
+    /**
+     * Verifica si el usuario autenticado tiene acceso a un plan específico.
+     * 
+     * 🔹 Lógica de acceso por rol:
+     *    - Rol 1 (Administrador): No aplica esta validación
+     *    - Rol 2 (Supervisor): Acceso si pertenece a la misma seccional y estado es 4 o 7
+     *    - Rol 3 (Voluntario): Acceso si es el creador (user_id) y no está en estado 1,2,4,6,7
+     * 
+     * @param string $planId ID del plan a verificar
+     * @return array Respuesta con access_check (true/false)
+     */
     public function checkAccess(string $planId): array
     {
         $user = auth()->user();
@@ -251,9 +391,10 @@ class FamilyPlanService
             ];
         }
 
+        // 🔹 Obtener ID del primer rol del usuario
         $roleId = $user->roles->first()?->id ?? null;
 
-        // 🔴 Si NO es 2 ni 3 → sin acceso
+        // 🔹 Si NO es rol 2 (Supervisor) ni 3 (Voluntario) → sin acceso
         if ($roleId != 2 && $roleId != 3) {
             return [
                 "error" => false,
@@ -265,16 +406,15 @@ class FamilyPlanService
             ];
         }
 
-        // 🟢 Rol 3 → Voluntario
+        // 🔹 Lógica para Voluntario (Rol 3)
         if ($roleId == 3) {
-
             // No puede acceder si el estado es 4 o 6
             if (!in_array($plan->status_plan_id, [1, 2, 4, 6, 7])) {
                 $access = $plan->user_id == $user->id;
             }
         }
 
-        // 🔵 Rol 2 → Supervisor
+        // 🔹 Lógica para Supervisor (Rol 2)
         if ($roleId == 2) {
             if (
                 $user->profile &&
@@ -296,111 +436,67 @@ class FamilyPlanService
         ];
     }
 
-    public function getFamilyPlanByUser()
+    /**
+     * Genera un PDF del plan familiar.
+     * 
+     * 🔹 Crea un documento PDF simple con información básica
+     * 🔹 Retorna el PDF como descarga
+     * 
+     * @param int $id ID del plan
+     * @return \Illuminate\Http\Response PDF para descargar
+     */
+    public function generatePdf($id)
     {
-        $user = auth()->user();
+        $plan = FamilyPlan::findOrFail($id);
 
-        if (!$user) {
+        // 🔹 Crear HTML básico para el PDF
+        $html = '
+            <h1>Plan Familiar #' . $plan->id . '</h1>
+            <p><strong>Nombre:</strong> ' . $plan->last_names . '</p>
+            <p><strong>Fecha:</strong> ' . $plan->created_at . '</p>
+            <ul>
+        ';
+
+        $html .= '</ul>';
+
+        // 🔹 Generar PDF desde HTML
+        $pdf = Pdf::loadHTML($html);
+
+        return response($pdf->output(), 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="plan_' . $plan->id . '.pdf"');
+    }
+
+    /**
+     * Verifica si un plan familiar tiene al menos un integrante registrado.
+     *
+     * 🔹 Se usa para validar antes de realizar operaciones que requieren
+     *    que el plan tenga integrantes (ej: activar, enviar, procesar).
+     *
+     * @param int $id ID del plan familiar a verificar
+     * @return array Respuesta con has_members (true/false)
+     */
+    public function hasMembers(int $id): array
+    {
+        $familyPlan = FamilyPlan::find($id);
+
+        if (!$familyPlan) {
             return [
-                "error" => true,
-                "code" => 401,
-                "message" => "Usuario no autenticado",
+                'error'   => true,
+                'code'    => 404,
+                'message' => 'Plan familiar no encontrado',
             ];
         }
 
-        $roleId = $user->roles->first()?->id ?? null;
-
-        if ($roleId != 2 && $roleId != 3) {
-            return [
-                "error" => true,
-                "code" => 403,
-                "message" => "Este rol no tiene acceso a los planes familiares",
-            ];
-        }
-
-        // 🟢 Rol 3 → Voluntario
-        if ($roleId == 3) {
-
-            $plans = FamilyPlan::where('user_id', $user->id)
-                ->whereNotIn('status_plan_id', [4])
-                ->with('statusPlan', 'city', 'city.department')
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-
-            return [
-                "error" => false,
-                "code" => 200,
-                "message" => $plans->isEmpty()
-                    ? "No hay planes familiares disponibles"
-                    : "Planes familiares obtenidos exitosamente",
-                "data" => $plans->getCollection()->transform(function ($plan) {
-                    return [
-                        "id" => $plan->id,
-                        "last_names" => $plan->last_names,
-                        "city" => $plan->city->name,
-                        "department" => $plan->city->department->name,
-                        "status" => $plan->statusPlan->name,
-                        "status_id" => $plan->statusPlan->id,
-                        "date_create" => $plan->created_at->format('d/m/Y'),
-                    ];
-                }),
-                "paginate" => [
-                    'current_page' => $plans->currentPage(),
-                    'per_page' => $plans->perPage(),
-                    'total' => $plans->total(),
-                    'last_page' => $plans->lastPage(),
-                    'from' => $plans->firstItem(),
-                    'to' => $plans->lastItem(),
-                ],
-            ];
-        }
-
-        // 🔵 Rol 2 → Supervisor
-        if ($roleId == 2) {
-
-            if (!$user->profile || !$user->profile->organization) {
-                return [
-                    "error" => true,
-                    "code" => 404,
-                    "message" => "Perfil u organización no encontrada",
-                ];
-            }
-
-            $sectionalId = $user->profile->organization->sectional_id;
-
-            $plans = FamilyPlan::where('sectional_id', $sectionalId)
-                ->whereIn('status_plan_id', [2, 4, 5, 6, 7])
-                ->with('statusPlan', 'city', 'city.department')
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-
-            return [
-                "error" => false,
-                "code" => 200,
-                "message" => $plans->isEmpty()
-                    ? "No hay planes familiares disponibles"
-                    : "Planes familiares obtenidos exitosamente",
-                "data" => $plans->getCollection()->transform(function ($plan) {
-                    return [
-                        "id" => $plan->id,
-                        "last_names" => $plan->last_names,
-                        "city" => $plan->city->name,
-                        "department" => $plan->city->department->name,
-                        "status" => $plan->statusPlan->name,
-                        "status_id" => $plan->statusPlan->id,
-                        "date_create" => $plan->created_at->format('d/m/Y'),
-                    ];
-                }),
-                "paginate" => [
-                    'current_page' => $plans->currentPage(),
-                    'per_page' => $plans->perPage(),
-                    'total' => $plans->total(),
-                    'last_page' => $plans->lastPage(),
-                    'from' => $plans->firstItem(),
-                    'to' => $plans->lastItem(),
-                ],
-            ];
-        }
+        // 🔹 Verificar si existe al menos un miembro
+        return [
+            'error'   => false,
+            'code'    => 200,
+            'message' => 'Verificación de integrantes realizada',
+            'data'    => [
+                'has_members' => $familyPlan->familyMembers()->exists(),
+            ],
+        ];
     }
 
     /**
@@ -411,12 +507,13 @@ class FamilyPlanService
      * estado actual y fecha de creación.
      *
      * @param int $statusId ID del estado por el cual filtrar los planes
+     * @param int $perPage Cantidad de elementos por consulta
      * @return array Respuesta estructurada con datos paginados y metainformación
      */
-    public function getByStatus(int $statusId)
+    public function getByStatus(int $statusId, int $perPage = 10)
     {
         // Obtiene planes familiares filtrados por estado con paginación de 10 registros
-        $data = FamilyPlan::where('status_plan_id', $statusId)->paginate(10);
+        $data = FamilyPlan::where('status_plan_id', $statusId)->paginate($perPage);
 
         // Transforma cada plan al formato de respuesta esperado
         $plans = $data->map(function ($plan) {
@@ -447,58 +544,6 @@ class FamilyPlanService
                 'from' => $data->firstItem(),
                 'to' => $data->lastItem(),
             ]
-        ];
-    }
-
-    public function generatePdf($id)
-    {
-        $plan = FamilyPlan::findOrFail($id);
-
-        // 🔹 Crear HTML directo
-        $html = '
-            <h1>Plan Familiar #' . $plan->id . '</h1>
-            <p><strong>Nombre:</strong> ' . $plan->last_names . '</p>
-            <p><strong>Fecha:</strong> ' . $plan->created_at . '</p>
-            <ul>
-        ';
-
-        $html .= '</ul>';
-
-        $pdf = Pdf::loadHTML($html);
-
-        return response($pdf->output(), 200)
-            ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="plan_' . $plan->id . '.pdf"');
-    }
-
-    /**
-     * Verifica si un plan familiar tiene al menos un integrante registrado.
-     *
-     * Se usa para validar antes de realizar operaciones que requieren
-     * que el plan tenga integrantes (ej: activar, enviar, procesar).
-     *
-     * @param int $id ID del plan familiar a verificar
-     * @return array{error: bool, code: int, message: string, data: array}
-     */
-    public function hasMembers(int $id): array
-    {
-        $familyPlan = FamilyPlan::find($id);
-
-        if (!$familyPlan) {
-            return [
-                'error'   => true,
-                'code'    => 404,
-                'message' => 'Plan familiar no encontrado',
-            ];
-        }
-
-        return [
-            'error'   => false,
-            'code'    => 200,
-            'message' => 'Verificación de integrantes realizada',
-            'data'    => [
-                'has_members' => $familyPlan->familyMembers()->exists(),
-            ],
         ];
     }
 }

@@ -513,7 +513,7 @@ class FamilyPlanService
     public function getByStatus(int $statusId, int $perPage = 10)
     {
         // Obtiene planes familiares filtrados por estado con paginación de 10 registros
-        $data = FamilyPlan::where('status_plan_id', $statusId)->paginate($perPage);
+        $data = FamilyPlan::where('status_plan_id', $statusId)->forAuthUser()->paginate($perPage);
 
         // Transforma cada plan al formato de respuesta esperado
         $plans = $data->map(function ($plan) {

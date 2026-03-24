@@ -91,7 +91,7 @@ class FamilyPlanService
         // 🔹 Buscar plan con relaciones
         $familyPlan = FamilyPlan::forAuthUser()
             ->with([
-                'city.department', 
+                'city.department',
                 'zone',
                 'statusPlan',
                 'sectional',
@@ -498,6 +498,89 @@ class FamilyPlanService
             ],
         ];
     }
+
+    /**
+     * Verifica si un plan familiar tiene al menos un factor de riesgo registrado.
+     *
+     * 🔹 Se usa para validar antes de realizar operaciones que requieren
+     *    que el plan tenga factores de riesgo identificados (ej: activar, procesar).
+     * 🔹 Utiliza la relación Eloquent `riskFactors()` definida en el modelo.
+     *
+     * @param int $id ID del plan familiar a verificar
+     * @return array Respuesta con has_risk_factors (true/false)
+     */
+    public function hasRiskFactors(int $id): array
+    {
+        $familyPlan = FamilyPlan::find($id);
+
+        if (!$familyPlan) {
+            return [
+                'error'   => true,
+                'code'    => 404,
+                'message' => 'Plan familiar no encontrado',
+            ];
+        }
+
+        // 🔹 Verificar si existe al menos un factor de riesgo
+        return [
+            'error'   => false,
+            'code'    => 200,
+            'message' => 'Verificación de factores de riesgo realizada',
+            'data'    => [
+                'has_risk_factors' => $familyPlan->riskFactors()->exists(),
+            ],
+        ];
+    }
+
+    /**
+     * Valida que el plan familiar cumpla los requisitos mínimos para procesamiento.
+     *
+     * 🔹 **Requisitos mínimos obligatorios:**
+     *    - Al menos 1 integrante registrado (`familyMembers`)
+     *    - Al menos 1 factor de riesgo identificado (`riskFactors`)
+     * 🔹 Retorna código HTTP 422 si no cumple requisitos (estándar Laravel)
+     * 🔹 Incluye conteos exactos para debugging y UX
+     *
+     * @param int $id ID del plan familiar a verificar
+     * @return array Respuesta completa con estado de validación
+     */
+    public function validateRequirements(int $id): array
+    {
+        // 🔹 Verificar existencia del plan
+        $familyPlan = FamilyPlan::find($id);
+        if (!$familyPlan) {
+            return [
+                'error'   => true,
+                'code'    => 404,
+                'message' => 'Plan familiar no encontrado',
+            ];
+        }
+
+        // 🔹 Verificar integrantes
+        $hasMembers = $familyPlan->familyMembers()->exists();
+
+        // 🔹 Verificar factores de riesgo
+        $hasRiskFactors = $familyPlan->riskFactors()->exists();
+
+        // 🔹 Determinar validez (ambos requisitos deben cumplirse)
+        $isValid = $hasMembers && $hasRiskFactors;
+
+        return [
+            'error'   => false,
+            'code'    => $isValid ? 200 : 422,
+            'message' => $isValid
+                ? 'El plan familiar cumple con todos los requisitos mínimos'
+                : 'El plan familiar requiere al menos 1 integrante Y 1 factor de riesgo',
+            'data'    => [
+                'is_valid'           => $isValid,
+                'has_members'        => $hasMembers,
+                'members_count'      => $familyPlan->familyMembers()->count(),
+                'has_risk_factors'   => $hasRiskFactors,
+                'risk_factors_count' => $familyPlan->riskFactors()->count(),
+            ],
+        ];
+    }
+
 
     /**
      * Obtiene los planes familiares filtrados por estado.

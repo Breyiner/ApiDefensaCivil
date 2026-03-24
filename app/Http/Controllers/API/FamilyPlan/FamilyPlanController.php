@@ -325,4 +325,58 @@ class FamilyPlanController extends Controller
             $response['paginate']
         );
     }
+
+    /**
+     * Valida si un plan familiar cumple los requisitos mínimos para procesamiento.
+     *
+     * 🔹 **Requisitos obligatorios:**
+     *    - Al menos 1 integrante (`familyMembers`)
+     *    - Al menos 1 factor de riesgo (`riskFactors`)
+     * 🔹 Retorna código 422 si no cumple (estándar Laravel para validación)
+     * 🔹 Incluye conteos para debugging y UX del frontend
+     *
+     * GET /familyPlans/{familyPlan_id}/validate-requirements
+     *
+     * Response 200 (válido):
+     * {
+     *   "data": {
+     *     "is_valid": true,
+     *     "has_members": true,
+     *     "members_count": 3,
+     *     "has_risk_factors": true,
+     *     "risk_factors_count": 2
+     *   }
+     * }
+     *
+     * Response 422 (inválido):
+     * {
+     *   "data": {
+     *     "is_valid": false,
+     *     "has_members": false,
+     *     "members_count": 0,
+     *     "has_risk_factors": true,
+     *     "risk_factors_count": 1
+     *   }
+     * }
+     *
+     * @param int $familyPlan_id ID del plan familiar a verificar
+     * @return JsonResponse
+     */
+    public function validateRequirements(int $familyPlan_id): JsonResponse
+    {
+        $response = $this->service->validateRequirements($familyPlan_id);
+
+        if ($response['error']) {
+            return ResponseFormatter::error(
+                $response['message'],
+                $response['code']
+            );
+        }
+
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data']
+        );
+    }
 }

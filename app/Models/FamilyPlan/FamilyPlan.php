@@ -171,8 +171,8 @@ class FamilyPlan extends Model
         $user = Auth::user();
 
         // Si el supervisor tiene seccional asignado, filtrar por esa seccional
-        if ($user->sectional_id) {
-            return $query->where('sectional_id', $user->sectional_id);
+        if ($user->profile->organization->sectional_id) {
+            return $query->where('sectional_id', $user->profile->organization->sectional_id);
         }
 
         // Si no tiene seccional, ver todos

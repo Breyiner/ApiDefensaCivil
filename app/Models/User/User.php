@@ -16,6 +16,8 @@ use App\Models\Profile\Profile;
 use App\Notifications\CustomVerifyEmail;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Clase User
@@ -88,5 +90,53 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new CustomVerifyEmail);
+    }
+
+    /**
+     * --- SCOPES PARA FILTRADO POR ROL ---
+     */
+
+    /**
+     * Scope para Administradores: pueden ver todos los usuarios excepto a sí mismos
+     */
+    public function scopeForAdministrador(Builder $query): Builder
+    {
+        return $query->where('id', '!=', Auth::id());
+    }
+
+    /**
+     * Scope para Supervisores: solo ven usuarios de su seccional
+     */
+    public function scopeForSupervisor(Builder $query): Builder
+    {
+        $user = Auth::user();
+
+        // Si el supervisor tiene seccional asignado, filtrar por esa seccional
+        if ($user->profile && $user->profile->organization && $user->profile->organization->sectional_id) {
+            return $query->whereHas('profile.organization', function ($q) use ($user) {
+                $q->where('sectional_id', $user->profile->organization->sectional_id);
+            });
+        }
+
+        // Si no tiene seccional, no ver ningún usuario
+        return $query->whereRaw('1 = 0');
+    }
+
+    /**
+     * Scope principal: aplica el filtro automático según el rol del usuario autenticado
+     */
+    public function scopeForAuthUser(Builder $query): Builder
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return match (true) {
+            $user->hasRole('Administrador') => $query->forAdministrador(),
+            $user->hasRole('Supervisor') => $query->forSupervisor(),
+            default => $query->whereRaw('1 = 0')
+        };
     }
 }

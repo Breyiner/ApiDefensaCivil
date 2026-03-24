@@ -12,26 +12,61 @@ use Illuminate\support\Arr;
 class UserService
 {
     /**
-     * Obtiene la lista de todos los usuarios (credenciales).
+     * Obtiene la lista de todos los usuarios (credenciales) con paginación.
+     * 
+     * 🔹 Aplica filtros automáticos por rol usando el scope forAuthUser
+     * 
+     * @param int $perPage Cantidad de registros por página (default: 15)
+     * @return array Respuesta con datos paginados y metadata
      */
-    public static function getAll()
+    public static function getAll(int $perPage = 15)
     {
-        $user = User::all();
+        $paginator = User::forAuthUser()
+            ->with([
+                'profile.gender',
+                'profile.documentType',
+                'profile.organization.sectional',
+                'roles',
+                'stateUser'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
-        if ($user->isEmpty()){
+        $items = $paginator->map(function ($user) {
+            $profile = $user->profile;
+            $role = $user->roles->first();
+
             return [
-                "error" => false,
-                "code" => 200,
-                "message" => "No hay usuarios registrados",
-                "data" => $user,
+                "id" => $user->id,
+                "email" => $user->email,
+                "full_name" => $profile ? $profile->names . ' ' . $profile->last_names : 'N/A',
+                "document_number" => $profile && $profile->documentType 
+                    ? $profile->document_number . ' ' . $profile->documentType->acronym 
+                    : 'N/A',
+                "organization" => $profile?->organization?->name,
+                "sectional" => $profile?->organization?->sectional?->name,
+                "rol" => $role?->name,
+                "rol_id" => $role?->id,
+                "status" => $user->stateUser?->name,
+                "status_id" => $user->state_user_id,
             ];
-        }
+        });
 
         return [
             "error" => false,
             "code" => 200,
-            "message" => "Usuarios obtenidos exitosamente",
-            "data" => $user,
+            "message" => $items->isEmpty()
+                ? "No hay usuarios registrados"
+                : "Usuarios obtenidos exitosamente",
+            "data" => $items,
+            "paginate" => [
+                'current_page' => $paginator->currentPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+            ],
         ];
     }
 
@@ -40,13 +75,14 @@ class UserService
      */
     public function getById($id)
     {
-        $user = User::with([
-            'profile.gender',
-            'profile.documentType',
-            'profile.organization.sectional',
-            'roles',
-            'stateUser'
-        ])->find($id);
+        $user = User::forAuthUser()
+            ->with([
+                'profile.gender',
+                'profile.documentType',
+                'profile.organization.sectional',
+                'roles',
+                'stateUser'
+            ])->find($id);
 
         if (!$user) {
             return [
@@ -86,13 +122,23 @@ class UserService
         ];
     }
 
-
-    public function getRequestsAdmins()
+    /**
+     * Obtiene las peticiones de usuarios pendientes (state_user_id = 3).
+     * 
+     * 🔹 Administradores ven todas las peticiones
+     * 🔹 Supervisores solo ven peticiones de su seccional
+     * 
+     * @param int $perPage Cantidad de registros por página (default: 10)
+     * @return array Respuesta con datos paginados
+     */
+    public function getRequestsAdmins(int $perPage = 10)
     {
-        $paginator = User::with(['profile.organization', 'profile.organization.sectional', 'profile.documentType'])
-                    ->where('state_user_id', 3)->paginate(10);
+        $paginator = User::with(['profile.organization.sectional', 'profile.documentType'])
+            ->where('state_user_id', 3)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
-        $items = $paginator->getCollection()->transform(function ($item) {
+        $items = $paginator->map(function ($item) {
             return [
                 "id" => $item->id,
                 "full_name" => $item->profile->names.' '.$item->profile->last_names,
@@ -109,7 +155,7 @@ class UserService
             "message" => $items->isEmpty()
                 ? "No hay peticiones de usuarios para acceder al sistema"
                 : "Peticiones de usuarios para acceder al sistema obtenidos exitosamente",
-            "data"    => $items,
+            "data" => $items,
             'paginate' => [
                 'current_page' => $paginator->currentPage(),
                 'per_page' => $paginator->perPage(),
@@ -121,7 +167,14 @@ class UserService
         ];
     }
 
-    public function getRequestsSupervisors()
+    /**
+     * Obtiene las peticiones de usuarios para supervisores.
+     * Solo muestra peticiones de la misma seccional del supervisor.
+     * 
+     * @param int $perPage Cantidad de registros por página (default: 10)
+     * @return array Respuesta con datos paginados
+     */
+    public function getRequestsSupervisors(int $perPage = 10)
     {
         $authUser = auth()->user();
 
@@ -129,16 +182,17 @@ class UserService
         $authSectionalId = $authUser->profile->organization->sectional_id;
 
         $paginator = User::with([
-                            'profile.organization.sectional',
-                            'profile.documentType'
-                        ])
-                        ->where('state_user_id', 3)
-                        ->whereHas('profile.organization', function ($query) use ($authSectionalId) {
-                            $query->where('sectional_id', $authSectionalId);
-                        })
-                        ->paginate(10);
+                'profile.organization.sectional',
+                'profile.documentType'
+            ])
+            ->where('state_user_id', 3)
+            ->whereHas('profile.organization', function ($query) use ($authSectionalId) {
+                $query->where('sectional_id', $authSectionalId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
-        $items = $paginator->getCollection()->transform(function ($item) {
+        $items = $paginator->map(function ($item) {
             return [
                 "id" => $item->id,
                 "full_name" => $item->profile->names . ' ' . $item->profile->last_names,
@@ -155,7 +209,7 @@ class UserService
             "message" => $items->isEmpty()
                 ? "No hay peticiones de usuarios para acceder al sistema"
                 : "Peticiones de usuarios para acceder al sistema obtenidos exitosamente",
-            "data"    => $items,
+            "data" => $items,
             'paginate' => [
                 'current_page' => $paginator->currentPage(),
                 'per_page' => $paginator->perPage(),
@@ -166,21 +220,30 @@ class UserService
             ],
         ];
     }
-    public function getUserForAdmins()
+
+    /**
+     * Obtiene usuarios para administradores.
+     * Excluye usuarios con estado 3 (peticiones) y rol 1 (administradores).
+     * 
+     * @param int $perPage Cantidad de registros por página (default: 10)
+     * @return array Respuesta con datos paginados
+     */
+    public function getUserForAdmins(int $perPage = 10)
     {
         $paginator = User::with([
-            'profile.organization',
             'profile.organization.sectional',
             'profile.documentType',
-            'stateUser'
+            'stateUser',
+            'roles'
         ])
         ->where('state_user_id','!=', 3)
         ->whereDoesntHave('roles', function ($q) {
             $q->where('id', 1);
         })
         ->orderBy('users.created_at', 'desc')
-        ->paginate(10);
-        $items = $paginator->getCollection()->transform(function ($item) {
+        ->paginate($perPage);
+
+        $items = $paginator->map(function ($item) {
             return [
                 "id" => $item->id,
                 "full_name" => $item->profile->names.' '.$item->profile->last_names,
@@ -199,9 +262,9 @@ class UserService
             "error" => false,
             "code" => 200,
             "message" => $items->isEmpty()
-                ? "No hay peticiones de usuarios para acceder al sistema"
-                : "Peticiones de usuarios para acceder al sistema obtenidos exitosamente",
-            "data"    => $items,
+                ? "No hay usuarios disponibles"
+                : "Usuarios obtenidos exitosamente",
+            "data" => $items,
             'paginate' => [
                 'current_page' => $paginator->currentPage(),
                 'per_page' => $paginator->perPage(),
@@ -213,7 +276,14 @@ class UserService
         ];
     }
 
-    public function getUserForSupervisors()
+    /**
+     * Obtiene usuarios para supervisores.
+     * Solo muestra usuarios de la misma seccional, excluye roles 1 y 2.
+     * 
+     * @param int $perPage Cantidad de registros por página (default: 10)
+     * @return array Respuesta con datos paginados
+     */
+    public function getUserForSupervisors(int $perPage = 10)
     {
         $authUser = auth()->user();
 
@@ -237,9 +307,9 @@ class UserService
                 $query->where('sectional_id', $authSectionalId);
             })
             ->orderBy('users.created_at', 'desc')
-            ->paginate(10);
+            ->paginate($perPage);
 
-        $items = $paginator->getCollection()->transform(function ($item) {
+        $items = $paginator->map(function ($item) {
             return [
                 "id" => $item->id,
                 "full_name" => $item->profile->names.' '.$item->profile->last_names,
@@ -260,7 +330,7 @@ class UserService
             "message" => $items->isEmpty()
                 ? "No hay usuarios disponibles"
                 : "Usuarios obtenidos exitosamente",
-            "data"    => $items,
+            "data" => $items,
             'paginate' => [
                 'current_page' => $paginator->currentPage(),
                 'per_page' => $paginator->perPage(),
@@ -271,6 +341,67 @@ class UserService
             ],
         ];
     }
+
+    /**
+     * Obtiene usuarios filtrados por estado.
+     * 
+     * 🔹 Aplica el scope forAuthUser para respetar permisos por rol
+     * 
+     * @param int $statusId ID del estado por el cual filtrar
+     * @param int $perPage Cantidad de registros por página (default: 10)
+     * @return array Respuesta con datos paginados
+     */
+    public function getByStatus(int $statusId, int $perPage = 10)
+    {
+        $paginator = User::forAuthUser()
+            ->with([
+                'profile.organization.sectional',
+                'profile.documentType',
+                'stateUser',
+                'roles'
+            ])
+            ->where('state_user_id', $statusId)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        $items = $paginator->map(function ($user) {
+            $profile = $user->profile;
+            $role = $user->roles->first();
+
+            return [
+                "id" => $user->id,
+                "full_name" => $profile ? $profile->names . ' ' . $profile->last_names : 'N/A',
+                "email" => $user->email,
+                "organization" => $profile?->organization?->name,
+                "sectional" => $profile?->organization?->sectional?->name,
+                "document_number" => $profile && $profile->documentType 
+                    ? $profile->document_number . ' ' . $profile->documentType->acronym 
+                    : 'N/A',
+                "status" => $user->stateUser?->name,
+                "status_id" => $user->state_user_id,
+                "rol" => $role?->name,
+                "rol_id" => $role?->id,
+            ];
+        });
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => $items->isEmpty()
+                ? "No hay usuarios con este estado"
+                : "Usuarios obtenidos exitosamente",
+            "data" => $items,
+            "paginate" => [
+                'current_page' => $paginator->currentPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'last_page' => $paginator->lastPage(),
+                'from' => $paginator->firstItem(),
+                'to' => $paginator->lastItem(),
+            ],
+        ];
+    }
+
     /**
      * Crea un nuevo usuario.
      * Importante: Los datos deben incluir email, password (hasheado) y state_user_id.
@@ -366,13 +497,14 @@ class UserService
         return [
             "error" => false,
             "code" => 200,
-            "message" => "Aprobacion de usuario realizada exitosamente",        ];
+            "message" => "Aprobacion de usuario realizada exitosamente",
+        ];
     }
+
     /**
      * Elimina el usuario validando que no tenga un perfil asociado.
      * Si el perfil existe, se recomienda eliminar primero el perfil o usar soft deletes.
      */
-
     public function changeRole(array $data, $id)
     {
         $user = User::with(['roles'])->find($id);
@@ -408,6 +540,7 @@ class UserService
             "message" => "Cambio de rol realizado exitosamente",
         ];
     }
+
     public function delete($id)
     {
         $user = User::find($id);

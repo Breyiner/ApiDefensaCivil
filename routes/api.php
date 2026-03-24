@@ -149,6 +149,9 @@ Route::middleware('auth:sanctum')->group(function () {
     route::prefix('users')->group(function () {
         route::get('/', [UserController::class, 'index']);
 
+        // Ruta para filtrar por estado usando query param (?status=1)
+        Route::get('/by-status', [UserController::class, 'getByStatus']);
+
         route::get('/requestsAdmins', [UserController::class, 'getRequestsAdmins']);
 
         route::get('/userForAdmin', [UserController::class, 'getUserForAdmins']);

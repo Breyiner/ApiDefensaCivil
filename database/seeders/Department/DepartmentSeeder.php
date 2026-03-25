@@ -54,7 +54,7 @@ class DepartmentSeeder extends Seeder
                 'date_time'      => now(),
                 'action_execute' => 'Creado',
                 'status_old'     => null,
-                'status_new'     => 'Activo',
+                'status_new'     => null,
             ]);
         }
     }

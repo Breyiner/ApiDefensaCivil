@@ -323,21 +323,25 @@ Route::middleware('auth:sanctum')->group(function () {
         route::patch('/{department_id}', [DepartmentController::class, 'partialUpdate']);
     });
 
-    route::prefix('cities')->group(function () {
-        route::get('/', [CityController::class, 'index']);
+    Route::prefix('cities')->group(function () {
+        Route::get('/', [CityController::class, 'index']);
 
-        route::get('/{city_id}', [CityController::class, 'show']);
+        Route::get('/{city_id}', [CityController::class, 'show']);
 
-        route::get('/department/{department_id}', [CityController::class, 'getByDepartment'])->middleware('permission:cities.departments');
+        Route::get('/department/{department_id}', [CityController::class, 'getByDepartment'])
+            ->middleware('permission:cities.departments');
 
-        route::post('/', [CityController::class, 'store']);
+        Route::post('/', [CityController::class, 'store']);
 
-        route::put('/{city_id}', [CityController::class, 'update']);
+        Route::put('/{city_id}', [CityController::class, 'update']);
 
-        route::patch('/{city_id}', [CityController::class, 'partialUpdate']);
+        Route::patch('/{city_id}', [CityController::class, 'partialUpdate']);
 
-        route::delete('/{city_id}', [CityController::class, 'destroy']);
+        Route::delete('/{city_id}', [CityController::class, 'destroy']);
+
+        Route::get('/{city_id}/history', [CityController::class, 'history']);
     });
+
 
     route::prefix('familyPlans')->group(function () {
         route::get('/', [FamilyPlanController::class, 'index']);

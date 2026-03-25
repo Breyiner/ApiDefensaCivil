@@ -4,7 +4,7 @@ namespace App\Services\City;
 
 use App\Models\City\City;
 use App\Models\Department\Department;
-use Illuminate\support\Arr;
+use Illuminate\Support\Arr;
 
 /**
  * Servicio para la gestión de ciudades y sus relaciones con departamentos y planes familiares.
@@ -19,7 +19,7 @@ class CityService
     {
         $city = City::all();
 
-        if ($city->isEmpty()){
+        if ($city->isEmpty()) {
             return [
                 "error" => false,
                 "code" => 200,
@@ -31,7 +31,7 @@ class CityService
         return [
             "error" => false,
             "code" => 200,
-            "message" => "ciudades obtenidos exitosamente",
+            "message" => "Ciudades obtenidas exitosamente",
             "data" => $city,
         ];
     }
@@ -44,7 +44,7 @@ class CityService
     {
         $city = City::find($id);
 
-        if (!$city){
+        if (!$city) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -68,10 +68,19 @@ class CityService
     {
         $city = City::create($data);
 
+        $city->audits()->create([
+            'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => 'Creado',
+            'status_old'     => null,
+            'status_new'     => null,
+        ]);
+
         return [
             "error" => false,
             "code" => 201,
-            "message" => "Ciudades creada exitosamente",
+            "message" => "Ciudad creada exitosamente",
             "data" => $city,
         ];
     }
@@ -83,7 +92,7 @@ class CityService
     {
         $city = City::find($id);
 
-        if (!$city){
+        if (!$city) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -92,6 +101,15 @@ class CityService
         }
 
         $city->update($data);
+
+        $city->audits()->create([
+            'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => 'Actualizado',
+            'status_old'     => null,
+            'status_new'     => null,
+        ]);
 
         return [
             "error" => false,
@@ -104,11 +122,11 @@ class CityService
     /**
      * Actualiza parcialmente los datos de una ciudad (PATCH).
      */
-    public function partialUpdate(array $data,$id)
+    public function partialUpdate(array $data, $id)
     {
         $city = City::find($id);
 
-        if (!$city){
+        if (!$city) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -118,35 +136,19 @@ class CityService
 
         $city->update($data);
 
-        return [
-            "error" => false,
-            "code" => 200,
-            "message" => "Ciudadad actualizada parcialmente exitosamente",
-            "data" => $city,
-        ];
-    }
-
-    /**
-     * Modifica el estado de activación de la ciudad.
-     */
-    public function changeState(array $data,$id)
-    {
-        $city = City::find($id);
-
-        if (!$city){
-            return [
-                "error" => true,
-                "code" => 404,
-                "message" => "Ciudad no encontrada",
-            ];
-        }
-
-        $city->update($data);
+        $city->audits()->create([
+            'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => 'Actualizado parcialmente',
+            'status_old'     => null,
+            'status_new'     => null,
+        ]);
 
         return [
             "error" => false,
             "code" => 200,
-            "message" => "Cambio de estado de la ciudad actualizado correctamente",
+            "message" => "Ciudad actualizada parcialmente exitosamente",
             "data" => $city,
         ];
     }
@@ -159,42 +161,90 @@ class CityService
     {
         $city = City::find($id);
 
-        if (!$city){
+        if (!$city) {
             return [
                 "error" => true,
                 "code" => 404,
                 "message" => "Ciudad no encontrada",
             ];
         }
-        
+
         // Verificación de integridad referencial con el Plan Familiar
-        if ($city->familyPlan->count()){
+        if ($city->familyPlan->count()) {
             return [
                 "error" => true,
-                "code" => 409, // Conflict: Existen dependencias
+                "code" => 409,
                 "message" => "No se puede eliminar la ciudad porque tiene registros relacionados",
             ];
         }
+
+        // Guardamos auditoría antes de eliminar
+        $city->audits()->create([
+            'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => 'Eliminado',
+            'status_old'     => null,
+            'status_new'     => null,
+        ]);
 
         $city->delete();
 
         return [
             "error" => false,
             "code" => 200,
-            "message" => "Ciudad eliminado exitosamente",
+            "message" => "Ciudad eliminada exitosamente",
         ];
     }
 
     /**
-     * Obtiene todas las ciudades que pertenecen a un apartamento específico.
-     * @param int|string $id ID del departamento.
+     * Obtiene el historial de auditoría de una ciudad.
+     * @param int|string $id ID de la ciudad.
+     * @return array Historial de cambios o error 404.
+     */
+    public function history($id)
+    {
+        $city = City::find($id);
+
+        if (!$city) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Ciudad no encontrada",
+            ];
+        }
+
+        $history = $city->audits()
+            ->orderBy('date_time', 'desc')
+            ->get()
+            ->map(function ($audit) {
+                return [
+                    'date_time'      => $audit->date_time,
+                    'user_name'      => $audit->user_name,
+                    'rol'            => $audit->rol_name,
+                    'action_execute' => $audit->action_execute,
+                    'status_old'     => $audit->status_old,
+                    'status_new'     => $audit->status_new,
+                ];
+            });
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Historial obtenido exitosamente",
+            "data" => $history,
+        ];
+    }
+
+    /**
+     * Obtiene todas las ciudades que pertenecen a un departamento específico.
+     * @param int|string $departmentId ID del departamento.
      */
     public static function getAllByDepartment($departmentId)
     {
-        // Buscamos primero el apartamento para acceder a su relación
         $department = Department::find($departmentId);
 
-        if (!$department){
+        if (!$department) {
             return [
                 "error" => false,
                 "code" => 200,
@@ -202,11 +252,10 @@ class CityService
                 "data" => $department,
             ];
         }
-        
-        // Accedemos a la relación 'city' definida en el modelo department
+
         $city = $department->city;
 
-        if (!$city){
+        if (!$city) {
             return [
                 "error" => false,
                 "code" => 200,
@@ -218,7 +267,7 @@ class CityService
         return [
             "error" => false,
             "code" => 200,
-            "message" => "ciudades obtenidos exitosamente",
+            "message" => "Ciudades obtenidas exitosamente",
             "data" => $city,
         ];
     }

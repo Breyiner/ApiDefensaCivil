@@ -33,9 +33,7 @@ class CityController extends Controller
     {
         $response = $this->service->getAll();
 
-        if ($response['error'])
-        {
-            // Nota: Se recomienda normalizar a 'ResponseFormatter' (PascalCase) para evitar fallos en entornos Linux.
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -64,8 +62,7 @@ class CityController extends Controller
         $data = $request->validated();
         $response = $this->service->create($data);
 
-        if ($response['error'])
-        {    
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -80,8 +77,7 @@ class CityController extends Controller
         $data = $request->validated();
         $response = $this->service->update($data, $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -96,12 +92,11 @@ class CityController extends Controller
         $data = $request->validated();
         $response = $this->service->partialUpdate($data, $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []); 
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
     }
 
     /**
@@ -111,8 +106,7 @@ class CityController extends Controller
     {
         $response = $this->service->delete($id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -120,7 +114,23 @@ class CityController extends Controller
     }
 
     /**
-     * Obtiene todos los departamentos vinculados a una ciudad específica.
+     * Obtiene el historial de auditoría de una ciudad.
+     * @param string $id ID de la ciudad.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function history(string $id)
+    {
+        $response = $this->service->history($id);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+    }
+
+    /**
+     * Obtiene todas las ciudades que pertenecen a un departamento específico.
      * Útil para filtrar propiedades o planes por ubicación geográfica.
      */
     public function getByDepartment(string $department_id)

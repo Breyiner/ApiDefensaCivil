@@ -102,4 +102,20 @@ class DepartmentController extends Controller
 
         return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
     }
+
+    /**
+     * Obtiene el historial del departamento
+     * @param string $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function history(string $id)
+    {
+        $response = $this->service->history($id);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+    }
 }

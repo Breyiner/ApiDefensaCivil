@@ -46,7 +46,16 @@ class DepartmentSeeder extends Seeder
         ];
 
         foreach ($departments as $name) {
-            Department::create(['name' => $name]);
+            $department = Department::create(['name' => $name]);
+
+            $department->audits()->create([
+                'user_name'      => 'Sistema',
+                'rol_name'       => 'Sistema',
+                'date_time'      => now(),
+                'action_execute' => 'Creado',
+                'status_old'     => null,
+                'status_new'     => 'Activo',
+            ]);
         }
     }
 }

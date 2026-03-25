@@ -13,7 +13,8 @@ class DepartmentService
 {
     /**
      * Obtiene la lista completa de departamentos.
-     * * @return array Respuesta con la colección de departamentos.
+     * 
+     * @return array Respuesta con la colección de departamentos.
      */
     public static function getAll()
     {
@@ -38,7 +39,8 @@ class DepartmentService
 
     /**
      * Obtiene un departamento específico por su ID.
-     * * @param int|string $id Identificador del departamento.
+     * 
+     * @param int|string $id Identificador del departamento.
      * @return array Datos del departamento o error 404.
      */
     public function getById($id)
@@ -63,12 +65,22 @@ class DepartmentService
 
     /**
      * Crea un nuevo departamento.
-     * * @param array $data Datos para la creación.
+     * 
+     * @param array $data Datos para la creación.
      * @return array Objeto creado con código 201.
      */
     public function create(array $data)
     {
         $department = Department::create($data);
+
+        $department->audits()->create([
+            'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => 'Creado',
+            'status_old'     => null,
+            'status_new'     => null,
+        ]);
 
         return [
             "error" => false,
@@ -80,7 +92,8 @@ class DepartmentService
 
     /**
      * Actualización total de un departamento.
-     * * @param array $data Datos a actualizar.
+     * 
+     * @param array $data Datos a actualizar.
      * @param int|string $id ID del departamento.
      * @return array Resultado de la actualización.
      */
@@ -98,6 +111,15 @@ class DepartmentService
 
         $department->update($data);
 
+        $department->audits()->create([
+            'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => 'Actualizado',
+            'status_old'     => null,
+            'status_new'     => null,
+        ]);
+
         return [
             "error" => false,
             "code" => 200,
@@ -108,7 +130,8 @@ class DepartmentService
 
     /**
      * Elimina un departamento, validando que no tenga registros dependientes.
-     * * @param int|string $id ID del departamento a eliminar.
+     * 
+     * @param int|string $id ID del departamento a eliminar.
      * @return array Confirmación o error 409 si hay integridad referencial en juego.
      */
     public function delete($id)
@@ -132,12 +155,62 @@ class DepartmentService
             ];
         }
 
+        // Guardamos auditoría antes de eliminar
+        $department->audits()->create([
+            'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => 'Eliminado',
+            'status_old'     => null,
+            'status_new'     => null,
+        ]);
+
         $department->delete();
 
         return [
             "error" => false,
             "code" => 200,
             "message" => "Departamento eliminado exitosamente",
+        ];
+    }
+
+    /**
+     * Obtiene el historial de auditoría de un departamento.
+     * 
+     * @param int|string $id ID del departamento.
+     * @return array Historial de cambios o error 404.
+     */
+    public function history($id)
+    {
+        $department = Department::find($id);
+
+        if (!$department) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Departamento no encontrado",
+            ];
+        }
+
+        $history = $department->audits()
+            ->orderBy('date_time', 'desc')
+            ->get()
+            ->map(function ($audit) {
+                return [
+                    'date_time'      => $audit->date_time,
+                    'user_name'      => $audit->user_name,
+                    'rol'            => $audit->rol_name,
+                    'action_execute' => $audit->action_execute,
+                    'status_old'     => $audit->status_old,
+                    'status_new'     => $audit->status_new,
+                ];
+            });
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Historial obtenido exitosamente",
+            "data" => $history,
         ];
     }
 }

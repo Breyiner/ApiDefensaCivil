@@ -154,11 +154,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/requestsAdmins', [UserController::class, 'getRequestsAdmins']);
 
-        route::get('/userForAdmin', [UserController::class, 'getUserForAdmins']);
+        // route::get('/userForAdmin', [UserController::class, 'getUserForAdmins']);
 
         route::get('/requestsSupervisors', [UserController::class, 'getRequestsSupervisors']);
 
-        route::get('/userForSupervisor', [UserController::class, 'getUserForSupervisors']);
+        // route::get('/userForSupervisor', [UserController::class, 'getUserForSupervisors']);
 
         route::get('/{user_id}', [UserController::class, 'show']);
 
@@ -311,6 +311,8 @@ Route::middleware('auth:sanctum')->group(function () {
         route::get('/', [DepartmentController::class, 'index'])->middleware('permission:departments.index');
 
         route::get('/{department_id}', [DepartmentController::class, 'show']);
+
+        route::get('/history/{department_id}', [DepartmentController::class, 'history']);
 
         route::post('/', [DepartmentController::class, 'store']);
 

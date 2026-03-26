@@ -290,7 +290,7 @@ class OrganizationService
             ->orderBy('date_time', 'desc')
             ->paginate($perPage);
 
-        $history = $organization->map(function ($audit) {
+        $history = $data->map(function ($audit) {
             return [
                 'date_time'      => $audit->date_time,
                 'user_name'      => $audit->user_name,

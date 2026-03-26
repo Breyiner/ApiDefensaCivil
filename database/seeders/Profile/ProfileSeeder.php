@@ -56,5 +56,16 @@ class ProfileSeeder extends Seeder
             'gender_id' => 1,
             'organization_id' => 1,
         ]);
+        Profile::create([
+            'user_id' => 5,
+            'names' => 'Guillermo Elias',
+            'last_names' => 'Garrido Maza',
+            'birth_date' => '1998-11-20',
+            'document_type_id' => 1,
+            'document_number' => '11223346',
+            'phone' => '1234567895',
+            'gender_id' => 1,
+            'organization_id' => 1,
+        ]);
     }
 }

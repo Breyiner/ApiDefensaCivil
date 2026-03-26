@@ -34,6 +34,12 @@ class UserSeeder extends Seeder
                 'state_user_id' => 1,
                 'role' => 'Administrador',
             ],
+            [
+                'email' => 'gnilleuni@gmail.com',
+                'password' => 'Password.123',
+                'state_user_id' => 1,
+                'role' => 'Administrador',
+            ],
         ];
 
         foreach ($users as $data) {

@@ -180,7 +180,7 @@ class DepartmentService
      * @param int|string $id ID del departamento.
      * @return array Historial de cambios o error 404.
      */
-    public function history($id)
+    public function history($id, $perPage = 10)
     {
         $department = Department::find($id);
 
@@ -192,10 +192,12 @@ class DepartmentService
             ];
         }
 
-        $history = $department->audits()
+        $data = $department->audits()
             ->orderBy('date_time', 'desc')
-            ->get()
-            ->map(function ($audit) {
+            ->paginate($perPage);
+
+
+        $history = $data->map(function ($audit) {
                 return [
                     'date_time'      => $audit->date_time,
                     'user_name'      => $audit->user_name,
@@ -211,6 +213,14 @@ class DepartmentService
             "code" => 200,
             "message" => "Historial obtenido exitosamente",
             "data" => $history,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
         ];
     }
 }

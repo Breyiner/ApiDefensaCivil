@@ -31,7 +31,7 @@ class OrganizationService
     {
         $organization = Organization::with('sectional')->find($id);
 
-        if (!$organization){
+        if (!$organization) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -46,23 +46,23 @@ class OrganizationService
             "data" => $organization,
         ];
     }
-    
+
     public static function getAllForSectional($id)
     {
         $sectional = Sectional::find($id);
 
-        if (!$sectional){
+        if (!$sectional) {
             return [
                 "error" => false,
                 "code" => 200,
                 "message" => "No existe esta seccional",
             ];
         }
-        
+
         // Asumiendo relación hasMany en el modelo Sectional
         $organization = $sectional->organizations;
 
-        if (!$organization || $organization->isEmpty()){
+        if (!$organization || $organization->isEmpty()) {
             return [
                 "error" => false,
                 "code" => 200,
@@ -110,7 +110,7 @@ class OrganizationService
     {
         $organization = Organization::find($id);
 
-        if (!$organization){
+        if (!$organization) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -146,7 +146,7 @@ class OrganizationService
     {
         $organization = Organization::find($id);
 
-        if (!$organization){
+        if (!$organization) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -182,30 +182,30 @@ class OrganizationService
     {
         $organization = Organization::find($id);
 
-        if (!$organization){
+        if (!$organization) {
             return [
                 "error" => true,
                 "code" => 404,
                 "message" => "Organización no encontrada",
             ];
         }
-        
+
         // Validación: si están intentando desactivar
-    if ($data['is_active'] == 0) {
+        if ($data['is_active'] == 0) {
 
-        $activeCount = Organization::where('is_active', 1)
-            ->where('sectional_id', $organization->sectional_id)
-            ->count();
+            $activeCount = Organization::where('is_active', 1)
+                ->where('sectional_id', $organization->sectional_id)
+                ->count();
 
-        // Si solo hay 1 activa en esa misma seccional y es esta, no se puede desactivar
-        if ($activeCount <= 1 && $organization->is_active == 1) {
-            return [
-                "error" => true,
-                "code" => 422,
-                "message" => "No se puede desactivar esta organización, debe existir mínimo un registro activo en esta seccional",
-            ];
+            // Si solo hay 1 activa en esa misma seccional y es esta, no se puede desactivar
+            if ($activeCount <= 1 && $organization->is_active == 1) {
+                return [
+                    "error" => true,
+                    "code" => 422,
+                    "message" => "No se puede desactivar esta organización, debe existir mínimo un registro activo en esta seccional",
+                ];
+            }
         }
-    }
 
         $oldStatus = $organization->is_active ? "Activo" : "Inactivo";
 
@@ -235,7 +235,7 @@ class OrganizationService
     {
         $organization = Organization::find($id);
 
-        if (!$organization){
+        if (!$organization) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -274,7 +274,7 @@ class OrganizationService
     /**
      * Historial
      */
-    public function history($id)
+    public function history($id, $perPage = 10)
     {
         $organization = Organization::find($id);
 
@@ -286,25 +286,34 @@ class OrganizationService
             ];
         }
 
-        $history = $organization->audits()
+        $data = $organization->audits()
             ->orderBy('date_time', 'desc')
-            ->get()
-            ->map(function($audit) {
-                return [
-                    'date_time'      => $audit->date_time,
-                    'user_name'      => $audit->user_name,
-                    'rol'            => $audit->rol_name,
-                    'action_execute' => $audit->action_execute,
-                    'status_old'     => $audit->status_old,
-                    'status_new'     => $audit->status_new,
-                ];
-            });
+            ->paginate($perPage);
+
+        $history = $organization->map(function ($audit) {
+            return [
+                'date_time'      => $audit->date_time,
+                'user_name'      => $audit->user_name,
+                'rol'            => $audit->rol_name,
+                'action_execute' => $audit->action_execute,
+                'status_old'     => $audit->status_old,
+                'status_new'     => $audit->status_new,
+            ];
+        });
 
         return [
             "error" => false,
             "code" => 200,
             "message" => "Historial de auditoría obtenido exitosamente",
             "data" => $history,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
         ];
     }
 }

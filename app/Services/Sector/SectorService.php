@@ -24,7 +24,7 @@ class SectorService
     {
         $sector = Sector::find($id);
 
-        if (!$sector){
+        if (!$sector) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -65,7 +65,7 @@ class SectorService
     {
         $sector = Sector::find($id);
 
-        if (!$sector){
+        if (!$sector) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -94,11 +94,11 @@ class SectorService
         ];
     }
 
-    public function partialUpdate(array $data,$id)
+    public function partialUpdate(array $data, $id)
     {
         $sector = Sector::find($id);
 
-        if (!$sector){
+        if (!$sector) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -127,11 +127,11 @@ class SectorService
         ];
     }
 
-    public function changeStatus(array $data,$id)
+    public function changeStatus(array $data, $id)
     {
         $sector = Sector::find($id);
 
-        if (!$sector){
+        if (!$sector) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -150,7 +150,7 @@ class SectorService
                     "message" => "No se puede desactivar este sector, minimo un registro activo",
                 ];
             }
-        }    
+        }
 
         $oldStatus = $sector->is_active ? "Activo" : "Inactivo";
 
@@ -177,7 +177,7 @@ class SectorService
     {
         $sector = Sector::find($id);
 
-        if (!$sector){
+        if (!$sector) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -213,7 +213,7 @@ class SectorService
         ];
     }
 
-    public function history($id)
+    public function history($id, $perPage = 10)
     {
         $sector = Sector::find($id);
 
@@ -225,25 +225,34 @@ class SectorService
             ];
         }
 
-        $history = $sector->audits()
+        $data = $sector->audits()
             ->orderBy('date_time', 'desc')
-            ->get()
-            ->map(function($audit) {
-                return [
-                    'date_time'      => $audit->date_time,
-                    'user_name'      => $audit->user_name,
-                    'rol'            => $audit->rol_name,
-                    'action_execute' => $audit->action_execute,
-                    'status_old'     => $audit->status_old,
-                    'status_new'     => $audit->status_new,
-                ];
-            });
+            ->paginate($perPage);
+
+        $history = $sector->map(function ($audit) {
+            return [
+                'date_time'      => $audit->date_time,
+                'user_name'      => $audit->user_name,
+                'rol'            => $audit->rol_name,
+                'action_execute' => $audit->action_execute,
+                'status_old'     => $audit->status_old,
+                'status_new'     => $audit->status_new,
+            ];
+        });
 
         return [
             "error" => false,
             "code" => 200,
             "message" => "Historial de auditoría obtenido exitosamente",
             "data" => $history,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
         ];
     }
 }

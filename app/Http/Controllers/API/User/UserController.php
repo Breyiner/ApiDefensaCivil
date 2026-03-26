@@ -212,15 +212,18 @@ class UserController extends Controller
      * @param string $id
      * @return JsonResponse
      */
-    public function history(string $id): JsonResponse
+    public function history(Request $request, string $id): JsonResponse
     {
-        $response = $this->service->history($id);
+        // 🔹 Obtener parámetro de paginación (default: 10)
+        $perPage = $request->input('per_page', 10);
+
+        $response = $this->service->history($id, $perPage);
 
         if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? [], $response['paginate'] ?? []);
     }
 
     /**

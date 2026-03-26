@@ -582,7 +582,7 @@ class UserService
         ];
     }
 
-    public function history($id)
+    public function history($id, $perPage = 10)
     {
         $user = User::find($id);
 
@@ -594,10 +594,11 @@ class UserService
             ];
         }
 
-        $history = $user->audits()
+        $data = $user->audits()
             ->orderBy('date_time', 'desc')
-            ->get()
-            ->map(fn($audit) => [
+            ->paginate($perPage);
+
+        $history = $data->map(fn($audit) => [
                 'date_time'      => $audit->date_time,
                 'user_name'      => $audit->user_name,
                 'rol'            => $audit->rol_name,
@@ -611,6 +612,14 @@ class UserService
             "code" => 200,
             "message" => "Historial de auditoría obtenido exitosamente",
             "data" => $history,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
         ];
     }
 }

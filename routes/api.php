@@ -154,15 +154,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/requestsAdmins', [UserController::class, 'getRequestsAdmins']);
 
-        // route::get('/userForAdmin', [UserController::class, 'getUserForAdmins']);
+        route::get('/userForAdmin', [UserController::class, 'getUserForAdmins']);
 
         route::get('/requestsSupervisors', [UserController::class, 'getRequestsSupervisors']);
 
-        // route::get('/userForSupervisor', [UserController::class, 'getUserForSupervisors']);
+        route::get('/userForSupervisor', [UserController::class, 'getUserForSupervisors']);
 
         route::get('/{user_id}', [UserController::class, 'show']);
 
-        route::get('/history/{user_id}', [UserController::class, 'history']);
+        route::get('/{user_id}/history', [UserController::class, 'history']);
 
         route::post('/', [UserController::class, 'store']);
 
@@ -182,7 +182,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/{gender_id}', [GenderController::class, 'show']);
 
-        route::get('/history/{gender_id}', [GenderController::class, 'history']);
+        route::get('/{gender_id}/history', [GenderController::class, 'history']);
 
         route::post('/', [GenderController::class, 'store']);
 
@@ -198,7 +198,7 @@ Route::middleware('auth:sanctum')->group(function () {
     route::prefix('documentTypes')->group(function () {
         route::get('/', [DocumentTypeController::class, 'index']);
         route::get('/{documentType_id}', [DocumentTypeController::class, 'show']);
-        route::get('/history/{documentType_id}', [DocumentTypeController::class, 'history']);
+        route::get('/{documentType_id}/history', [DocumentTypeController::class, 'history']);
         route::post('/', [DocumentTypeController::class, 'store']);
         route::put('/{documentType_id}', [DocumentTypeController::class, 'update']);
         route::patch('/{documentType_id}', [DocumentTypeController::class, 'partialUpdate']);
@@ -212,7 +212,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/{sectional_id}', [SectionalController::class, 'show']);
 
-        route::get('/history/{sectional_id}', [SectionalController::class, 'history']);
+        route::get('/{sectional_id}/history', [SectionalController::class, 'history']);
 
         route::post('/', [SectionalController::class, 'store']);
 
@@ -232,7 +232,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/sectional/{sectional_id}', [OrganizationController::class, 'getSectional']);
 
-        route::get('/history/{sectional_id}', [OrganizationController::class, 'history']);
+        route::get('/{sectional_id}/history', [OrganizationController::class, 'history']);
 
         route::post('/', [OrganizationController::class, 'store']);
 
@@ -276,7 +276,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/{housingQuality_id}', [HousingQualityController::class, 'show']);
 
-        route::get('/history/{housingQuality_id}', [HousingQualityController::class, 'history']);
+        route::get('/{housingQuality_id}/history', [HousingQualityController::class, 'history']);
 
         route::post('/', [HousingQualityController::class, 'store']);
 
@@ -294,7 +294,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/{sector_id}', [SectorController::class, 'show']);
 
-        route::get('/history/{sector_id}', [SectorController::class, 'history']);
+        route::get('/{sector_id}/history', [SectorController::class, 'history']);
 
         route::post('/', [SectorController::class, 'store']);
 
@@ -312,7 +312,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/{department_id}', [DepartmentController::class, 'show']);
 
-        route::get('/history/{department_id}', [DepartmentController::class, 'history']);
+        route::get('/{department_id}/history', [DepartmentController::class, 'history']);
 
         route::post('/', [DepartmentController::class, 'store']);
 
@@ -392,7 +392,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         route::get('/{vulnerableQuestion_id}', [VulnerableQuestionController::class, 'show']);
 
-        route::get('history/{vulnerableQuestion_id}', [VulnerableQuestionController::class, 'history']);
+        route::get('/{vulnerableQuestion_id}/history', [VulnerableQuestionController::class, 'history']);
 
         route::post('/', [VulnerableQuestionController::class, 'store']);
 
@@ -455,7 +455,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Obtener una nacionalidad por su ID
         Route::get('/{nationality_id}', [NationalityController::class, 'show']);
 
-        Route::get('/history/{nationality_id}', [NationalityController::class, 'history']);
+        Route::get('/{nationality_id}/history', [NationalityController::class, 'history']);
 
         // Crear una nueva nacionalidad
         Route::post('/', [NationalityController::class, 'store']);
@@ -559,7 +559,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Obtener una especie por ID
         Route::get('/{specie_id}', [SpeciesController::class, 'show']);
 
-        Route::get('/history/{specie_id}', [SpeciesController::class, 'history']);
+        Route::get('/{specie_id}/history', [SpeciesController::class, 'history']);
         // Crear nueva especie
         Route::post('/', [SpeciesController::class, 'store']);
         // Actualización completa
@@ -623,7 +623,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{threatType_id}', [ThreatTypeController::class, 'show']);
 
-        Route::get('/history/{threatType_id}', [ThreatTypeController::class, 'history']);
+        Route::get('/{threatType_id}/history', [ThreatTypeController::class, 'history']);
 
         Route::post('/', [ThreatTypeController::class, 'store']);
 
@@ -690,7 +690,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{vulnerability_id}', [VulnerabilityController::class, 'show']);
 
-        Route::get('/history/{vulnerability_id}', [VulnerabilityController::class, 'history']);
+        Route::get('/{vulnerability_id}/history', [VulnerabilityController::class, 'history']);
 
         Route::post('/', [VulnerabilityController::class, 'store']);
 
@@ -727,7 +727,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/{resource_id}', [ResourceController::class, 'show']);
 
-        Route::get('/history/{resource_id}', [ResourceController::class, 'history']);
+        Route::get('/{resource_id}/history', [ResourceController::class, 'history']);
 
         Route::post('/', [ResourceController::class, 'store']);
 

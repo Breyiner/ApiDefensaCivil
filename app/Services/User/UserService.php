@@ -75,8 +75,7 @@ class UserService
      */
     public function getById($id)
     {
-        $user = User::forAuthUser()
-            ->with([
+        $user = User::with([
                 'profile.gender',
                 'profile.documentType',
                 'profile.organization.sectional',

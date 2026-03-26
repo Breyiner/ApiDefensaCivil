@@ -213,7 +213,7 @@ class HousingQualityService
         ];
     }
 
-    public function history($id)
+    public function history($id, $perPage = 10)
     {
         $housingQuality = HousingQuality::find($id);
 
@@ -225,10 +225,11 @@ class HousingQualityService
             ];
         }
 
-        $history = $housingQuality->audits()
+        $data = $housingQuality->audits()
             ->orderBy('date_time', 'desc')
-            ->get()
-            ->map(function($audit) {
+            ->paginate($perPage);
+
+        $history = $data->map(function($audit) {
                 return [
                     'date_time'      => $audit->date_time,
                     'user_name'      => $audit->user_name,
@@ -244,6 +245,14 @@ class HousingQualityService
             "code" => 200,
             "message" => "Historial de auditoría obtenido exitosamente",
             "data" => $history,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
         ];
     }
 }

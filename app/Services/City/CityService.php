@@ -202,7 +202,7 @@ class CityService
      * @param int|string $id ID de la ciudad.
      * @return array Historial de cambios o error 404.
      */
-    public function history($id)
+    public function history($id, $perPage = 10)
     {
         $city = City::find($id);
 
@@ -214,10 +214,11 @@ class CityService
             ];
         }
 
-        $history = $city->audits()
+        $data = $city->audits()
             ->orderBy('date_time', 'desc')
-            ->get()
-            ->map(function ($audit) {
+            ->paginate($perPage);
+
+        $history = $data->map(function ($audit) {
                 return [
                     'date_time'      => $audit->date_time,
                     'user_name'      => $audit->user_name,
@@ -233,6 +234,14 @@ class CityService
             "code" => 200,
             "message" => "Historial obtenido exitosamente",
             "data" => $history,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ],
         ];
     }
 

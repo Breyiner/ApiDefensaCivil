@@ -11,6 +11,7 @@ use App\Http\Requests\ThreatType\ChangeStatusThreatTypeRequest;
 use App\Models\ThreatType\ThreatType;
 use App\Policies\AccessThreatTypePolicy;
 use App\Services\ThreatType\ThreatTypeService;
+use Illuminate\Http\Request;
 
 class ThreatTypeController extends Controller
 {
@@ -127,14 +128,16 @@ class ThreatTypeController extends Controller
         return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
     }
 
-    public function history(string $id)
+    public function history(Request $request, string $id)
     {
-        $response = $this->service->history($id);
+        $perPage = $request->input('per_page', 10);
+
+        $response = $this->service->history($id, $perPage);
 
         if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);    
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? [], $response['paginate'] ?? []);    
     }
 }

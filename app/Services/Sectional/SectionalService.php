@@ -262,7 +262,7 @@ class SectionalService
     /**
      * Historial
      */
-    public function history($id)
+    public function history($id, $perPage = 10)
     {
         $sectional = Sectional::find($id);
 
@@ -274,25 +274,34 @@ class SectionalService
             ];
         }
 
-        $history = $sectional->audits()
+        $data = $sectional->audits()
             ->orderBy('date_time', 'desc')
-            ->get()
-            ->map(function ($audit) {
-                return [
-                    'date_time'      => $audit->date_time,
-                    'user_name'      => $audit->user_name,
-                    'rol'            => $audit->rol_name,
-                    'action_execute' => $audit->action_execute,
-                    'status_old'     => $audit->status_old,
-                    'status_new'     => $audit->status_new,
-                ];
-            });
+            ->paginate($perPage);
+
+        $history = $data->map(function ($audit) {
+            return [
+                'date_time'      => $audit->date_time,
+                'user_name'      => $audit->user_name,
+                'rol'            => $audit->rol_name,
+                'action_execute' => $audit->action_execute,
+                'status_old'     => $audit->status_old,
+                'status_new'     => $audit->status_new,
+            ];
+        });
 
         return [
             "error" => false,
             "code" => 200,
             "message" => "Historial obtenido exitosamente",
             "data" => $history,
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
         ];
     }
 }

@@ -24,7 +24,7 @@ class MemberService
 
     public function getById($id)
     {
-        $member = Member::with(['bloodGroup','documentType','kinship','gender','nationality'])->find($id);
+        $member = Member::with(['bloodGroup', 'documentType', 'kinship', 'gender', 'nationality'])->find($id);
         $conditionMember = $member->conditionMember;
 
         if (!$member) {
@@ -39,14 +39,15 @@ class MemberService
             "error" => false,
             "code" => 200,
             "message" => "Miembro obtenido exitosamente",
-            "data" => $member,$conditionMember,
+            "data" => $member,
+            $conditionMember,
         ];
     }
-    
+
     public function getMembersForPlan($family_plan_id)
     {
         $paginator = FamilyMember::where('family_plan_id', $family_plan_id)
-            ->with(['member.bloodGroup','member.documentType','member.kinship'])
+            ->with(['member.bloodGroup', 'member.documentType', 'member.kinship'])
             ->paginate(10);
 
         // Transformar aunque esté vacío (no rompe)
@@ -93,7 +94,7 @@ class MemberService
                 'kinship'         => $item->member->kinship->name,
             ];
         });
-        
+
         return [
             "error"   => false,
             "code"    => 200,
@@ -169,7 +170,6 @@ class MemberService
                 "message" => "Miembro creado y asociado al plan familiar exitosamente",
                 "data" => $member,
             ];
-
         } catch (\Throwable $e) {
             DB::rollBack();
             return [
@@ -277,58 +277,102 @@ class MemberService
 
     public function delete($member_id)
     {
-        // 1️⃣ Buscar la relación FamilyMember
-        $familyMember = FamilyMember::where('member_id', $member_id)->first();
+        try {
+            // 1️⃣ Buscar miembro con relaciones
+            $member = Member::with([
+                'familyMember',
+                'conditionMember',
+                'actionPlan',
+                'riskReductionActions'
+            ])->find($member_id);
 
-        if (!$familyMember) {
+            if (!$member) {
+                return [
+                    "error"   => true,
+                    "code"    => 404,
+                    "message" => "Miembro no encontrado"
+                ];
+            }
+
+            // 2️⃣ Buscar FamilyMember relacionado
+            $familyMember = $member->familyMember()->first();
+
+            if (!$familyMember) {
+                return [
+                    "error"   => true,
+                    "code"    => 404,
+                    "message" => "Miembro del plan familiar no encontrado"
+                ];
+            }
+
+            // 3️⃣ Ejecutar validaciones
+            $validationError = $this->validateMemberDeletion($member, $familyMember);
+            if ($validationError) {
+                return $validationError;
+            }
+
+            // 4️⃣ Eliminar en transacción
+            DB::transaction(function () use ($familyMember, $member) {
+                $familyMember->delete();
+                $member->delete();
+            });
+
             return [
-                "error" => true,
-                "code" => 404,
-                "message" => "Miembro del plan familiar no encontrado"
+                "error"   => false,
+                "code"    => 200,
+                "message" => "Miembro eliminado exitosamente"
+            ];
+        } catch (\Exception $e) {
+            return [
+                "error"   => true,
+                "code"    => 500,
+                "message" => "Error al procesar la eliminación del miembro"
             ];
         }
+    }
 
-        // 2️⃣ Buscar miembro
-        $member = Member::find($member_id);
-
-        if (!$member) {
-            return [
-                "error" => true,
-                "code" => 404,
-                "message" => "Miembro no encontrado"
-            ];
-        }
-
-        // 3️⃣ Contar miembros del plan usando family_plan_id del FamilyMember
+    /**
+     * Valida si el miembro puede ser eliminado.
+     */
+    private function validateMemberDeletion($member, $familyMember)
+    {
+        // Validación 1: Cabeza de familia
         $totalMembers = FamilyMember::where('family_plan_id', $familyMember->family_plan_id)->count();
-
-        // 4️⃣ Validar cabeza de familia
         if ($member->kinship_id == 1 && $totalMembers > 1) {
             return [
-                "error" => true,
-                "code" => 400,
-                "message" => "No se puede eliminar al cabeza de familia mientras existan otros integrantes, a menos que se otorgue la posición de cabeza de familia a otro miembro"
+                "error"   => true,
+                "code"    => 400,
+                "message" => "No se puede eliminar al cabeza de familia mientras existan otros integrantes. Debe asignar esta posición a otro miembro primero."
             ];
         }
 
-        $conditionMembers = ConditionMember::where('member_id', $member_id)->exists();
-
-        if ($conditionMembers) {
+        // Validación 2: Condiciones/afecciones
+        if ($member->conditionMember()->exists()) {
             return [
-                "error" => true,
-                "code" => 400,
-                "message" => "No se puede eliminar porque posee condiciones"
+                "error"   => true,
+                "code"    => 400,
+                "message" => "No se puede eliminar porque el miembro tiene condiciones o afecciones registradas."
             ];
         }
 
-        // Si no tiene condiciones, se elimina
-        $familyMember->delete();
-        $member->delete();
+        // Validación 3: Acciones del plan
+        if ($member->actionPlan()->exists()) {
+            return [
+                "error"   => true,
+                "code"    => 400,
+                "message" => "No se puede eliminar porque el miembro está relacionado con acciones del plan de acción."
+            ];
+        }
 
-        return [
-            "error" => false,
-            "code" => 200,
-            "message" => "Miembro eliminado exitosamente"
-        ];
+        // Validación 4: Acciones de reducción de riesgo
+        if ($member->riskReductionActions()->exists()) {
+            return [
+                "error"   => true,
+                "code"    => 400,
+                "message" => "No se puede eliminar porque el miembro está relacionado con acciones de reducción de riesgo."
+            ];
+        }
+
+        return null; // Sin errores
     }
 }

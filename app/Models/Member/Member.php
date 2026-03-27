@@ -16,6 +16,7 @@ use App\Models\Kinship\Kinship;
 use App\Models\FamilyMember\FamilyMember;
 use App\Models\ConditionMember\ConditionMember;
 use App\Models\ActionPlan\ActionPlan;
+use App\Models\RiskReductionAction\RiskReductionAction;
 
 /**
  * Clase Member
@@ -105,5 +106,13 @@ class Member extends Model
     public function actionPlan()
     {
         return $this->hasMany(ActionPlan::class, 'member_id');
+    }
+
+    /**
+     * Relación con las acciones de reducción de riesgo del integrante.
+     */
+    public function riskReductionActions()
+    {
+        return $this->hasMany(RiskReductionAction::class, 'member_id');
     }
 }

@@ -27,10 +27,10 @@ class ChangeStateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            /**
-             * Se valida que is_active esté presente y sea un booleano válido.
-             */
+            'user_ids'      => 'required|array|min:1',
+            'user_ids.*'    => 'exists:users,id',
             'state_user_id' => 'required|exists:state_users,id',
+            'async'         => 'sometimes|boolean',
         ];
     }
 
@@ -41,8 +41,12 @@ class ChangeStateUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'state_user_id.required'     => 'El :attribute es obligatorio',
-            'state_user_id.exists'       => 'El :attribute seleccionado no es válido',
+            'user_ids.required'      => 'Debe enviar al menos un usuario.',
+            'user_ids.array'         => 'Los usuarios deben ser un arreglo.',
+            'user_ids.*.exists'      => 'Uno de los usuarios no es válido.',
+            'state_user_id.required' => 'El estado es obligatorio.',
+            'state_user_id.exists'   => 'El estado seleccionado no es válido.',
+            'async.boolean'          => 'El campo async debe ser verdadero o falso.',
         ];
     }
 
@@ -53,7 +57,9 @@ class ChangeStateUserRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'user_ids'      => 'usuarios',
             'state_user_id' => 'estado de usuario',
+            'async'         => 'modo asíncrono',
         ];
     }
 }

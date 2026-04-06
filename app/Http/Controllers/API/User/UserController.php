@@ -3,25 +3,35 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Helpers\ResponseFormatter;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\User\BulkUserIdsRequest;
+use App\Http\Requests\User\ChangeRoleUserRequest;
+use App\Http\Requests\User\ChangeStateUserRequest;
+use App\Http\Requests\User\FilterByStatusUserRequest;
+use App\Http\Requests\User\PartialUpdateUserRequest;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Requests\User\PartialUpdateUserRequest;
-use App\Http\Requests\User\ChangeStateUserRequest;
-use App\Http\Requests\User\ChangeRoleUserRequest;
-use App\Http\Requests\User\FilterByStatusUserRequest;
-
-use App\Http\Controllers\Controller;
 use App\Services\User\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
  * Controlador de Usuarios.
+ *
  * Gestiona las cuentas de acceso al sistema, vinculando credenciales, roles y estados.
+ * Delega toda la lógica de negocio a UserService y devuelve respuestas
+ * estandarizadas mediante ResponseFormatter.
+ *
+ * Operaciones individuales : index, show, store, update, partialUpdate,
+ *                            ChangeStatus, ChangeRole, destroy, history
+ * Operaciones de consulta   : getRequestsAdmins, getRequestsSupervisors,
+ *                             getUserForAdmins, getUserForSupervisors, getByStatus
+ * Operaciones masivas (bulk): approveRequests, changeUserStatus,
+ *                             rejectAndDeleteRequests
  */
 class UserController extends Controller
 {
-    protected $service;
+    protected UserService $service;
 
     /**
      * Inyección del servicio de lógica de negocio para usuarios.
@@ -31,24 +41,23 @@ class UserController extends Controller
         $this->service = $service;
     }
 
+    // =========================================================================
+    //  CRUD INDIVIDUAL
+    // =========================================================================
+
     /**
-     * Obtiene el listado de todos los usuarios registrados con paginación.
-     * 
-     * 🔹 Aplica filtros automáticos por rol usando el scope forAuthUser
-     * 🔹 Acepta parámetro per_page para personalizar la paginación
-     * 
-     * @param Request $request
-     * @return JsonResponse
+     * Retorna el listado paginado de todos los usuarios.
+     *
+     * 🔹 Aplica filtros automáticos por rol mediante el scope forAuthUser
+     * 🔹 Acepta per_page como query parameter (default: 15)
      */
     public function index(Request $request): JsonResponse
     {
-        // 🔹 Obtener parámetro de paginación (default: 15)
         $perPage = $request->input('per_page', 15);
 
         $response = UserService::getAll($perPage);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -61,13 +70,10 @@ class UserController extends Controller
     }
 
     /**
-     * Muestra la información de una cuenta de usuario específica.
-     * 
-     * 🔹 Valida acceso automáticamente mediante scope forAuthUser
-     * 🔹 Retorna 404 si el usuario no existe o el usuario no tiene acceso
-     * 
-     * @param string $id
-     * @return JsonResponse
+     * Retorna la información de un usuario específico.
+     *
+     * 🔹 Valida acceso automáticamente mediante el scope forAuthUser
+     * 🔹 Retorna 404 si el usuario no existe o no tiene acceso
      */
     public function show(string $id): JsonResponse
     {
@@ -77,144 +83,122 @@ class UserController extends Controller
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? []
+        );
     }
 
     /**
      * Registra un nuevo usuario en la plataforma.
-     * Habitualmente gestiona el hashing de contraseñas y asignación inicial de roles.
-     * 
-     * @param StoreUserRequest $request
-     * @return JsonResponse
+     *
+     * 🔹 El servicio gestiona el hashing de contraseña y la asignación inicial de rol
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
-        $data = $request->validated();
-        $response = $this->service->create($data);
+        $response = $this->service->create($request->validated());
 
-        if ($response['error'])
-        {    
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? []
+        );
     }
 
     /**
      * Actualización integral del usuario (PUT).
-     * 
-     * @param UpdateUserRequest $request
-     * @param string $id
-     * @return JsonResponse
+     *
+     * 🔹 Reemplaza todos los campos enviados en la petición
      */
     public function update(UpdateUserRequest $request, string $id): JsonResponse
     {
-        $data = $request->validated();
-        $response = $this->service->update($data, $id);
+        $response = $this->service->update($request->validated(), $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? []
+        );
     }
 
     /**
-     * Actualización parcial del usuario (PATCH). 
-     * Útil para cambiar solo la contraseña o el estado sin afectar otros campos.
-     * 
-     * @param PartialUpdateUserRequest $request
-     * @param string $id
-     * @return JsonResponse
+     * Actualización parcial del usuario (PATCH).
+     *
+     * 🔹 Útil para cambiar solo la contraseña u otros campos puntuales
+     * 🔹 No afecta los campos no enviados en la petición
      */
     public function partialUpdate(PartialUpdateUserRequest $request, string $id): JsonResponse
     {
-        $data = $request->validated();
-        $response = $this->service->partialUpdate($data, $id);
+        $response = $this->service->partialUpdate($request->validated(), $id);
 
-        if ($response['error'])
-        {
-            return ResponseFormatter::error($response['message'], $response['code']);
-        }
-        
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []); 
-    }
-
-    /**
-     * Cambia el estado de un usuario y registra auditoría.
-     * 
-     * 🔹 Registra el cambio de estado en la tabla de auditorías
-     * 
-     * @param ChangeStateUserRequest $request
-     * @param string $id
-     * @return JsonResponse
-     */
-    public function ChangeStatus(ChangeStateUserRequest $request, string $id): JsonResponse
-    {
-        $data = $request->validated();
-        $response = $this->service->changeStatus($data, $id);
-
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []); 
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? []
+        );
     }
 
     /**
-     * Cambia el rol de un usuario y registra auditoría.
-     * 
-     * 🔹 Registra el cambio de rol en la tabla de auditorías
-     * 
-     * @param ChangeRoleUserRequest $request
-     * @param string $id
-     * @return JsonResponse
+     * Cambia el rol de un usuario individual y registra auditoría.
+     *
+     * 🔹 Registra old_role → new_role en la tabla de auditorías
      */
     public function ChangeRole(ChangeRoleUserRequest $request, string $id): JsonResponse
     {
-        $data = $request->validated();
-        $response = $this->service->changeRole($data, $id);
+        $response = $this->service->changeRole($request->validated(), $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []); 
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? []
+        );
     }
 
     /**
      * Elimina una cuenta de usuario.
-     * Nota: Se recomienda implementar "Soft Deletes" para mantener integridad referencial en el historial.
-     * 
-     * @param string $id
-     * @return JsonResponse
+     *
+     * 🔹 Se recomienda tener SoftDeletes activo para mantener integridad referencial
      */
     public function destroy(string $id): JsonResponse
     {
         $response = $this->service->delete($id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? []
+        );
     }
 
     /**
-     * Obtiene el historial de auditoría de un usuario específico.
-     * 
-     * 🔹 Retorna todos los cambios de estado y rol registrados
-     * 
-     * @param string $id
-     * @return JsonResponse
+     * Retorna el historial de auditoría de un usuario.
+     *
+     * 🔹 Incluye todos los cambios de estado y rol registrados
+     * 🔹 Acepta per_page como query parameter (default: 10)
      */
     public function history(Request $request, string $id): JsonResponse
     {
-        // 🔹 Obtener parámetro de paginación (default: 10)
         $perPage = $request->input('per_page', 10);
 
         $response = $this->service->history($id, $perPage);
@@ -223,21 +207,26 @@ class UserController extends Controller
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? [], $response['paginate'] ?? []);
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data'] ?? [],
+            $response['paginate'] ?? []
+        );
     }
 
+    // =========================================================================
+    //  CONSULTAS ESPECIALIZADAS
+    // =========================================================================
+
     /**
-     * Obtiene las peticiones de usuarios pendientes para administradores.
-     * 
-     * 🔹 Muestra usuarios con state_user_id = 3 (Petición)
-     * 🔹 Acepta parámetro per_page para personalizar la paginación
-     * 
-     * @param Request $request
-     * @return JsonResponse
+     * Retorna peticiones pendientes visibles para administradores.
+     *
+     * 🔹 Filtra usuarios con state_user_id = 3 (Petición)
+     * 🔹 Acepta per_page como query parameter (default: 10)
      */
     public function getRequestsAdmins(Request $request): JsonResponse
     {
-        // 🔹 Obtener parámetro de paginación (default: 10)
         $perPage = $request->input('per_page', 10);
 
         $response = $this->service->getRequestsAdmins($perPage);
@@ -255,17 +244,13 @@ class UserController extends Controller
     }
 
     /**
-     * Obtiene las peticiones de usuarios para supervisores.
-     * 
-     * 🔹 Solo muestra peticiones de la misma seccional del supervisor
-     * 🔹 Acepta parámetro per_page para personalizar la paginación
-     * 
-     * @param Request $request
-     * @return JsonResponse
+     * Retorna peticiones pendientes visibles para supervisores.
+     *
+     * 🔹 Solo muestra peticiones de la misma seccional del supervisor autenticado
+     * 🔹 Acepta per_page como query parameter (default: 10)
      */
     public function getRequestsSupervisors(Request $request): JsonResponse
     {
-        // 🔹 Obtener parámetro de paginación (default: 10)
         $perPage = $request->input('per_page', 10);
 
         $response = $this->service->getRequestsSupervisors($perPage);
@@ -282,110 +267,19 @@ class UserController extends Controller
         );
     }
 
-    /**
-     * Obtiene usuarios para administradores (excluye peticiones y rol admin).
-     * 
-     * 🔹 Filtra usuarios con state_user_id != 3
-     * 🔹 Excluye usuarios con rol Administrador (id: 1)
-     * 🔹 Acepta parámetro per_page para personalizar la paginación
-     * 
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function getUserForAdmins(Request $request): JsonResponse
-    {
-        // 🔹 Obtener parámetro de paginación (default: 10)
-        $perPage = $request->input('per_page', 10);
-
-        $response = $this->service->getUserForAdmins($perPage);
-
-        if ($response['error']) {
-            return ResponseFormatter::error($response['message'], $response['code']);
-        }
-
-        return ResponseFormatter::success(
-            $response['message'],
-            $response['code'],
-            $response['data'] ?? [],
-            $response['paginate'] ?? null
-        );
-    }
 
     /**
-     * Obtiene usuarios para supervisores.
-     * 
-     * 🔹 Solo muestra usuarios de la misma seccional
-     * 🔹 Excluye roles Administrador (1) y Supervisor (2)
-     * 🔹 Acepta parámetro per_page para personalizar la paginación
-     * 
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function getUserForSupervisors(Request $request): JsonResponse
-    {
-        // 🔹 Obtener parámetro de paginación (default: 10)
-        $perPage = $request->input('per_page', 10);
-
-        $response = $this->service->getUserForSupervisors($perPage);
-
-        if ($response['error']) {
-            return ResponseFormatter::error($response['message'], $response['code']);
-        }
-
-        return ResponseFormatter::success(
-            $response['message'],
-            $response['code'],
-            $response['data'] ?? [],
-            $response['paginate'] ?? null
-        );
-    }
-
-    /**
-     * Obtiene usuarios filtrados por estado.
+     * Retorna usuarios filtrados por estado.
      *
-     * Endpoint para consultar usuarios según su estado actual.
-     * Recibe el ID del estado como query parameter y retorna una lista paginada.
+     * 🔹 Recibe el ID del estado como query parameter (status)
+     * 🔹 Acepta per_page como query parameter (default: 10)
      *
      * GET /users/by-status?status={statusId}&per_page={perPage}
-     *
-     * Query Parameters:
-     * - status (required, int): ID del estado por el cual filtrar
-     * - per_page (optional, int): Cantidad de registros por página (default: 10)
-     *
-     * Response 200:
-     * {
-     *   "data": [
-     *     {
-     *       "id": 1,
-     *       "full_name": "Juan Pérez García",
-     *       "email": "juan.perez@example.com",
-     *       "organization": "Cruz Roja Bogotá",
-     *       "sectional": "Cundinamarca",
-     *       "document_number": "1234567890 CC",
-     *       "status": "Activo",
-     *       "status_id": 1,
-     *       "rol": "Voluntario",
-     *       "rol_id": 3
-     *     }
-     *   ],
-     *   "paginate": {
-     *     "current_page": 1,
-     *     "per_page": 10,
-     *     "total": 25,
-     *     "last_page": 3,
-     *     "from": 1,
-     *     "to": 10
-     *   }
-     * }
-     *
-     * @param FilterByStatusUserRequest $request Validación del query parameter
-     * @return JsonResponse
      */
     public function getByStatus(FilterByStatusUserRequest $request): JsonResponse
     {
-        // 🔹 Obtener parámetros validados
         $statusId = $request->validated()['status'];
-        $perPage = $request->input('per_page', 10);
+        $perPage  = $request->input('per_page', 10);
 
         $response = $this->service->getByStatus($statusId, $perPage);
 
@@ -399,5 +293,82 @@ class UserController extends Controller
             $response['data'] ?? [],
             $response['paginate'] ?? null
         );
+    }
+
+    // =========================================================================
+    //  OPERACIONES MASIVAS (BULK)
+    // =========================================================================
+
+    /**
+     * Aprueba peticiones de usuarios en masa.
+     *
+     * 🔹 Solo afecta usuarios con estado 'Peticion' (filtro en el servicio)
+     * 🔹 Despacha ApproveUserRequestsJob por defecto (async=true)
+     * 🔹 Enviar async=false para ejecución síncrona inmediata
+     *
+     * @param BulkUserIdsRequest $request  Valida: user_ids[], async?
+     */
+    public function approveRequests(BulkUserIdsRequest $request): JsonResponse
+    {
+        $userIds = $request->input('user_ids');
+        $async   = $request->boolean('async', true);
+
+        $response = $this->service->approveRequests($userIds, $async);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code']);
+    }
+
+    /**
+     * Cambia el estado de múltiples usuarios en masa.
+     *
+     * 🔹 Aplica el nuevo estado a todos los user_ids recibidos
+     * 🔹 Registra auditoría por cada usuario modificado
+     * 🔹 Despacha ChangeUserStatusJob por defecto (async=true)
+     * 🔹 Enviar async=false para ejecución síncrona inmediata
+     *
+     * @param ChangeStateUserRequest $request  Valida: user_ids[], state_user_id, async?
+     */
+    public function changeUserStatus(ChangeStateUserRequest $request): JsonResponse
+    {
+        $data    = $request->validated();
+        $userIds = $data['user_ids'];
+        $stateId = $data['state_user_id'];
+        $async   = $request->boolean('async', true);
+
+        $response = $this->service->changeUserStatus($userIds, $stateId, $async);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code']);
+    }
+
+    /**
+     * Rechaza y elimina peticiones de usuarios en masa.
+     *
+     * 🔹 Solo afecta usuarios con estado 'Peticion' (filtro en el servicio)
+     * 🔹 Elimina perfil y cuenta; la auditoría se registra ANTES del delete
+     * 🔹 Despacha RejectAndDeleteRequestsJob por defecto (async=true)
+     * 🔹 Enviar async=false para ejecución síncrona inmediata
+     *
+     * @param BulkUserIdsRequest $request  Valida: user_ids[], async?
+     */
+    public function rejectAndDeleteRequests(BulkUserIdsRequest $request): JsonResponse
+    {
+        $userIds = $request->input('user_ids');
+        $async   = $request->boolean('async', true);
+
+        $response = $this->service->rejectAndDeleteRequests($userIds, $async);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code']);
     }
 }

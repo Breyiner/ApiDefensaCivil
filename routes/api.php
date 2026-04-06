@@ -146,35 +146,34 @@ Route::middleware('auth:sanctum')->group(function () {
         route::delete('/{state_user_id}', [StateUserController::class, 'destroy']);
     });
 
-    route::prefix('users')->group(function () {
-        route::get('/', [UserController::class, 'index']);
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
 
         // Ruta para filtrar por estado usando query param (?status=1)
         Route::get('/by-status', [UserController::class, 'getByStatus']);
 
-        route::get('/requestsAdmins', [UserController::class, 'getRequestsAdmins']);
+        Route::get('/requestsAdmins', [UserController::class, 'getRequestsAdmins']);
 
-        route::get('/userForAdmin', [UserController::class, 'getUserForAdmins']);
+        Route::get('/requestsSupervisors', [UserController::class, 'getRequestsSupervisors']);
 
-        route::get('/requestsSupervisors', [UserController::class, 'getRequestsSupervisors']);
+        // Nuevas operaciones masivas
+        Route::post('/approve-requests', [UserController::class, 'approveRequests']);
+        Route::post('/change-status', [UserController::class, 'changeUserStatus']);
+        Route::post('/reject-delete-requests', [UserController::class, 'rejectAndDeleteRequests']);
 
-        route::get('/userForSupervisor', [UserController::class, 'getUserForSupervisors']);
+        Route::get('/{user_id}', [UserController::class, 'show']);
 
-        route::get('/{user_id}', [UserController::class, 'show']);
+        Route::get('/{user_id}/history', [UserController::class, 'history']);
 
-        route::get('/{user_id}/history', [UserController::class, 'history']);
+        Route::post('/', [UserController::class, 'store']);
 
-        route::post('/', [UserController::class, 'store']);
+        Route::put('/{user_id}', [UserController::class, 'update']);
 
-        route::put('/{user_id}', [UserController::class, 'update']);
+        Route::patch('/{user_id}', [UserController::class, 'partialUpdate']);
 
-        route::patch('/{user_id}', [UserController::class, 'partialUpdate']);
+        Route::patch('/role/{user_id}', [UserController::class, 'changeRole']);
 
-        route::patch('/role/{user_id}', [UserController::class, 'changeRole']);
-
-        route::patch('/status/{user_id}', [UserController::class, 'changeStatus']);
-
-        route::delete('/{user_id}', [UserController::class, 'destroy']);
+        Route::delete('/{user_id}', [UserController::class, 'destroy']);
     });
 
     route::prefix('genders')->group(function () {

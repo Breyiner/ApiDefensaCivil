@@ -1,88 +1,102 @@
 <?php
 
-use App\Http\Controllers\API\Profile\ProfileController;
 use App\Http\Controllers\API\User\UserController;
+use App\Http\Controllers\API\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
+
 
 /**
  * ============================================================================
- * RUTAS DE GESTIÓN DE USUARIOS
+ * RUTAS DE USUARIOS Y PERFILES (AUTENTICADAS)
  * ============================================================================
- * 
- * Middleware aplicado automáticamente desde bootstrap/app.php:
- * - auth:sanctum (autenticación requerida)
- * - verified (email verificado)
- * 
- * Middleware adicional por ruta:
- * - permission: Permisos específicos de Spatie
- * - role: Roles específicos
+ *
+ * Gestión completa de usuarios del sistema y sus perfiles asociados:
+ * listado, filtros, historial, operaciones CRUD, cambios de rol/estado
+ * y acciones masivas.
+ *
+ * Prefijo base: /api
+ * Middleware heredado: ['api', 'auth:sanctum', 'verified']
+ *
+ * Permisos requeridos (Spatie):
+ * - users.*    → gestión de usuarios
+ * - profiles.* → gestión de perfiles
  */
+
+
+// -------------------------------------------------------------------------
+// USUARIOS
+// -------------------------------------------------------------------------
 
 Route::prefix('users')->group(function () {
 
-    // -------------------------------------------------------------------------
-    // LISTADOS Y CONSULTAS
-    // -------------------------------------------------------------------------
-    
-    Route::get('/', [UserController::class, 'index']);
-        // ->middleware('permission:users.index');
+    // Listar todos los usuarios del sistema
+    Route::get('/', [UserController::class, 'index'])
+        ->middleware('permission:users.index');
 
-    Route::get('/by-status', [UserController::class, 'getByStatus']);
-        // ->middleware('permission:users.index');
+    // Filtrar usuarios según su estado (activo, inactivo, pendiente, etc.)
+    Route::get('/by-status', [UserController::class, 'byStatus'])
+        ->middleware('permission:users.by-status');
 
-    Route::get('/requestsAdmins', [UserController::class, 'getRequestsAdmins']);
-        // ->middleware('role:admin');
+    // Ver peticiones de acceso pendientes visibles para el rol Administrador
+    Route::get('/requests/admins', [UserController::class, 'requestsAdmins'])
+        ->middleware('permission:users.requests-admins');
 
-    Route::get('/requestsSupervisors', [UserController::class, 'getRequestsSupervisors']);
-        // ->middleware('role:supervisor|admin');
+    // Ver peticiones de acceso pendientes visibles para el rol Supervisor
+    Route::get('/requests/supervisors', [UserController::class, 'requestsSupervisors'])
+        ->middleware('permission:users.requests-supervisors');
 
-    Route::get('/{user_id}', [UserController::class, 'show']);
-        // ->middleware('permission:users.show');
+    // Ver el detalle de un usuario específico
+    Route::get('/{id}', [UserController::class, 'show'])
+        ->middleware('permission:users.show');
 
-    Route::get('/{user_id}/history', [UserController::class, 'history']);
-        // ->middleware('permission:users.history');
+    // Ver el historial de cambios de un usuario
+    Route::get('/{id}/history', [UserController::class, 'history'])
+        ->middleware('permission:users.history');
 
-    // -------------------------------------------------------------------------
-    // CRUD BÁSICO
-    // -------------------------------------------------------------------------
+    // Crear un nuevo usuario en el sistema
+    Route::post('/', [UserController::class, 'store'])
+        ->middleware('permission:users.store');
 
-    Route::post('/', [UserController::class, 'store']);
-        // ->middleware('permission:users.create');
+    // Actualizar completamente un usuario
+    Route::put('/{id}', [UserController::class, 'update'])
+        ->middleware('permission:users.update');
 
-    Route::put('/{user_id}', [UserController::class, 'update']);
-        // ->middleware('permission:users.update');
+    // Actualizar parcialmente un usuario
+    Route::patch('/{id}', [UserController::class, 'partialUpdate'])
+        ->middleware('permission:users.partial-update');
 
-    Route::patch('/{user_id}', [UserController::class, 'partialUpdate']);
-        // ->middleware('permission:users.update');
+    // Eliminar un usuario del sistema
+    Route::delete('/{id}', [UserController::class, 'destroy'])
+        ->middleware('permission:users.destroy');
 
-    Route::delete('/{user_id}', [UserController::class, 'destroy']);
-        // ->middleware('permission:users.delete');
+    // -----------------------------------------------------------------------
+    // ACCIONES ESPECIALES DE USUARIO
+    // -----------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // ACCIONES ESPECIALES
-    // -------------------------------------------------------------------------
+    // Cambiar el rol asignado a un usuario
+    Route::patch('/{id}/change-role', [UserController::class, 'changeRole'])
+        ->middleware('permission:users.change-role');
 
-    Route::patch('/role/{user_id}', [UserController::class, 'changeRole'])
-        ->middleware('role:Administrador');
+    // Cambiar el estado de un usuario de forma individual
+    Route::patch('/{id}/change-status', [UserController::class, 'changeStatus'])
+        ->middleware('permission:users.change-status');
 
-    Route::patch('/status/{user_id}', [UserController::class, 'changeStatus']);
-        // ->middleware('permission:users.change-status');
+    // -----------------------------------------------------------------------
+    // ACCIONES MASIVAS (BULK)
+    // -----------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // OPERACIONES EN LOTE (BULK)
-    // -------------------------------------------------------------------------
+    // Aprobar múltiples peticiones de acceso en un solo request
+    Route::post('/approve', [UserController::class, 'approveBulk'])
+        ->middleware('permission:users.approve-bulk');
 
-    Route::post('/approve', [UserController::class, 'approveRequests'])
-        ->middleware('role:Administrador|supervisor');
+    // Cambiar el estado de múltiples usuarios simultáneamente
+    Route::patch('/change-status', [UserController::class, 'changeStatusBulk'])
+        ->middleware('permission:users.change-status-bulk');
 
-    Route::post('/change-status', [UserController::class, 'changeUserStatus']);
-        // ->middleware('permission:users.change-status');
-
-    Route::post('/reject-delete', [UserController::class, 'rejectAndDeleteRequests'])
-        ->middleware('role:Administrador|supervisor');
+    // Rechazar y eliminar múltiples peticiones de acceso a la vez
+    Route::delete('/reject-delete', [UserController::class, 'rejectDeleteBulk'])
+        ->middleware('permission:users.reject-delete-bulk');
 });
-
-
 
 
 // -------------------------------------------------------------------------
@@ -91,15 +105,27 @@ Route::prefix('users')->group(function () {
 
 Route::prefix('profiles')->group(function () {
 
-    Route::get('/', [ProfileController::class, 'index']);
+    // Listar todos los perfiles registrados
+    Route::get('/', [ProfileController::class, 'index'])
+        ->middleware('permission:profiles.index');
 
-    Route::get('/{profile_id}', [ProfileController::class, 'show']);
+    // Ver el detalle de un perfil específico
+    Route::get('/{id}', [ProfileController::class, 'show'])
+        ->middleware('permission:profiles.show');
 
-    Route::post('/', [ProfileController::class, 'store']);
+    // Crear un nuevo perfil
+    Route::post('/', [ProfileController::class, 'store'])
+        ->middleware('permission:profiles.store');
 
-    Route::put('/{profile_id}', [ProfileController::class, 'update']);
+    // Actualizar completamente un perfil
+    Route::put('/{id}', [ProfileController::class, 'update'])
+        ->middleware('permission:profiles.update');
 
-    Route::patch('/{profile_id}', [ProfileController::class, 'partialUpdate']);
+    // Actualizar parcialmente un perfil
+    Route::patch('/{id}', [ProfileController::class, 'partialUpdate'])
+        ->middleware('permission:profiles.partial-update');
 
-    Route::delete('/{profile_id}', [ProfileController::class, 'destroy']);
+    // Eliminar un perfil del sistema
+    Route::delete('/{id}', [ProfileController::class, 'destroy'])
+        ->middleware('permission:profiles.destroy');
 });

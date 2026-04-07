@@ -22,93 +22,116 @@ use Illuminate\Support\Facades\Route;
 
 // -------------------------------------------------------------------------
 // ESPECIES
-// Catálogo de especies animales (perro, gato, etc.).
 // -------------------------------------------------------------------------
 
 Route::prefix('species')->group(function () {
 
-    Route::get('/', [SpeciesController::class, 'index']);
+    Route::get('/', [SpeciesController::class, 'index'])
+        ->middleware('permission:species.index');
 
-    Route::get('/{specie_id}', [SpeciesController::class, 'show']);
+    Route::get('/{specie_id}', [SpeciesController::class, 'show'])
+        ->middleware('permission:species.show');
 
     // Historial de cambios de una especie
-    Route::get('/{specie_id}/history', [SpeciesController::class, 'history']);
+    Route::get('/{specie_id}/history', [SpeciesController::class, 'history'])
+        ->middleware('permission:species.history');
 
-    Route::post('/', [SpeciesController::class, 'store']);
+    Route::post('/', [SpeciesController::class, 'store'])
+        ->middleware('permission:species.store');
 
-    Route::put('/{specie_id}', [SpeciesController::class, 'update']);
+    Route::put('/{specie_id}', [SpeciesController::class, 'update'])
+        ->middleware('permission:species.update');
 
-    Route::patch('/{specie_id}', [SpeciesController::class, 'partialUpdate']);
+    Route::patch('/{specie_id}', [SpeciesController::class, 'partialUpdate'])
+        ->middleware('permission:species.partial-update');
 
     // Activar / desactivar una especie sin eliminarla
-    Route::patch('/status/{specie_id}', [SpeciesController::class, 'changeStatus']);
+    Route::patch('/status/{specie_id}', [SpeciesController::class, 'changeStatus'])
+        ->middleware('permission:species.change-status');
 
-    Route::delete('/{specie_id}', [SpeciesController::class, 'destroy']);
+    Route::delete('/{specie_id}', [SpeciesController::class, 'destroy'])
+        ->middleware('permission:species.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // GÉNEROS ANIMALES
-// Catálogo de géneros para las mascotas (macho, hembra).
 // -------------------------------------------------------------------------
 
 Route::prefix('animalGenders')->group(function () {
 
-    Route::get('/', [AnimalGenderController::class, 'index']);
+    Route::get('/', [AnimalGenderController::class, 'index'])
+        ->middleware('permission:animal-genders.index');
 
-    Route::get('/{id}', [AnimalGenderController::class, 'show']);
+    Route::get('/{id}', [AnimalGenderController::class, 'show'])
+        ->middleware('permission:animal-genders.show');
 
-    Route::post('/', [AnimalGenderController::class, 'store']);
+    Route::post('/', [AnimalGenderController::class, 'store'])
+        ->middleware('permission:animal-genders.store');
 
-    Route::put('/{id}', [AnimalGenderController::class, 'update']);
+    Route::put('/{id}', [AnimalGenderController::class, 'update'])
+        ->middleware('permission:animal-genders.update');
 
-    Route::delete('/{id}', [AnimalGenderController::class, 'destroy']);
+    Route::delete('/{id}', [AnimalGenderController::class, 'destroy'])
+        ->middleware('permission:animal-genders.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // MASCOTAS
-// Mascotas registradas dentro de un plan familiar.
 // -------------------------------------------------------------------------
 
 Route::prefix('pets')->group(function () {
 
-    Route::get('/', [PetController::class, 'index']);
+    Route::get('/', [PetController::class, 'index'])
+        ->middleware('permission:pets.index');
 
-    Route::get('/{id}', [PetController::class, 'show']);
+    Route::get('/{id}', [PetController::class, 'show'])
+        ->middleware('permission:pets.show');
 
     // Obtener mascotas pertenecientes a un plan familiar específico
-    Route::get('/familyPlan/{plan_id}', [PetController::class, 'getPetsForPlan']);
+    Route::get('/familyPlan/{plan_id}', [PetController::class, 'getPetsForPlan'])
+        ->middleware('permission:pets.by-family-plan');
 
-    Route::post('/', [PetController::class, 'store']);
+    Route::post('/', [PetController::class, 'store'])
+        ->middleware('permission:pets.store');
 
-    Route::put('/{id}', [PetController::class, 'update']);
+    Route::put('/{id}', [PetController::class, 'update'])
+        ->middleware('permission:pets.update');
 
-    Route::patch('/{id}', [PetController::class, 'partialUpdate']);
+    Route::patch('/{id}', [PetController::class, 'partialUpdate'])
+        ->middleware('permission:pets.partial-update');
 
-    Route::delete('/{id}', [PetController::class, 'destroy']);
+    Route::delete('/{id}', [PetController::class, 'destroy'])
+        ->middleware('permission:pets.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // VACUNAS DE MASCOTAS
-// Registro de vacunas aplicadas a cada mascota.
 // -------------------------------------------------------------------------
 
 Route::prefix('petVaccines')->group(function () {
 
-    Route::get('/', [PetVaccineController::class, 'index']);
+    Route::get('/', [PetVaccineController::class, 'index'])
+        ->middleware('permission:pet-vaccines.index');
 
-    Route::get('/{id}', [PetVaccineController::class, 'show']);
+    Route::get('/{id}', [PetVaccineController::class, 'show'])
+        ->middleware('permission:pet-vaccines.show');
 
     // Obtener todas las vacunas registradas para una mascota específica
-    Route::get('/pet/{pet_id}', [PetVaccineController::class, 'getVaccinesForPets']);
+    Route::get('/pet/{pet_id}', [PetVaccineController::class, 'getVaccinesForPets'])
+        ->middleware('permission:pet-vaccines.by-pet');
 
-    Route::post('/', [PetVaccineController::class, 'store']);
+    Route::post('/', [PetVaccineController::class, 'store'])
+        ->middleware('permission:pet-vaccines.store');
 
-    Route::put('/{id}', [PetVaccineController::class, 'update']);
+    Route::put('/{id}', [PetVaccineController::class, 'update'])
+        ->middleware('permission:pet-vaccines.update');
 
-    Route::patch('/{id}', [PetVaccineController::class, 'partialUpdate']);
+    Route::patch('/{id}', [PetVaccineController::class, 'partialUpdate'])
+        ->middleware('permission:pet-vaccines.partial-update');
 
-    Route::delete('/{id}', [PetVaccineController::class, 'destroy']);
+    Route::delete('/{id}', [PetVaccineController::class, 'destroy'])
+        ->middleware('permission:pet-vaccines.destroy');
 });

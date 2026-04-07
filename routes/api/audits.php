@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
  * ============================================================================
  *
  * Endpoints para los dashboards de estadísticas y actividad del sistema,
- * diferenciados por el rol del usuario (administrador o supervisor).
+ * diferenciados por el rol del usuario.
  *
  * Prefijo base: /api/audits
  * Middleware heredado: ['api', 'auth:sanctum', 'verified']
@@ -19,8 +19,10 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('audits')->group(function () {
 
     // Dashboard con métricas y actividad reciente para el rol Administrador
-    Route::get('/dashBoardAdmin', [AuditController::class, 'dashBoardAdmin']);
+    Route::get('/dashBoardAdmin', [AuditController::class, 'dashBoardAdmin'])
+        ->middleware('permission:audits.dashboard-admin');
 
     // Dashboard con métricas y actividad reciente para el rol Supervisor
-    Route::get('/dashBoardSupervisor', [AuditController::class, 'dashBoardSupervisor']);
+    Route::get('/dashBoardSupervisor', [AuditController::class, 'dashBoardSupervisor'])
+        ->middleware('permission:audits.dashboard-supervisor');
 });

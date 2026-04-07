@@ -1,42 +1,37 @@
 <?php
 
 use App\Http\Controllers\API\Account\AccountController;
-use App\Http\Controllers\API\Account\AccountPasswordController;
-use App\Http\Controllers\API\Account\AccountVerificationController;
 use Illuminate\Support\Facades\Route;
 
 
 /**
  * ============================================================================
- * RUTAS DE CUENTA (AUTENTICADAS)
+ * RUTAS DE CUENTA Y SEGURIDAD (AUTENTICADAS)
  * ============================================================================
  *
- * Gestión de:
- * - Verificación de contraseña para acciones sensibles
- * - Cambio de email
- * - Cambio de contraseña
+ * Gestión de la cuenta del usuario autenticado: verificación de contraseña,
+ * actualización de email y cambio de contraseña.
  *
- * Estas rutas requieren autenticación mediante Sanctum.
+ * Prefijo base: /api/account
+ * Middleware heredado: ['api', 'auth:sanctum', 'verified']
+ *
+ * Permisos requeridos (Spatie):
+ * - account.verify-password
+ * - account.update-email
+ * - account.update-password
  */
-
-
-// -------------------------------------------------------------------------
-// CUENTA
-// -------------------------------------------------------------------------
-
 
 Route::prefix('account')->group(function () {
 
+    // Verificar la contraseña actual antes de ejecutar acciones sensibles
+    Route::post('/verify-password', [AccountController::class, 'verifyPassword'])
+        ->middleware('permission:account.verify-password');
 
-    // Genera un token temporal tras validar la contraseña actual
-    Route::post('/verify-password', [AccountVerificationController::class, 'verify']);
+    // Actualizar el email del usuario autenticado
+    Route::put('/update-email', [AccountController::class, 'updateEmail'])
+        ->middleware('permission:account.update-email');
 
-
-    // Cambio de email con verificación adicional
-    Route::patch('/email', [AccountController::class, 'updateEmail'])
-        ->middleware('password.verify:change_email');
-
-
-    // Cambio de contraseña validando la contraseña actual en el body
-    Route::patch('/password', [AccountPasswordController::class, 'updatePassword']);
+    // Cambiar la contraseña del usuario autenticado
+    Route::put('/update-password', [AccountController::class, 'updatePassword'])
+        ->middleware('permission:account.update-password');
 });

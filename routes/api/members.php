@@ -1,170 +1,109 @@
 <?php
 
-use App\Http\Controllers\API\BloodGroup\BloodGroupController;
-use App\Http\Controllers\API\Nationality\NationalityController;
-use App\Http\Controllers\API\Kinship\KinshipController;
 use App\Http\Controllers\API\Member\MemberController;
 use App\Http\Controllers\API\FamilyMember\FamilyMemberController;
-use App\Http\Controllers\API\ConditionType\ConditionTypeController;
 use App\Http\Controllers\API\ConditionMember\ConditionMemberController;
 use Illuminate\Support\Facades\Route;
 
 
 /**
  * ============================================================================
- * RUTAS DE MIEMBROS Y CONDICIONES (AUTENTICADAS)
+ * RUTAS DE MIEMBROS Y RELACIONES FAMILIARES (AUTENTICADAS)
  * ============================================================================
  *
- * Gestión de:
- * - Grupos sanguíneos
- * - Nacionalidades
- * - Parentescos
- * - Miembros del plan familiar
- * - Relaciones familiares
- * - Tipos de condición
- * - Condiciones de miembros
+ * Gestión de los miembros de un plan familiar, sus relaciones
+ * y condiciones especiales.
  *
- * Estas rutas requieren autenticación y email verificado.
+ * Prefijo base: /api
+ * Middleware heredado: ['api', 'auth:sanctum', 'verified']
  */
 
 
 // -------------------------------------------------------------------------
-// GRUPOS SANGUÍNEOS
-// -------------------------------------------------------------------------
-
-Route::prefix('bloodGroups')->group(function () {
-
-    Route::get('/', [BloodGroupController::class, 'index']);
-
-    Route::get('/{bloodGroup_id}', [BloodGroupController::class, 'show']);
-
-    Route::post('/', [BloodGroupController::class, 'store']);
-
-    Route::put('/{bloodGroup_id}', [BloodGroupController::class, 'update']);
-
-    Route::delete('/{bloodGroup_id}', [BloodGroupController::class, 'destroy']);
-});
-
-
-// -------------------------------------------------------------------------
-// NACIONALIDADES
-// -------------------------------------------------------------------------
-
-Route::prefix('nationalities')->group(function () {
-
-    Route::get('/', [NationalityController::class, 'index']);
-
-    Route::get('/{nationality_id}', [NationalityController::class, 'show']);
-
-    Route::get('/{nationality_id}/history', [NationalityController::class, 'history']);
-
-    Route::post('/', [NationalityController::class, 'store']);
-
-    Route::put('/{nationality_id}', [NationalityController::class, 'update']);
-
-    Route::patch('/{nationality_id}', [NationalityController::class, 'partialUpdate']);
-
-    Route::patch('/status/{nationality_id}', [NationalityController::class, 'changeStatus']);
-
-    Route::delete('/{nationality_id}', [NationalityController::class, 'destroy']);
-});
-
-
-// -------------------------------------------------------------------------
-// PARENTESCOS
-// -------------------------------------------------------------------------
-
-Route::prefix('kinships')->group(function () {
-
-    Route::get('/', [KinshipController::class, 'index']);
-
-    Route::get('/{kinship_id}', [KinshipController::class, 'show']);
-
-    Route::post('/', [KinshipController::class, 'store']);
-
-    Route::put('/{kinship_id}', [KinshipController::class, 'update']);
-
-    Route::delete('/{kinship_id}', [KinshipController::class, 'destroy']);
-});
-
-
-// -------------------------------------------------------------------------
 // MIEMBROS
+// Personas registradas dentro de un plan familiar.
 // -------------------------------------------------------------------------
 
 Route::prefix('members')->group(function () {
 
-    Route::get('/', [MemberController::class, 'index']);
+    Route::get('/', [MemberController::class, 'index'])
+        ->middleware('permission:members.index');
 
-    Route::get('/{member_id}', [MemberController::class, 'show']);
+    Route::get('/{id}', [MemberController::class, 'show'])
+        ->middleware('permission:members.show');
 
-    Route::get('/familyPlan/{plan_id}', [MemberController::class, 'getMembersForPlan']);
+    // Obtener los miembros de un plan familiar específico
+    Route::get('/familyPlan/{family_plan_id}', [MemberController::class, 'byFamilyPlan'])
+        ->middleware('permission:members.by-family-plan');
 
-    Route::get('/familyPlan/select/{plan_id}', [MemberController::class, 'getMembersSelect']);
+    // Obtener miembros en formato simplificado para selectores / dropdowns
+    Route::get('/familyPlan/select/{family_plan_id}', [MemberController::class, 'selectByFamilyPlan'])
+        ->middleware('permission:members.select-by-family-plan');
 
-    Route::post('/{plan_id}', [MemberController::class, 'store']);
+    Route::post('/', [MemberController::class, 'store'])
+        ->middleware('permission:members.store');
 
-    Route::put('/{member_id}', [MemberController::class, 'update']);
+    Route::put('/{id}', [MemberController::class, 'update'])
+        ->middleware('permission:members.update');
 
-    Route::patch('/{member_id}', [MemberController::class, 'partialUpdate']);
+    Route::patch('/{id}', [MemberController::class, 'partialUpdate'])
+        ->middleware('permission:members.partial-update');
 
-    Route::delete('/{member_id}', [MemberController::class, 'destroy']);
+    Route::delete('/{id}', [MemberController::class, 'destroy'])
+        ->middleware('permission:members.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // RELACIONES FAMILIARES
+// Vínculo entre dos miembros dentro del plan familiar.
 // -------------------------------------------------------------------------
 
 Route::prefix('familyMembers')->group(function () {
 
-    Route::get('/', [FamilyMemberController::class, 'index']);
+    Route::get('/', [FamilyMemberController::class, 'index'])
+        ->middleware('permission:family-members.index');
 
-    Route::get('/{familyMember_id}', [FamilyMemberController::class, 'show']);
+    Route::get('/{id}', [FamilyMemberController::class, 'show'])
+        ->middleware('permission:family-members.show');
 
-    Route::post('/', [FamilyMemberController::class, 'store']);
+    Route::post('/', [FamilyMemberController::class, 'store'])
+        ->middleware('permission:family-members.store');
 
-    Route::put('/{familyMember_id}', [FamilyMemberController::class, 'update']);
+    Route::put('/{id}', [FamilyMemberController::class, 'update'])
+        ->middleware('permission:family-members.update');
 
-    Route::delete('/{familyMember_id}', [FamilyMemberController::class, 'destroy']);
-});
-
-
-// -------------------------------------------------------------------------
-// TIPOS DE CONDICIÓN
-// -------------------------------------------------------------------------
-
-Route::prefix('conditionTypes')->group(function () {
-
-    Route::get('/', [ConditionTypeController::class, 'index']);
-
-    Route::get('/{conditionType_id}', [ConditionTypeController::class, 'show']);
-
-    Route::post('/', [ConditionTypeController::class, 'store']);
-
-    Route::put('/{conditionType_id}', [ConditionTypeController::class, 'update']);
-
-    Route::delete('/{conditionType_id}', [ConditionTypeController::class, 'destroy']);
+    Route::delete('/{id}', [FamilyMemberController::class, 'destroy'])
+        ->middleware('permission:family-members.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // CONDICIONES DE MIEMBROS
+// Condiciones especiales asociadas a un miembro (discapacidades, enfermedades, etc.).
 // -------------------------------------------------------------------------
 
 Route::prefix('conditionMembers')->group(function () {
 
-    Route::get('/', [ConditionMemberController::class, 'index']);
+    Route::get('/', [ConditionMemberController::class, 'index'])
+        ->middleware('permission:condition-members.index');
 
-    Route::get('/{conditionMember_id}', [ConditionMemberController::class, 'show']);
+    Route::get('/{id}', [ConditionMemberController::class, 'show'])
+        ->middleware('permission:condition-members.show');
 
-    Route::get('/member/{member_id}', [ConditionMemberController::class, 'getByMember']);
+    // Obtener todas las condiciones registradas para un miembro específico
+    Route::get('/member/{member_id}', [ConditionMemberController::class, 'byMember'])
+        ->middleware('permission:condition-members.by-member');
 
-    Route::post('/', [ConditionMemberController::class, 'store']);
+    Route::post('/', [ConditionMemberController::class, 'store'])
+        ->middleware('permission:condition-members.store');
 
-    Route::put('/{conditionMember_id}', [ConditionMemberController::class, 'update']);
+    Route::put('/{id}', [ConditionMemberController::class, 'update'])
+        ->middleware('permission:condition-members.update');
 
-    Route::patch('/{conditionMember_id}', [ConditionMemberController::class, 'partialUpdate']);
+    Route::patch('/{id}', [ConditionMemberController::class, 'partialUpdate'])
+        ->middleware('permission:condition-members.partial-update');
 
-    Route::delete('/{conditionMember_id}', [ConditionMemberController::class, 'destroy']);
+    Route::delete('/{id}', [ConditionMemberController::class, 'destroy'])
+        ->middleware('permission:condition-members.destroy');
 });

@@ -9,22 +9,22 @@ use Illuminate\Support\Facades\Route;
 
 /**
  * ============================================================================
- * RUTAS GEOGRÁFICAS (AUTENTICADAS)
+ * RUTAS DE GEOGRAFÍA (AUTENTICADAS)
  * ============================================================================
  *
- * Catálogos y entidades geográficas del sistema:
- * - Zonas
- * - Sectores
- * - Departamentos
- * - Ciudades
+ * Gestión del árbol geográfico del sistema: zonas, sectores,
+ * departamentos y ciudades.
  *
- * Estas rutas requieren autenticación y email verificado.
- * Algunas rutas además exigen permisos específicos.
+ * Prefijo base: /api
+ * Middleware heredado: ['api', 'auth:sanctum', 'verified']
+ *
+ * Permisos requeridos (Spatie): ver cada grupo de rutas.
  */
 
 
 // -------------------------------------------------------------------------
 // ZONAS
+// División geográfica de primer nivel.
 // -------------------------------------------------------------------------
 
 Route::prefix('zones')->group(function () {
@@ -32,18 +32,23 @@ Route::prefix('zones')->group(function () {
     Route::get('/', [ZoneController::class, 'index'])
         ->middleware('permission:zones.index');
 
-    Route::get('/{zone_id}', [ZoneController::class, 'show']);
+    Route::get('/{id}', [ZoneController::class, 'show'])
+        ->middleware('permission:zones.show');
 
-    Route::post('/', [ZoneController::class, 'store']);
+    Route::post('/', [ZoneController::class, 'store'])
+        ->middleware('permission:zones.store');
 
-    Route::put('/{zone_id}', [ZoneController::class, 'update']);
+    Route::put('/{id}', [ZoneController::class, 'update'])
+        ->middleware('permission:zones.update');
 
-    Route::delete('/{zone_id}', [ZoneController::class, 'destroy']);
+    Route::delete('/{id}', [ZoneController::class, 'destroy'])
+        ->middleware('permission:zones.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // SECTORES
+// Subdivisión dentro de una zona.
 // -------------------------------------------------------------------------
 
 Route::prefix('sectors')->group(function () {
@@ -51,24 +56,34 @@ Route::prefix('sectors')->group(function () {
     Route::get('/', [SectorController::class, 'index'])
         ->middleware('permission:sectors.index');
 
-    Route::get('/{sector_id}', [SectorController::class, 'show']);
+    Route::get('/{sector_id}', [SectorController::class, 'show'])
+        ->middleware('permission:sectors.show');
 
-    Route::get('/{sector_id}/history', [SectorController::class, 'history']);
+    // Historial de cambios de un sector
+    Route::get('/{sector_id}/history', [SectorController::class, 'history'])
+        ->middleware('permission:sectors.history');
 
-    Route::post('/', [SectorController::class, 'store']);
+    Route::post('/', [SectorController::class, 'store'])
+        ->middleware('permission:sectors.store');
 
-    Route::put('/{sector_id}', [SectorController::class, 'update']);
+    Route::put('/{sector_id}', [SectorController::class, 'update'])
+        ->middleware('permission:sectors.update');
 
-    Route::patch('/{sector_id}', [SectorController::class, 'partialUpdate']);
+    Route::patch('/{sector_id}', [SectorController::class, 'partialUpdate'])
+        ->middleware('permission:sectors.partial-update');
 
-    Route::patch('/status/{sector_id}', [SectorController::class, 'changeStatus']);
+    // Activar / desactivar un sector sin eliminarlo
+    Route::patch('/status/{sector_id}', [SectorController::class, 'changeStatus'])
+        ->middleware('permission:sectors.change-status');
 
-    Route::delete('/{sector_id}', [SectorController::class, 'destroy']);
+    Route::delete('/{sector_id}', [SectorController::class, 'destroy'])
+        ->middleware('permission:sectors.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // DEPARTAMENTOS
+// División político-administrativa (Colombia: departamentos).
 // -------------------------------------------------------------------------
 
 Route::prefix('departments')->group(function () {
@@ -76,40 +91,57 @@ Route::prefix('departments')->group(function () {
     Route::get('/', [DepartmentController::class, 'index'])
         ->middleware('permission:departments.index');
 
-    Route::get('/{department_id}', [DepartmentController::class, 'show']);
+    Route::get('/{department_id}', [DepartmentController::class, 'show'])
+        ->middleware('permission:departments.show');
 
-    Route::get('/{department_id}/history', [DepartmentController::class, 'history']);
+    // Historial de cambios de un departamento
+    Route::get('/{department_id}/history', [DepartmentController::class, 'history'])
+        ->middleware('permission:departments.history');
 
-    Route::post('/', [DepartmentController::class, 'store']);
+    Route::post('/', [DepartmentController::class, 'store'])
+        ->middleware('permission:departments.store');
 
-    Route::put('/{department_id}', [DepartmentController::class, 'update']);
+    Route::put('/{department_id}', [DepartmentController::class, 'update'])
+        ->middleware('permission:departments.update');
 
-    Route::patch('/{department_id}', [DepartmentController::class, 'partialUpdate']);
+    Route::patch('/{department_id}', [DepartmentController::class, 'partialUpdate'])
+        ->middleware('permission:departments.partial-update');
 
-    Route::delete('/{department_id}', [DepartmentController::class, 'destroy']);
+    Route::delete('/{department_id}', [DepartmentController::class, 'destroy'])
+        ->middleware('permission:departments.destroy');
 });
 
 
 // -------------------------------------------------------------------------
 // CIUDADES
+// Municipios o ciudades dentro de un departamento.
 // -------------------------------------------------------------------------
 
 Route::prefix('cities')->group(function () {
 
-    Route::get('/', [CityController::class, 'index']);
+    Route::get('/', [CityController::class, 'index'])
+        ->middleware('permission:cities.index');
 
-    Route::get('/{city_id}', [CityController::class, 'show']);
+    Route::get('/{city_id}', [CityController::class, 'show'])
+        ->middleware('permission:cities.show');
 
-    Route::get('/department/{department_id}', [CityController::class, 'getByDepartment'])
-        ->middleware('permission:cities.departments');
+    // Filtrar ciudades pertenecientes a un departamento específico
+    Route::get('/department/{department_id}', [CityController::class, 'byDepartment'])
+        ->middleware('permission:cities.by-department');
 
-    Route::post('/', [CityController::class, 'store']);
+    // Historial de cambios de una ciudad
+    Route::get('/{city_id}/history', [CityController::class, 'history'])
+        ->middleware('permission:cities.history');
 
-    Route::put('/{city_id}', [CityController::class, 'update']);
+    Route::post('/', [CityController::class, 'store'])
+        ->middleware('permission:cities.store');
 
-    Route::patch('/{city_id}', [CityController::class, 'partialUpdate']);
+    Route::put('/{city_id}', [CityController::class, 'update'])
+        ->middleware('permission:cities.update');
 
-    Route::delete('/{city_id}', [CityController::class, 'destroy']);
+    Route::patch('/{city_id}', [CityController::class, 'partialUpdate'])
+        ->middleware('permission:cities.partial-update');
 
-    Route::get('/{city_id}/history', [CityController::class, 'history']);
+    Route::delete('/{city_id}', [CityController::class, 'destroy'])
+        ->middleware('permission:cities.destroy');
 });

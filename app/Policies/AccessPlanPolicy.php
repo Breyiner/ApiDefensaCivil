@@ -52,7 +52,8 @@ class AccessPlanPolicy
                 $user->profile &&
                 $user->profile->organization &&
                 $user->profile->organization->sectional_id === $plan->sectional_id &&
-                $plan->status_plan_id == 4
+                // $plan->status_plan_id == 4
+                in_array($plan->status_plan_id, [4,5,6,7])
             ) {
                 $access = true;
             }

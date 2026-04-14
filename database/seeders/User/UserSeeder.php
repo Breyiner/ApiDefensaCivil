@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
                 'email' => 'dilansanv022@gmail.com',
                 'password' => 'Password.123',
                 'state_user_id' => 1,
-                'role' => 'Administrador',
+                'role' => 'Voluntario',
             ],
             [
                 'email' => 'breyneracosta7@gmail.com',

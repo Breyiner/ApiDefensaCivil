@@ -11,13 +11,13 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
-                'email' => 'edixondelta2022@gmail.com',
+                'email' => 'voluntario@gmail.com',
                 'password' => 'Password.123',
                 'state_user_id' => 1,
                 'role' => 'Voluntario',
             ],
             [
-                'email' => 'valentinaserrano120@gmail.com',
+                'email' => 'supervisor@gmail.com',
                 'password' => 'Password.123',
                 'state_user_id' => 1,
                 'role' => 'Supervisor',
@@ -48,6 +48,7 @@ class UserSeeder extends Seeder
                 'email' => $data['email'],
                 'password' => $data['password'], // el modelo la hashea
                 'state_user_id' => $data['state_user_id'],
+                'email_verified_at' => now(),
             ]);
             
             // Asignar rol

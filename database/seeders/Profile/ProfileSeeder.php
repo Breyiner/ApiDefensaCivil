@@ -11,8 +11,8 @@ class ProfileSeeder extends Seeder
     {
         Profile::create([
             'user_id' => 1,
-            'names' => 'Edixon David',
-            'last_names' => 'Castillo Torres',
+            'names' => 'Iván Ramiro',
+            'last_names' => 'Florez Hurtado',
             'birth_date' => '1995-01-01',
             'document_type_id' => 1,
             'document_number' => '12345678',
@@ -23,8 +23,8 @@ class ProfileSeeder extends Seeder
 
         Profile::create([
             'user_id' => 2,
-            'names' => 'Sol Any Valentina',
-            'last_names' => 'Serrano Quintero',
+            'names' => 'Lizbeth Katerine',
+            'last_names' => 'Campillo Jimenez',
             'birth_date' => '1990-05-10',
             'document_type_id' => 1,
             'document_number' => '87654321',
@@ -35,35 +35,12 @@ class ProfileSeeder extends Seeder
 
         Profile::create([
             'user_id' => 3,
-            'names' => 'Dylan Santiago',
-            'last_names' => 'Vesga Cañas',
+            'names' => 'Ronald Santiago',
+            'last_names' => 'Gomez Herrera',
             'birth_date' => '1998-11-20',
             'document_type_id' => 1,
             'document_number' => '11223344',
             'phone' => '1234567893',
-            'gender_id' => 1,
-            'organization_id' => 1,
-        ]);
-
-        Profile::create([
-            'user_id' => 4,
-            'names' => 'Breyner Alexis',
-            'last_names' => 'Acosta Sandoval',
-            'birth_date' => '1998-11-20',
-            'document_type_id' => 1,
-            'document_number' => '11223345',
-            'phone' => '1234567894',
-            'gender_id' => 1,
-            'organization_id' => 1,
-        ]);
-        Profile::create([
-            'user_id' => 5,
-            'names' => 'Guillermo Elias',
-            'last_names' => 'Garrido Maza',
-            'birth_date' => '1998-11-20',
-            'document_type_id' => 1,
-            'document_number' => '11223346',
-            'phone' => '1234567895',
             'gender_id' => 1,
             'organization_id' => 1,
         ]);

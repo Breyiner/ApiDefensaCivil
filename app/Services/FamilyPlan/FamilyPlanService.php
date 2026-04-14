@@ -53,7 +53,7 @@ class FamilyPlanService
                 'status'       => $plan->statusPlan?->name,
                 'status_id'    => $plan->statusPlan?->id,
                 'sectional'    => $plan->sectional?->name,
-                'responsable'  => $plan->user?->name,
+                'responsable'  => $plan->user?->profile->names,
                 'date_create'  => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
             ];
         });

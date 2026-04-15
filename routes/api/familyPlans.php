@@ -112,7 +112,7 @@ Route::prefix('housingGraphics')->group(function () {
         ->middleware('permission:housing-graphics.show');
 
     // Obtener los gráficos asociados a un plan familiar específico
-    Route::get('/familyPlan/{family_plan_id}', [HousingGraphicController::class, 'byFamilyPlan'])
+    Route::get('/familyPlan/{family_plan_id}', [HousingGraphicController::class, 'getByFamilyPlan'])
         ->middleware('permission:housing-graphics.by-family-plan');
 
     Route::post('/', [HousingGraphicController::class, 'store'])

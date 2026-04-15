@@ -78,7 +78,7 @@ class PetController extends Controller
     public function store(StorePetRequest $request)
     {
         // Validación de acceso al plan
-        if (!(new AccessPlanPolicy())->access($request->family_plan_id))
+        if (!(new AccessPlanPolicy())->access((int)$request->family_plan_id))
         {
             return ResponseFormatter::error(
                 'Usted no tiene autorización para agregar mascotas a este plan',

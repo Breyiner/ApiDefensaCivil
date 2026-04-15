@@ -33,12 +33,15 @@ Route::prefix('members')->group(function () {
         ->middleware('permission:members.show');
 
     // Obtener los miembros de un plan familiar específico
-    Route::get('/familyPlan/{family_plan_id}', [MemberController::class, 'byFamilyPlan'])
+    Route::get('/familyPlan/{family_plan_id}', [MemberController::class, 'getMembersForPlan'])
         ->middleware('permission:members.by-family-plan');
 
     // Obtener miembros en formato simplificado para selectores / dropdowns
-    Route::get('/familyPlan/select/{family_plan_id}', [MemberController::class, 'selectByFamilyPlan'])
+    Route::get('/familyPlan/select/{family_plan_id}', [MemberController::class, 'getMembersSelect'])
         ->middleware('permission:members.select-by-family-plan');
+
+    Route::post('/{plan_id}', [MemberController::class, 'store'])
+        ->middleware('permission:members.store');
 
     Route::post('/', [MemberController::class, 'store'])
         ->middleware('permission:members.store');
@@ -92,7 +95,7 @@ Route::prefix('conditionMembers')->group(function () {
         ->middleware('permission:condition-members.show');
 
     // Obtener todas las condiciones registradas para un miembro específico
-    Route::get('/member/{member_id}', [ConditionMemberController::class, 'byMember'])
+    Route::get('/member/{member_id}', [ConditionMemberController::class, 'getByMember'])
         ->middleware('permission:condition-members.by-member');
 
     Route::post('/', [ConditionMemberController::class, 'store'])

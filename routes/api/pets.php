@@ -66,6 +66,9 @@ Route::prefix('animalGenders')->group(function () {
     Route::get('/{id}', [AnimalGenderController::class, 'show'])
         ->middleware('permission:animal-genders.show');
 
+    Route::get('/pet/{pet_id}', [AnimalGenderController::class, 'getByPet'])
+        ->middleware('permission:animal-genders.show');
+
     Route::post('/', [AnimalGenderController::class, 'store'])
         ->middleware('permission:animal-genders.store');
 

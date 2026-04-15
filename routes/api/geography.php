@@ -126,7 +126,7 @@ Route::prefix('cities')->group(function () {
         ->middleware('permission:cities.show');
 
     // Filtrar ciudades pertenecientes a un departamento específico
-    Route::get('/department/{department_id}', [CityController::class, 'byDepartment'])
+    Route::get('/department/{department_id}', [CityController::class, 'getbyDepartment'])
         ->middleware('permission:cities.by-department');
 
     // Historial de cambios de una ciudad

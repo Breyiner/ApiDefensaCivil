@@ -87,7 +87,8 @@ Route::prefix('actionPlans')->group(function () {
 
     // Verificar en boolean si existe un plan de acción para un plan familiar
     Route::get('/familyPlan/boolean/{id}', [ActionPlanController::class, 'getByPlanBoolean'])
-        ->middleware('permission:action-plans.boolean-by-family-plan');
+        ->middleware('permission:action-plans.check-exists');
+        //->middleware('permission:action-plans.boolean-by-family-plan');
 
     Route::post('/', [ActionPlanController::class, 'store'])
         ->middleware('permission:action-plans.store');

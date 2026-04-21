@@ -222,7 +222,7 @@ class SectionalService
             ];
         }
 
-        if ($sectional->has('organizations')) {
+        if ($sectional->organizations()->exists()) {
             return [
                 "error" => true,
                 "code" => 409,
@@ -230,7 +230,7 @@ class SectionalService
             ];
         }
 
-        if ($sectional->has('familyPlans')) {
+        if ($sectional->familyPlans()->exists()) {
             return [
                 "error" => true,
                 "code" => 409,

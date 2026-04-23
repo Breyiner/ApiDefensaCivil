@@ -467,6 +467,8 @@ class PermissionSeeder extends Seeder
             ['notifications.update', 'Actualizar notificación'],
             ['notifications.partial-update', 'Actualizar parcialmente notificación'],
             ['notifications.destroy', 'Eliminar notificación'],
+
+            ['pdf.show', 'ver el pdf de plan familiar']
         ];
 
         foreach ($permissions as [$name, $description]) {

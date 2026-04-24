@@ -412,28 +412,279 @@
                     <p style="margin:0;"> {{ $member->member->last_names . ' ' . $member->member->names}} </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->documentType->acronym . ', ' .  }} </p>
+                    <p style="margin:0;">
+                        {{ $member->member->documentType->acronym . ' ' . $member->member->document_number }}
+                    </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{-- dato --}}</p>
+                    <p style="margin:0;"> {{ $member->member->age }} </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{-- dato --}}</p>
+                    <p style="margin:0;"> {{ $member->member->bloodGroup->name }} </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{-- dato --}}</p>
+                    <p style="margin:0;"> {{ $member->member->kinship->name }} </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{-- dato --}}</p>
+                    <p style="margin:0;"> {{ $member->member->eps }} </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{-- dato --}}</p>
+                    <p style="margin:0;"> {{ $member->member->conditionMember->pluck('name')->join('<br>')}} </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{-- dato --}}</p>
+                    <p style="margin:0;"> {{ $member->member->conditionMember->pluck('dose')->join('<br>') }} </p>
                 </td>
                 <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{-- dato --}}</p>
+                    <p style="margin:0;"> {{ $member->member->phone }} </p>
+                </td>
+            </tr>
+        @endforeach
+    </table>
+
+    <div class="salto"></div>
+
+    <table style="width:100%; margin-bottom:10px;">
+        <tr>
+            <td style="text-align:center; font-size:12px;">
+                <strong>Formato Anexo N° 05 - <em>"FACTORES DE RIESGO (AMENAZAS – VULNERABILIDADES)"</em></strong>
+            </td>
+        </tr>
+    </table>
+
+    <table style="width:100%; border-collapse:collapse; font-size:10px;">
+
+        <tr style="background-color:#1a5276; color:#ffffff;">
+            <td colspan="7" style="text-align:center; padding:8px; border:1px solid #ccc;">
+                <p style="margin:0;">ANEXO N° 05 FACTORES DE RIESGO (AMENAZAS –VULNERABILIDADES)</p>
+            </td>
+        </tr>
+
+        <tr style="background-color:#1a5276; color:#ffffff;">
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">DESCRIPCIÓN</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">UBICACIÓN</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">TIPO DE AMENAZA</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">VULNERABILIDAD</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">ACCIONES DE REDUCCIÓN FAMILIARES</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">RESPONSABLE</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">TÉRMINO</p>
+            </td>
+        </tr>
+
+        @foreach($familyPlan->riskFactors as $risk)
+            <tr>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $risk->description }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $risk->ubication }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $risk->threatType->name }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $risk->description }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $risk->riskReductionActions->pluck('action')->join(', ') }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $risk->riskReductionActions->pluck('member.names')->join(', ') }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $risk->riskReductionActions->pluck('end_date')->join(', ') }}</p>
+                </td>
+            </tr>
+        @endforeach
+
+    </table>
+
+    <div class="salto"></div>
+
+    <table style="width:100%; margin-bottom:10px;">
+        <tr>
+            <td style="text-align:center; font-size:12px;">
+                <strong>Formato Anexo N° 06 - <em>"RECURSOS DISPONIBLES"</em></strong>
+            </td>
+        </tr>
+    </table>
+
+    <table style="width:100%; border-collapse:collapse; font-size:10px;">
+
+        <tr style="background-color:#1a5276; color:#ffffff;">
+            <td colspan="6" style="text-align:center; padding:8px; border:1px solid #ccc;">
+                <p style="margin:0;">ANEXO N° 06 RECURSOS DISPONIBLES</p>
+            </td>
+        </tr>
+
+        <tr style="background-color:#1a5276; color:#ffffff;">
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">RECURSO</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">UBICACIÓN</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">DISTANCIA</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">SERVICIO</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">DESCRIPCIÓN</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">TELÉFONO</p>
+            </td>
+        </tr>
+
+        @foreach($familyPlan->availableResources as $resource)
+            <tr>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">
+                        {{ $resource->resource->name }}
+                    </p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">
+                        {{ $resource->location }}
+                    </p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">
+                        {{ $resource->distance . ' metros' }}
+                    </p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">
+                        {{ $resource->resource->service }}
+                    </p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">
+                        {{ $resource->description }}
+                    </p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">
+                        {{ $resource->phone }}
+                    </p>
+                </td>
+            </tr>
+        @endforeach
+
+    </table>
+
+    <div class="salto"></div>
+
+    <table style="width:100%; margin-bottom:10px;">
+        <tr>
+            <td style="text-align:center; font-size:12px;">
+                <strong>Formato Anexo N° 08 - <em>"PLAN DE ACCIÓN FAMILIAR"</em></strong>
+            </td>
+        </tr>
+    </table>
+
+    <table style="width:100%; border-collapse:collapse; font-size:10px;">
+
+        <tr style="background-color:#1a5276; color:#ffffff;">
+            <td colspan="3" style="text-align:center; padding:8px; border:1px solid #ccc;">
+                <p style="margin:0;">ANEXO N° 08 PLAN DE ACCIÓN FAMILIAR</p>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding:6px; border:1px solid #ccc; width:30%;"><strong>PLAN DE ACCION POR:</strong></td>
+            <td colspan="2" style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;"></p>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding:6px; border:1px solid #ccc;"><strong>COORDINADOR:</strong></td>
+            <td colspan="2" style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;"></p>
+            </td>
+        </tr>
+
+        <tr style="background-color:#1a5276; color:#ffffff;">
+            <td colspan="2" style="padding:6px; border:1px solid #ccc;">
+                <p style="margin:0;">ACCIONES A DESARROLLAR</p>
+            </td>
+            <td style="padding:6px; border:1px solid #ccc; width:30%;">
+                <p style="margin:0;">RESPONSABLE</p>
+            </td>
+        </tr>
+
+        @php
+            $actionPlans = $familyPlan->actionPlans()->with('actionPlanAction.member')->get();
+            $antes = $actionPlans->flatMap->actionPlanAction->where('action_type_id', 1)->values();
+            $durante = $actionPlans->flatMap->actionPlanAction->where('action_type_id', 2)->values();
+            $despues = $actionPlans->flatMap->actionPlanAction->where('action_type_id', 3)->values();
+        @endphp
+
+        {{-- ANTES --}}
+        @foreach($antes as $action)
+            <tr>
+                @if($loop->first)
+                    <td style="padding:6px; border:1px solid #ccc; background-color:#1a5276; color:#ffffff; font-weight:bold; text-align:center; vertical-align:middle;"
+                        rowspan="{{ $antes->count() }}">
+                        ANTES
+                    </td>
+                @endif
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $action->description }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $action->member->names ?? '-' }}</p>
+                </td>
+            </tr>
+        @endforeach
+
+        {{-- DURANTE --}}
+        @foreach($durante as $action)
+            <tr>
+                @if($loop->first)
+                    <td style="padding:6px; border:1px solid #ccc; background-color:#1a5276; color:#ffffff; font-weight:bold; text-align:center; vertical-align:middle;"
+                        rowspan="{{ $durante->count() }}">
+                        DURANTE
+                    </td>
+                @endif
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $action->description }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $action->member->names ?? '-' }}</p>
+                </td>
+            </tr>
+        @endforeach
+
+        {{-- DESPUÉS --}}
+        @foreach($despues as $action)
+            <tr>
+                @if($loop->first)
+                    <td style="padding:6px; border:1px solid #ccc; background-color:#1a5276; color:#ffffff; font-weight:bold; text-align:center; vertical-align:middle;"
+                        rowspan="{{ $despues->count() }}">
+                        DESPUÉS
+                    </td>
+                @endif
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $action->description }}</p>
+                </td>
+                <td style="padding:6px; border:1px solid #ccc;">
+                    <p style="margin:0;">{{ $action->member->names ?? '-' }}</p>
                 </td>
             </tr>
         @endforeach

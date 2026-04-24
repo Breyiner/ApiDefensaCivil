@@ -28,14 +28,9 @@ class PDFService
             'pets.species',
             'pets.animalGender',
             'pets.petVaccine',
-            // 'riks',
             'riskFactors',
             'vulnerableTest',
-            'vulnerableTest.vulnerableQuestion',
             'sector',
-            // 'resources',
-            // 'actionPlans',
-            // 'actionPlans.actions'
             'city',
         ])->findOrFail($id);
 

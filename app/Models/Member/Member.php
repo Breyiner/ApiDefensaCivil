@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * Importación de modelos relacionados para establecer relaciones Eloquent.
  */
+
 use App\Models\BloodGroup\BloodGroup;
 use App\Models\DocumentType\DocumentType;
 use App\Models\Nationality\Nationality;
@@ -17,6 +18,7 @@ use App\Models\FamilyMember\FamilyMember;
 use App\Models\ConditionMember\ConditionMember;
 use App\Models\ActionPlan\ActionPlan;
 use App\Models\RiskReductionAction\RiskReductionAction;
+use Carbon\Carbon;
 
 /**
  * Clase Member
@@ -114,5 +116,10 @@ class Member extends Model
     public function riskReductionActions()
     {
         return $this->hasMany(RiskReductionAction::class, 'member_id');
+    }
+
+    public function getAgeAttribute(): int
+    {
+        return Carbon::parse($this->birth_date)->age;
     }
 }

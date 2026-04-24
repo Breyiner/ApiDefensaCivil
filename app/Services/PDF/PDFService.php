@@ -25,11 +25,14 @@ class PDFService
         $familyPlan = FamilyPlan::with([
             'familyMembers',
             'pets',
+            'pets.species',
+            'pets.animalGender',
             'pets.petVaccine',
             // 'riks',
             'riskFactors',
             'vulnerableTest',
             'vulnerableTest.vulnerableQuestion',
+            'sector',
             // 'resources',
             // 'actionPlans',
             // 'actionPlans.actions'

@@ -30,6 +30,7 @@ class PDFService
             'pets.petVaccine',
             'riskFactors',
             'vulnerableTest',
+            // 'familyMembers.member.actionPlan',
             'sector',
             'city',
         ])->findOrFail($id);

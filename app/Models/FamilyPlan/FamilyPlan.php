@@ -2,7 +2,6 @@
 
 namespace App\Models\FamilyPlan;
 
-use App\Models\ActionPlan\ActionPlan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Audit\Audit; // 🔹 Importar Audit para la relación
@@ -133,7 +132,7 @@ class FamilyPlan extends Model
     }
     public function housingGraphic()
     {
-        return $this->hasMany(housingGraphic::class, 'family_plan_id');
+        return $this->hasMany(HousingGraphic::class, 'family_plan_id');
     }
     public function familyMembers()
     {
@@ -213,9 +212,4 @@ class FamilyPlan extends Model
         return $this->hasMany(AvailableResource::class, 'family_plan_id');
     }
 
-    public function actionPlans()
-    {
-        $memberIds = $this->familyMembers()->pluck('member_id');
-        return ActionPlan::whereIn('member_id', $memberIds);
-    }
 }

@@ -8,6 +8,6 @@ use Illuminate\Support\Facades\Storage;
 
 Route::prefix('pdf')->group(function(){
     
-    Route::get('/{id}', [PDFController::class, 'show']);
-        // ->middleware('permission:pdf.show');
+    Route::get('/{id}', [PDFController::class, 'show'])
+        ->middleware('permission:pdf.show');
 });

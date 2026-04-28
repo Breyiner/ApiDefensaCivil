@@ -5,6 +5,7 @@ namespace App\Models\FamilyPlan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Audit\Audit; // 🔹 Importar Audit para la relación
+use App\Models\AvailableResource\AvailableResource;
 
 /** * Importación de modelos relacionados para definir las relaciones Eloquent 
  */
@@ -131,7 +132,7 @@ class FamilyPlan extends Model
     }
     public function housingGraphic()
     {
-        return $this->hasMany(housingGraphic::class, 'family_plan_id');
+        return $this->hasMany(HousingGraphic::class, 'family_plan_id');
     }
     public function familyMembers()
     {
@@ -205,4 +206,10 @@ class FamilyPlan extends Model
             default => $query->whereRaw('1 = 0')
         };
     }
+
+    public function availableResources()
+    {
+        return $this->hasMany(AvailableResource::class, 'family_plan_id');
+    }
+
 }

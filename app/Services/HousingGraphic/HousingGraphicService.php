@@ -22,8 +22,8 @@ class HousingGraphicService
         return [
             "error" => false,
             "code" => 200,
-            "message" => $images->isEmpty() 
-                ? "No hay graficos de vivienda en el sistema" 
+            "message" => $images->isEmpty()
+                ? "No hay graficos de vivienda en el sistema"
                 : "Graficos de vivienda obtenidos exitosamente",
             "data" => $images,
         ];
@@ -94,7 +94,7 @@ class HousingGraphicService
      */
     public function create(array $data)
     {
-         /** @var UploadedFile $file */
+        /** @var UploadedFile $file */
         $file = $data['path'];
 
         // Almacena el archivo en 'storage/app/public/imagenes'
@@ -142,7 +142,7 @@ class HousingGraphicService
 
     public function delete(int $id)
     {
-         $image = HousingGraphic::find($id);
+        $image = HousingGraphic::find($id);
 
         if (!$image) {
             return [

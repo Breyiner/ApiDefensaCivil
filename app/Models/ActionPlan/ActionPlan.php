@@ -12,8 +12,8 @@ class ActionPlan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['member_id','risk_factor_id',];
-    
+    protected $fillable = ['member_id', 'risk_factor_id',];
+
     public function member()
     {
         return $this->belongsTo(Member::class, 'member_id');

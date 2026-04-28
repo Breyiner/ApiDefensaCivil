@@ -7,7 +7,6 @@
     <title>Document</title>
 
     <style>
-
         /* =========================
         RESET / BASE
         ========================= */
@@ -222,6 +221,19 @@
             margin-top: 100px;
         }
 
+        /* =========================
+        GEOREFERENCIA
+        ========================= */
+        .GeoreferenciaCont {
+            width: 100%;
+            height: 400px;
+            text-align: center;
+        }
+
+        .GeoreferenciaCont img {
+            height: 100%;
+            display: inline-block;
+        }
     </style>
 
 </head>
@@ -292,8 +304,9 @@
     </div>
 
     <div class="salto"></div>
-    
-    {{-- PREGUNTAS DE VULNERABILIDAD ------------------------------------------------------------------------------------------ --}}
+
+    {{-- PREGUNTAS DE VULNERABILIDAD
+    ------------------------------------------------------------------------------------------ --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 01 - <em>"TEST DE VULNERABILIDAD FAMILIAR"</em></strong>
@@ -358,7 +371,12 @@
 
     <div class="salto"></div>
 
-    {{-- IDENTIFICACIÓN DE LA FAMILIA ------------------------------------------------------------------------------------------ --}}
+    {{-- IDENTIFICACIÓN DE LA FAMILIA
+    ------------------------------------------------------------------------------------------ --}}
+
+    @php
+        $georeferencia = $familyPlan->housingInfo->where('housing_info_type_id', 1)->first();
+    @endphp
 
     <div class="titulo" style="width:100%; margin-bottom:10px;">
         <strong>Formato Anexo N° 02 - <em>"IDENTIFICACIÓN DE LA FAMILIA"</em></strong>
@@ -453,10 +471,17 @@
         Cartografía Social, Plano, bosquejo etc.
     </p>
 
+    <div class="GeoreferenciaCont">
+
+        <img src="{{ storage_path('app/public/' . $georeferencia->path) }}" alt="">
+    </div>
+
+
     <div class="salto"></div>
 
 
-    {{-- TABLA MASCOTAS -------------------------------------------------------------------------------------------- --}}
+    {{-- TABLA MASCOTAS --------------------------------------------------------------------------------------------
+    --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 04 - <em>"MASCOTAS O ANIMALES DE COMPAÑÍA"</em></strong>
@@ -520,7 +545,8 @@
 
     <div class="salto"></div>
 
-    {{-- TABLA INTEGRANTES -------------------------------------------------------------------------------------------- --}}
+    {{-- TABLA INTEGRANTES --------------------------------------------------------------------------------------------
+    --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 03 - <em>"INTEGRANTES DE LA FAMILIA"</em></strong>
@@ -605,7 +631,8 @@
     <div class="salto"></div>
 
 
-    {{-- TABLA VULNERABILIDADES -------------------------------------------------------------------------------------------- --}}
+    {{-- TABLA VULNERABILIDADES
+    -------------------------------------------------------------------------------------------- --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 05 - <em>"FACTORES DE RIESGO (AMENAZAS – VULNERABILIDADES)"</em></strong>
@@ -700,7 +727,8 @@
     <div class="salto"></div>
 
 
-    {{-- TABLA RECURSOS DISPONIBLES --------------------------------------------------------------------------------------- --}}
+    {{-- TABLA RECURSOS DISPONIBLES
+    --------------------------------------------------------------------------------------- --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 06 - <em>"RECURSOS DISPONIBLES"</em></strong>
@@ -783,19 +811,28 @@
 
     @foreach ($familyPlan->housingGraphic as $graphic)
 
-        <div class="graficoCont">
+        {{-- @if (!is_null($graphic->path)) --}}
+        {{-- @else
+        <p style="text-align:center; margin-top: 20px; font-size:14px; color: #888;">
+            Sin gráfico registrado.
+        </p> --}}
+        {{-- @endif --}}
 
+        <div class="graficoCont">
             <img src="{{ storage_path('app/public/' . $graphic->path) }}">
 
             <p style="font-size:16px; margin-top:10px;">
                 <strong>Descripción del Grafico:</strong> {{ $graphic->description }}
             </p>
-
         </div>
 
         <div class="salto"></div>
 
     @endforeach
+
+    @if ($familyPlan->housingGraphic->isEmpty())
+        <div class="salto"></div>
+    @endif
 
     {{-- TABLA PLAN DE ACCIÓN FAMILIAR --------------------------------------------------------------------------------------- --}}
 
@@ -922,13 +959,17 @@
 
     {{-- GRAFICO ENTORNO --------------------------------------------------------------------------------------- --}}
 
+    @php
+        $graficoEntorno = $familyPlan->housingInfo->where('housing_info_type_id', 2)->first();
+    @endphp
+
     <div class="titulo">
         <strong>Formato Anexo N° 09 - <em>“GRÁFICO DEL ENTORNO”</em></strong>
     </div>
 
     <div class="graficoCont">
 
-        <img src="{{ storage_path('app/public/' . $familyPlan->housingInfo->path) }}">
+        <img src="{{ storage_path('app/public/' . $graficoEntorno->path) }}">
     </div>
 
 </body>

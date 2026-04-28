@@ -28,6 +28,9 @@ return new class extends Migration
              */
             $table->string('path');
 
+            // $table->foreign('housing_info_type_id')->references('id')->on('housing_info_types');
+            $table->foreignId('housing_info_type_id')->constrained('housing_info_types');
+
             // Auditoría: created_at y updated_at
             $table->timestamps();
         });

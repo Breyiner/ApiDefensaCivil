@@ -7,19 +7,12 @@
     <title>Document</title>
 
     <style>
+
+        /* =========================
+        RESET / BASE
+        ========================= */
         * {
             box-sizing: border-box;
-        }
-
-        @page {
-            margin-left: 12px;
-            margin-right: 12px;
-            margin-bottom: 5px;
-            margin-top: 120px;
-        }
-
-        .salto {
-            page-break-after: always;
         }
 
         body {
@@ -28,20 +21,42 @@
             padding: 0;
         }
 
+        /* =========================
+        PDF CONFIG
+        ========================= */
+        @page {
+            margin-left: 12px;
+            margin-right: 12px;
+            margin-bottom: 5px;
+            margin-top: 120px;
+        }
+
+        /* =========================
+        UTILIDADES
+        ========================= */
+        .salto {
+            page-break-after: always;
+        }
+
         .titulo {
             width: 100%;
-            text-align: center
+            text-align: center;
         }
 
         .nota {
-            margin-top: 20px;
             width: 90%;
-
             margin: 20px auto;
-            /* text-align: center; */
+            margin-top: 20px;
         }
 
-        .encabezado {
+        .margin_null {
+            margin: 0;
+        }
+
+        /* =========================
+        ENCABEZADO PDF
+        ========================= */
+        .encabezadoDoc {
             height: 85px;
             width: 100%;
             position: fixed;
@@ -51,22 +66,25 @@
             border-radius: 0 0 30px 30px;
         }
 
-        .encabezado img {
+        .encabezadoDoc img {
             height: 70px;
-            display: inline-block;
             float: left;
+            display: inline-block;
         }
 
-        .encabezado p {
+        .encabezadoDoc p {
             float: left;
             color: white;
+            font-weight: bold;
             padding: 10px;
             border-radius: 5px;
             margin-top: 15px;
-            width: auto;
             text-align: center;
         }
 
+        /* =========================
+        COVER / PORTADA
+        ========================= */
         .cover {
             width: 100%;
             padding-top: 100px;
@@ -74,10 +92,9 @@
 
         .cover .izq {
             width: 55%;
-            vertical-align: middle;
-            text-align: center;
-            padding-right: 15px;
             text-align: right;
+            vertical-align: middle;
+            padding-right: 15px;
         }
 
         .cover .der {
@@ -92,12 +109,14 @@
             border-radius: 100px;
         }
 
-        /* Layout con tabla en lugar de flexbox */
         h1 {
             font-size: 30px;
             margin-top: 1cm;
         }
 
+        /* =========================
+        TABLAS BASE
+        ========================= */
         .preguntasVulnerabilidad,
         .tablaFamilia,
         .tablaMascotas,
@@ -105,33 +124,93 @@
         .tablaVulnerabilidades,
         .tablaRecursos,
         .tablaAccion {
-
             width: 100%;
             border-collapse: collapse;
+            font-size: 12px;
             height: fit-content;
             padding-top: 20px;
-            font-size: 12px;
         }
 
+        /* =========================
+        TABLA PREGUNTAS
+        ========================= */
         .preguntasVulnerabilidad {
             font-size: 15px;
         }
 
         .columnas {
             background-color: rgb(0, 111, 192);
-            color: #ffffff;
+            color: #fff;
         }
 
+        .encabezado_preguntas {
+            text-align: center;
+            padding: 6px;
+            border: 1px solid #000;
+        }
+
+        /* =========================
+        TABLAS CELDAS
+        ========================= */
+        .fila_normal {
+            padding: 6px;
+            border: 1px solid #000;
+        }
+
+        .fila_centrada {
+            text-align: center;
+            padding: 6px;
+            border: 1px solid #000;
+        }
+
+        .encabezado_tabla {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #000;
+        }
+
+        .secciones_tabla_fila {
+            padding: 8px;
+            border: 1px solid #000;
+        }
+
+        /* =========================
+        COLORES TABLAS
+        ========================= */
+        .color_fila_oscuro {
+            background-color: #1a5276;
+            color: #fff;
+        }
+
+        .background_claro {
+            background-color: #aed6f1;
+        }
+
+        /* =========================
+        ACCIONES (PLAN FAMILIAR)
+        ========================= */
+        .seccion_accion {
+            padding: 6px;
+            border: 1px solid #000;
+            background-color: #1a5276;
+            color: #fff;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* =========================
+        GRÁFICOS
+        ========================= */
         .graficoCont {
             width: 100%;
             height: 900px;
             background-image: url('{{ public_path('assets/images/cuadricula.jpg') }}');
             background-repeat: no-repeat;
             background-position: center;
-            text-align: center;
             background-size: cover;
+            text-align: center;
             margin-top: 10px;
-            /* border: #1a5276 solid 3px; */
         }
 
         .graficoCont img {
@@ -142,18 +221,22 @@
             display: inline-block;
             margin-top: 100px;
         }
+
     </style>
+
 </head>
 
 <body>
 
-    <header class="encabezado">
+    <header class="encabezadoDoc">
 
         <img src="{{ public_path('assets/images/logos/defensa-civil-logo.png') }}" alt="">
 
         <p> PLAN FAMILIAR DE EMERGENCIA </p>
 
     </header>
+
+    {{-- PORTADA ------------------------------------------------------------------------------------------ --}}
 
     <div class="cover">
 
@@ -209,6 +292,8 @@
     </div>
 
     <div class="salto"></div>
+    
+    {{-- PREGUNTAS DE VULNERABILIDAD ------------------------------------------------------------------------------------------ --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 01 - <em>"TEST DE VULNERABILIDAD FAMILIAR"</em></strong>
@@ -219,16 +304,16 @@
         <thead>
 
             <tr class="columnas">
-                <td style="width:8%; text-align:center; padding:6px; border:1px solid #ccc;">
+                <td style="width:8%;" class="encabezado_preguntas">
                     <strong>N°</strong>
                 </td>
-                <td style="width:72%; text-align:center; padding:6px; border:1px solid #ccc;">
+                <td style="width:72%;" class="encabezado_preguntas">
                     <strong>RESPONDA SÍ O NO SEGÚN SU APRECIACIÓN</strong>
                 </td>
-                <td style="width:10%; text-align:center; padding:6px; border:1px solid #ccc;">
+                <td style="width:10%;" class="encabezado_preguntas">
                     <strong>SÍ</strong>
                 </td>
-                <td style="width:10%; text-align:center; padding:6px; border:1px solid #ccc;">
+                <td style="width:10%;" class="encabezado_preguntas">
                     <strong>NO</strong>
                 </td>
             </tr>
@@ -243,19 +328,19 @@
 
                 <tr>
 
-                    <td style="text-align:center; padding:6px; border:1px solid #ccc;">
+                    <td class="fila_centrada">
                         {{ str_pad($i++, 2, '0', STR_PAD_LEFT) }}
                     </td>
 
-                    <td style="padding:6px; border:1px solid #ccc;">
+                    <td class="fila_normal">
                         {{ $test->vulnerableQuestion->description }}
                     </td>
 
-                    <td style="text-align:center; padding:6px; border:1px solid #ccc;">
+                    <td class="fila_centrada">
                         {{ $test->answer ? 'X' : '' }}
                     </td>
 
-                    <td style="text-align:center; padding:6px; border:1px solid #ccc;">
+                    <td class="fila_centrada">
                         {{ !$test->answer ? 'X' : '' }}
                     </td>
 
@@ -273,8 +358,7 @@
 
     <div class="salto"></div>
 
-    {{-- IDENTIFICACIÓN DE LA FAMILIA
-    ------------------------------------------------------------------------------------------ --}}
+    {{-- IDENTIFICACIÓN DE LA FAMILIA ------------------------------------------------------------------------------------------ --}}
 
     <div class="titulo" style="width:100%; margin-bottom:10px;">
         <strong>Formato Anexo N° 02 - <em>"IDENTIFICACIÓN DE LA FAMILIA"</em></strong>
@@ -284,76 +368,76 @@
     <table class="tablaFamilia">
 
         {{-- Título --}}
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td colspan="2" style="text-align:center; padding:8px; border:1px solid #ccc;">
+        <tr class="color_fila_oscuro">
+            <td colspan="2" class="encabezado_tabla">
                 <strong>ANEXO N° 02 IDENTIFICACIÓN DE LA FAMILIA</strong>
             </td>
         </tr>
 
         {{-- Fila oscura --}}
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td style="width:40%; padding:8px; border:1px solid #ccc;">
+        <tr class="color_fila_oscuro">
+            <td class="secciones_tabla_fila" style="width:40%;">
                 <strong>SECCIONAL</strong>
             </td>
-            <td style="width:60%; padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila" style="width:60%;">
                 <p>{{ $familyPlan->sectional->name }}</p>
             </td>
         </tr>
 
         {{-- Fila clara --}}
-        <tr style="background-color:#aed6f1;">
-            <td style="padding:8px; border:1px solid #ccc;">
+        <tr class="background_claro">
+            <td class="secciones_tabla_fila">
                 <strong>Familia Segura N°</strong>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <p>{{ $familyPlan->id }}</p>
             </td>
         </tr>
 
         <tr>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <strong>NOMBRE DE LA FAMILIA</strong><br>
                 <small>(Apellidos)</small>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <p>{{ $familyPlan->last_names }}</p>
             </td>
         </tr>
 
         <tr>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <strong>DIRECCIÓN</strong>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <p>{{ $familyPlan->address . ', ' . $familyPlan->sector->name . ' ' . $familyPlan->sector_name . ', ' . $familyPlan->city->name . ', ' . $familyPlan->city->department->name}}
                 </p>
             </td>
         </tr>
 
         <tr>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <strong>BARRIO - COMUNA - LOCALIDAD</strong>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <p>{{ $familyPlan->sector->name }}</p>
             </td>
         </tr>
 
         <tr>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <strong>TELÉFONO FIJO</strong>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <p>{{ $familyPlan->landline_phone }}</p>
             </td>
         </tr>
 
         <tr>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <strong>CALIDAD DE LA VIVIENDA</strong><br>
                 <small>(Arriendo – Propietario)</small>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
+            <td class="secciones_tabla_fila">
                 <p>{{ $familyPlan->housingQuality->name }}</p>
             </td>
         </tr>
@@ -372,8 +456,7 @@
     <div class="salto"></div>
 
 
-    {{-- TABLA MASCOTAS --------------------------------------------------------------------------------------------
-    --}}
+    {{-- TABLA MASCOTAS -------------------------------------------------------------------------------------------- --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 04 - <em>"MASCOTAS O ANIMALES DE COMPAÑÍA"</em></strong>
@@ -381,54 +464,54 @@
 
     <table class="tablaMascotas">
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td colspan="6" style="text-align:center; padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">ANEXO N° 04 MASCOTAS O ANIMALES DE COMPAÑÍA</p>
+        <tr class="color_fila_oscuro">
+            <td colspan="6" class="encabezado_tabla">
+                <p class="margin_null">ANEXO N° 04 MASCOTAS O ANIMALES DE COMPAÑÍA</p>
             </td>
         </tr>
 
         {{-- Encabezados de columna --}}
-        <tr style="background-color:#aed6f1;">
-            <td style="padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">ESPECIE</p>
+        <tr class="background_claro">
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">ESPECIE</p>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">NOMBRE</p>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">NOMBRE</p>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">RAZA</p>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">RAZA</p>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">GENERO</p>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">GENERO</p>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">EDAD</p>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">EDAD</p>
             </td>
-            <td style="padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">VACUNAS</p>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">VACUNAS</p>
             </td>
         </tr>
 
         {{-- Filas dinámicas --}}
         @foreach($familyPlan->pets as $pet)
             <tr>
-                <td style="padding:8px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $pet->species->name }}</p>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->species->name }}</p>
                 </td>
-                <td style="padding:8px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $pet->name }}</p>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->name }}</p>
                 </td>
-                <td style="padding:8px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $pet->breed }}</p>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->breed }}</p>
                 </td>
-                <td style="padding:8px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $pet->animalGender->name }}</p>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->animalGender->name }}</p>
                 </td>
-                <td style="padding:8px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $pet->age }}</p>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->age }}</p>
                 </td>
-                <td style="padding:8px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $pet->petVaccine->pluck('name')->join(', ') }}</p>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->petVaccine->pluck('name')->join(', ') }}</p>
                 </td>
             </tr>
         @endforeach
@@ -437,82 +520,82 @@
 
     <div class="salto"></div>
 
-    {{-- TABLA INTEGRANTES --------------------------------------------------------------------------------------------
-    --}}
+    {{-- TABLA INTEGRANTES -------------------------------------------------------------------------------------------- --}}
+
     <div class="titulo">
         <strong>Formato Anexo N° 03 - <em>"INTEGRANTES DE LA FAMILIA"</em></strong>
     </div>
 
     <table class="tablaIntegrante">
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td colspan="9" style="text-align:center; padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">ANEXO N° 03 INTEGRANTES DE LA FAMILIA</p>
+        <tr class="color_fila_oscuro">
+            <td colspan="9" class="encabezado_tabla">
+                <p class="margin_null">ANEXO N° 03 INTEGRANTES DE LA FAMILIA</p>
             </td>
         </tr>
 
         {{-- Encabezados de columna --}}
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">APELLIDOS Y NOMBRES</p>
+        <tr class="color_fila_oscuro">
+            <td class="fila_normal">
+                <p class="margin_null">APELLIDOS Y NOMBRES</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">DOC. IDENTIDAD</p>
+            <td class="fila_normal">
+                <p class="margin_null">DOC. IDENTIDAD</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">EDAD</p>
+            <td class="fila_normal">
+                <p class="margin_null">EDAD</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">GRUPO SANGUÍNEO Y RH</p>
+            <td class="fila_normal">
+                <p class="margin_null">GRUPO SANGUÍNEO Y RH</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">PARENTESCO</p>
+            <td class="fila_normal">
+                <p class="margin_null">PARENTESCO</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">EPS</p>
+            <td class="fila_normal">
+                <p class="margin_null">EPS</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">ENFERMEDAD DISCAPACIDA ALERGIAS</p>
+            <td class="fila_normal">
+                <p class="margin_null">ENFERMEDAD DISCAPACIDA ALERGIAS</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">MEDICINAS / DOSIS</p>
+            <td class="fila_normal">
+                <p class="margin_null">MEDICINAS / DOSIS</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">CELULAR</p>
+            <td class="fila_normal">
+                <p class="margin_null">CELULAR</p>
             </td>
         </tr>
 
         {{-- Filas dinámicas --}}
         @foreach($familyPlan->familyMembers as $member)
             <tr>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->last_names . ' ' . $member->member->names}} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->last_names . ' ' . $member->member->names}} </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">
+                <td class="fila_normal">
+                    <p class="margin_null">
                         {{ $member->member->documentType->acronym . ' ' . $member->member->document_number }}
                     </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->age }} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->age }} </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->bloodGroup->name }} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->bloodGroup->name }} </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->kinship->name }} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->kinship->name }} </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->eps }} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->eps }} </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->conditionMember->pluck('name')->join('<br>')}} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join('<br>')}} </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->conditionMember->pluck('dose')->join('<br>') }} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('dose')->join('<br>') }} </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;"> {{ $member->member->phone }} </p>
+                <td class="fila_normal">
+                    <p class="margin_null"> {{ $member->member->phone }} </p>
                 </td>
             </tr>
         @endforeach
@@ -522,8 +605,7 @@
     <div class="salto"></div>
 
 
-    {{-- TABLA VULNERABILIDADES
-    -------------------------------------------------------------------------------------------- --}}
+    {{-- TABLA VULNERABILIDADES -------------------------------------------------------------------------------------------- --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 05 - <em>"FACTORES DE RIESGO (AMENAZAS – VULNERABILIDADES)"</em></strong>
@@ -531,58 +613,84 @@
 
     <table class="tablaVulnerabilidades">
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td colspan="7" style="text-align:center; padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">ANEXO N° 05 FACTORES DE RIESGO (AMENAZAS –VULNERABILIDADES)</p>
+        <tr class="color_fila_oscuro">
+            <td colspan="7" class="encabezado_tabla">
+                <p class="margin_null">ANEXO N° 05 FACTORES DE RIESGO (AMENAZAS –VULNERABILIDADES)</p>
             </td>
         </tr>
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">DESCRIPCIÓN</p>
+        <tr class="color_fila_oscuro">
+            <td class="fila_normal">
+                <p class="margin_null">DESCRIPCIÓN</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">UBICACIÓN</p>
+            <td class="fila_normal">
+                <p class="margin_null">UBICACIÓN</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">TIPO DE AMENAZA</p>
+            <td class="fila_normal">
+                <p class="margin_null">TIPO DE AMENAZA</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">VULNERABILIDAD</p>
+            <td class="fila_normal">
+                <p class="margin_null">VULNERABILIDAD</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">ACCIONES DE REDUCCIÓN FAMILIARES</p>
+            <td class="fila_normal">
+                <p class="margin_null">ACCIONES DE REDUCCIÓN FAMILIARES</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">RESPONSABLE</p>
+            <td class="fila_normal">
+                <p class="margin_null">RESPONSABLE</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">TÉRMINO</p>
+            <td class="fila_normal">
+                <p class="margin_null">TÉRMINO</p>
             </td>
         </tr>
 
         @foreach($familyPlan->riskFactors as $risk)
             <tr>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $risk->description }}</p>
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $risk->description }}</p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $risk->ubication }}</p>
+
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $risk->ubication }}</p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $risk->threatType->name }}</p>
+
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $risk->threatType->name }}</p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $risk->description }}</p>
+
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $risk->description }}</p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $risk->riskReductionActions->pluck('action')->join(', ') }}</p>
+
+                <td class="fila_normal">
+                    {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('action')->join(', ') }}</p> --}}
+                    @foreach($risk->riskReductionActions as $i => $action)
+                        <p class="margin_null">
+                            {{ $i + 1 }}. {{ $action->action }}
+                        </p>
+                        <p></p>
+                    @endforeach
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $risk->riskReductionActions->pluck('member.names')->join(', ') }}</p>
+
+                <td class="fila_normal">
+                    {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('member.names')->join(', ') }}</p>
+                    --}}
+                    @foreach($risk->riskReductionActions as $i => $action)
+                        <p class="margin_null">
+                            {{ $i + 1 }}. {{ $action->member->names ?? '-' }}
+                        </p>
+                        <p></p>
+                    @endforeach
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">{{ $risk->riskReductionActions->pluck('end_date')->join(', ') }}</p>
+
+                <td class="fila_normal">
+                    {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('end_date')->join(', ') }}</p> --}}
+                    @foreach($risk->riskReductionActions as $i => $action)
+                        <p class="margin_null">
+                            {{-- {{ $i + 1 }}. {{ $action->end_date->format('d/m/Y') }} --}}
+                            {{ $i + 1 }}.{{ \Carbon\Carbon::parse($action->end_date)->format('d/m/Y') }}
+                        </p>
+                        <p></p>
+                    @endforeach
                 </td>
             </tr>
         @endforeach
@@ -592,8 +700,7 @@
     <div class="salto"></div>
 
 
-    {{-- TABLA RECURSOS DISPONIBLES
-    --------------------------------------------------------------------------------------- --}}
+    {{-- TABLA RECURSOS DISPONIBLES --------------------------------------------------------------------------------------- --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 06 - <em>"RECURSOS DISPONIBLES"</em></strong>
@@ -601,62 +708,62 @@
 
     <table class="tablaRecursos">
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td colspan="6" style="text-align:center; padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">ANEXO N° 06 RECURSOS DISPONIBLES</p>
+        <tr class="color_fila_oscuro">
+            <td colspan="6" class="encabezado_tabla">
+                <p class="margin_null">ANEXO N° 06 RECURSOS DISPONIBLES</p>
             </td>
         </tr>
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">RECURSO</p>
+        <tr class="color_fila_oscuro">
+            <td class="fila_normal">
+                <p class="margin_null">RECURSO</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">UBICACIÓN</p>
+            <td class="fila_normal">
+                <p class="margin_null">UBICACIÓN</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">DISTANCIA</p>
+            <td class="fila_normal">
+                <p class="margin_null">DISTANCIA</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">SERVICIO</p>
+            <td class="fila_normal">
+                <p class="margin_null">SERVICIO</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">DESCRIPCIÓN</p>
+            <td class="fila_normal">
+                <p class="margin_null">DESCRIPCIÓN</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">TELÉFONO</p>
+            <td class="fila_normal">
+                <p class="margin_null">TELÉFONO</p>
             </td>
         </tr>
 
         @foreach($familyPlan->availableResources as $resource)
             <tr>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">
+                <td class="fila_normal">
+                    <p class="margin_null">
                         {{ $resource->resource->name }}
                     </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">
+                <td class="fila_normal">
+                    <p class="margin_null">
                         {{ $resource->location }}
                     </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">
+                <td class="fila_normal">
+                    <p class="margin_null">
                         {{ $resource->distance . ' metros' }}
                     </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">
+                <td class="fila_normal">
+                    <p class="margin_null">
                         {{ $resource->resource->service }}
                     </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">
+                <td class="fila_normal">
+                    <p class="margin_null">
                         {{ $resource->description }}
                     </p>
                 </td>
-                <td style="padding:6px; border:1px solid #ccc;">
-                    <p style="margin:0;">
+                <td class="fila_normal">
+                    <p class="margin_null">
                         {{ $resource->phone }}
                     </p>
                 </td>
@@ -690,8 +797,7 @@
 
     @endforeach
 
-    {{-- TABLA PLAN DE ACCIÓN FAMILIAR
-    --------------------------------------------------------------------------------------- --}}
+    {{-- TABLA PLAN DE ACCIÓN FAMILIAR --------------------------------------------------------------------------------------- --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 08 - <em>"PLAN DE ACCIÓN FAMILIAR"</em></strong>
@@ -699,141 +805,116 @@
 
     <table class="tablaAccion">
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td colspan="3" style="text-align:center; padding:8px; border:1px solid #ccc;">
-                <p style="margin:0;">ANEXO N° 08 PLAN DE ACCIÓN FAMILIAR</p>
+        <tr class="color_fila_oscuro">
+            <td colspan="3" class="encabezado_tabla">
+                <p class="margin_null">ANEXO N° 08 PLAN DE ACCIÓN FAMILIAR</p>
             </td>
         </tr>
 
         <tr>
-            <td style="padding:6px; border:1px solid #ccc; width:30%;"><strong>PLAN DE ACCION POR:</strong></td>
-            <td colspan="2" style="padding:6px; border:1px solid #ccc;">
+            <td style="width:30%;" class="fila_normal"><strong>PLAN DE ACCION POR:</strong></td>
+            <td colspan="2" class="fila_normal">
                 @foreach($familyPlan->familyMembers as $familyMember)
                     @foreach ($familyMember->member->actionPlan as $plan)
 
-                        <p style="margin:0;">{{$plan->member->names . ' ' . $plan->member->last_names}}</p>
-                        <p>{{ $plan->actionPlanAction }}</p>
-
+                        <p class="margin_null">{{$plan->member->names . ' ' . $plan->member->last_names}}</p>
+                        {{-- <p>{{ $plan->actionPlanAction }}</p> --}}
                     @endforeach
                 @endforeach
             </td>
         </tr>
 
         <tr>
-            <td style="padding:6px; border:1px solid #ccc;"><strong>COORDINADOR:</strong></td>
-            <td colspan="2" style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;"></p>
+            <td class="fila_normal"><strong>COORDINADOR:</strong></td>
+            <td colspan="2" class="fila_normal">
+                <p class="margin_null">
+                    {{ $familyPlan->user->profile->names . ' ' . $familyPlan->user->profile->last_names }}
+                </p>
             </td>
         </tr>
 
-        <tr style="background-color:#1a5276; color:#ffffff;">
-            <td colspan="2" style="padding:6px; border:1px solid #ccc;">
-                <p style="margin:0;">ACCIONES A DESARROLLAR</p>
+        <tr class="color_fila_oscuro">
+            <td colspan="2" class="fila_normal">
+                <p class="margin_null">ACCIONES A DESARROLLAR</p>
             </td>
-            <td style="padding:6px; border:1px solid #ccc; width:30%;">
-                <p style="margin:0;">RESPONSABLE</p>
+            <td style="width:30%;" class="fila_normal">
+                <p class="margin_null">RESPONSABLE</p>
             </td>
         </tr>
 
-@php
-    $acciones = collect();
+        @php
 
-    $acciones = collect();
+            $acciones = collect();
 
-    foreach ($familyPlan->familyMembers as $familyMember) {
-        foreach ($familyMember->member->actionPlan as $plan) {
-            // Aquí es donde recolectamos los objetos individuales
-            $acciones->push($plan->actionPlanAction);
-        }
-    }
+            foreach ($familyPlan->familyMembers as $familyMember) {
+                foreach ($familyMember->member->actionPlan as $plan) {
+                    $acciones->push($plan->actionPlanAction);
+                }
+            }
 
-    // Ahora filtramos la colección que ya tiene los objetos
-    $antes = $acciones->where('action_type_id', 1)->values();
-    $durante = $acciones->where('action_type_id', 2)->values();
-    $despues = $acciones->where('action_type_id', 3)->values();
+            $acciones = $acciones->flatten();
 
-@endphp
+            $antes = $acciones->where('action_type_id', 1)->values();
+            $durante = $acciones->where('action_type_id', 2)->values();
+            $despues = $acciones->where('action_type_id', 3)->values();
 
-{{-- BLOQUE ANTES --}}
-@if($antes->count() > 0)
-    @foreach($antes as $index => $accion)
-    <tr>
-        @if($loop->first)
-            <td rowspan="{{ $antes->count() }}" style="background-color:#1a5276; color:white; text-align:center;">
-                ANTES
-            </td>
-        @endif
-        <td style="border:1px solid #ccc; padding:5px;">
-            {{ $index + 1 }}. {{ $accion->description }}
-        </td>
-        <td style="border:1px solid #ccc; padding:5px;">
-            {{-- Ajusta esto según cómo se llame el nombre del miembro en tu modelo --}}
-            {{ $accion->member->names ?? 'Sin asignar' }}
-        </td>
-    </tr>
-    @endforeach
-@else
-    {{-- Esto asegura que se vea la fila aunque no haya datos --}}
-    <tr>
-        <td style="background-color:#1a5276; color:white; text-align:center;">ANTES</td>
-        <td style="border:1px solid #ccc; height:30px;"></td>
-        <td style="border:1px solid #ccc;"></td>
-    </tr>
-@endif
+        @endphp
 
-{{-- @forelse($antes as $accion)
-    <tr>
-        @if($loop->first)
-            <td rowspan="{{ max($antes->count(), 1) }}">ANTES</td>
-        @endif
+        {{-- @dd($despues) --}}
 
-        <td>
-            {{ $loop->iteration }}. {{ $accion->description }}
-        </td>
-
-        <td>
-            {{ $loop->iteration }}. {{ $accion->member->names ?? '' }}
-        </td>
-    </tr>
-@empty
-    <tr>
-        <td>ANTES</td>
-        <td></td>
-        <td></td>
-    </tr>
-@endforelse --}}
-
-        {{-- @for($i = 0; $i < max(count($durante), 1); $i++)
+        @foreach($antes as $action)
             <tr>
-                @if($i == 0)
-                    <td rowspan="{{ max(count($durante), 1) }}">DURANTE</td>
+                @if($loop->first)
+                    <td rowspan="{{ $antes->count() }}" class="seccion_accion">
+                        ANTES
+                    </td>
                 @endif
 
-                <td>
-                    {{ isset($durante[$i]) ? ($i + 1) . '. ' . $durante[$i]->description : '' }}
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $action->description }}</p>
                 </td>
 
-                <td>
-                    {{ isset($durante[$i]) ? ($i + 1) . '. ' . $durante[$i]->member->names : '' }}
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $action->member->names . ' ' . $action->member->last_names }}</p>
                 </td>
             </tr>
-        @endfor
+        @endforeach
 
-        @for($i = 0; $i < max(count($despues), 1); $i++)
+        @foreach($durante as $action)
             <tr>
-                @if($i == 0)
-                    <td rowspan="{{ max(count($despues), 1) }}">DESPUES</td>
+                @if($loop->first)
+                    <td rowspan="{{ $durante->count() }}" class="seccion_accion">
+                        DURANTE
+                    </td>
                 @endif
 
-                <td>
-                    {{ isset($despues[$i]) ? ($i + 1) . '. ' . $despues[$i]->description : '' }}
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $action->description }}</p>
                 </td>
 
-                <td>
-                    {{ isset($despues[$i]) ? ($i + 1) . '. ' . $despues[$i]->member->names : '' }}
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $action->member->names . ' ' . $action->member->last_names }}</p>
                 </td>
             </tr>
-        @endfor --}}
+        @endforeach
+
+        @foreach($despues as $action)
+            <tr>
+                @if($loop->first)
+                    <td rowspan="{{ $despues->count() }}" class="seccion_accion">
+                        DESPUÉS
+                    </td>
+                @endif
+
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $action->description }}</p>
+                </td>
+
+                <td class="fila_normal">
+                    <p class="margin_null">{{ $action->member->names . ' ' . $action->member->last_names }}</p>
+                </td>
+            </tr>
+        @endforeach
 
     </table>
 

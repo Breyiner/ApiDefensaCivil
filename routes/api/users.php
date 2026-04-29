@@ -34,15 +34,15 @@ Route::prefix('users')->group(function () {
         ->middleware('permission:users.index');
 
     // Filtrar usuarios según su estado (activo, inactivo, pendiente, etc.)
-    Route::get('/by-status', [UserController::class, 'byStatus'])
+    Route::get('/by-status', [UserController::class, 'getByStatus'])
         ->middleware('permission:users.by-status');
 
     // Ver peticiones de acceso pendientes visibles para el rol Administrador
-    Route::get('/requests/admins', [UserController::class, 'requestsAdmins'])
+    Route::get('/requests/admins', [UserController::class, 'getRequestsAdmins'])
         ->middleware('permission:users.requests-admins');
 
     // Ver peticiones de acceso pendientes visibles para el rol Supervisor
-    Route::get('/requests/supervisors', [UserController::class, 'requestsSupervisors'])
+    Route::get('/requests/supervisors', [UserController::class, 'getRequestsSupervisors'])
         ->middleware('permission:users.requests-supervisors');
 
     // Ver el detalle de un usuario específico
@@ -78,7 +78,7 @@ Route::prefix('users')->group(function () {
         ->middleware('permission:users.change-role');
 
     // Cambiar el estado de un usuario de forma individual
-    Route::patch('/{id}/change-status', [UserController::class, 'changeStatus'])
+    Route::patch('/{id}/change-status', [UserController::class, 'changeUserStatus'])
         ->middleware('permission:users.change-status');
 
     // -----------------------------------------------------------------------

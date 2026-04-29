@@ -54,7 +54,7 @@ class AvailableResourceController extends Controller
     public function getForPlan(string $plan_id)
     {
         // Validación de acceso al plan
-        if (!(new AccessPlanPolicy())->access($plan_id)) {
+        if (!(new AccessPlanPolicy())->access($plan_id)) { 
             return ResponseFormatter::error(
                 'Usted no tiene autorización para acceder a este plan',
                 403

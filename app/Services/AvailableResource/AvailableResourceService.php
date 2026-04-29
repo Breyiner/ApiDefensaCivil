@@ -68,7 +68,7 @@ class AvailableResourceService
         $items = $paginator->getCollection()->transform(function ($item) {
         return [
             'id' => $item->id,
-            'resource_name' => $item->,
+            'resource_name' => $item->resource->name,
             'location' => $item->location,
             'distance' => $item->distance,
             'phone' => $item->phone,

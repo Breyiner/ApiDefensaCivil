@@ -20,6 +20,7 @@ class PDFController extends Controller
     public function show(string $id):Response
     {
         $response = $this->service->byFamilyId($id);
-        return $response->stream('plan-familiar.pdf');
+        // return $response->stream('plan-familiar.pdf'); // Para mostrar el PDF en el navegador
+        return $response->download('plan-familiar.pdf'); // Forzar descarga del PDF
     }
 }

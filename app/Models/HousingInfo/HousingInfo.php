@@ -27,7 +27,8 @@ class HousingInfo extends Model
     protected $fillable = [
         'id', 
         'family_plan_id', // ID del plan familiar al que pertenecen estos archivos
-        'path'            // Ruta de almacenamiento del archivo (ej: 'uploads/housing/foto1.jpg')
+        'path',            // Ruta de almacenamiento del archivo (ej: 'uploads/housing/foto1.jpg')
+        'housing_info_type_id'
     ];
 
     /**

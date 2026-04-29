@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\HousingInfo;
 
 use App\Helpers\ResponseFormatter;
+use Illuminate\Http\Request;
 use App\Http\Requests\HousingInfo\StoreHousingInfoRequest;
 use App\Http\Controllers\Controller;
 use App\Services\HousingInfo\HousingInfoService;
@@ -30,8 +31,7 @@ class HousingInfoController extends Controller
     {
         $response = $this->service->getAll();
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             // Nota: Se recomienda normalizar a PascalCase (ResponseFormatter).
             return ResponseFormatter::error($response['message'], $response['code']);
         }
@@ -62,8 +62,7 @@ class HousingInfoController extends Controller
         $data = $request->validated();
         $response = $this->service->create($data);
 
-        if ($response['error'])
-        {    
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -77,11 +76,58 @@ class HousingInfoController extends Controller
     {
         $response = $this->service->delete($id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
         return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+    }
+
+    public function getByType(string $familyPlanId, string $typeId)
+    {
+        $response = $this->service->getByType($familyPlanId, $typeId);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data']
+        );
+    }
+
+    public function updateByType(Request $request, string $familyPlanId, string $typeId)
+    {
+        $request->validate([
+            'path' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ]);
+
+        $response = $this->service->updateByType($familyPlanId, $typeId, $request->file('path'));
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code'],
+            $response['data']
+        );
+    }
+
+    public function destroyByType(string $familyPlanId, string $typeId)
+    {
+        $response = $this->service->deleteByType($familyPlanId, $typeId);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success(
+            $response['message'],
+            $response['code']
+        );
     }
 }

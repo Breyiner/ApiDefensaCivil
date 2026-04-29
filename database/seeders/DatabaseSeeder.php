@@ -72,6 +72,7 @@ class DatabaseSeeder extends Seeder
             VulnerabilityGradeSeeder::class,
             ActionTypeSeeder::class,
             ResourceSeeder::class,
+            \Database\Seeders\HousingInfoType\housingInfoTypeSeeder::class,
         ]);
     }
 }

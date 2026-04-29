@@ -22,8 +22,8 @@ class HousingInfoService
         return [
             "error" => false,
             "code" => 200,
-            "message" => $images->isEmpty() 
-                ? "No hay imágenes registradas" 
+            "message" => $images->isEmpty()
+                ? "No hay imágenes registradas"
                 : "Imágenes obtenidas exitosamente",
             "data" => $images,
         ];
@@ -40,13 +40,13 @@ class HousingInfoService
         return [
             "error" => false,
             "code" => 200,
-            "message" => $images->isEmpty() 
-                ? "No hay imágenes para este plan familiar" 
+            "message" => $images->isEmpty()
+                ? "No hay imágenes para este plan familiar"
                 : "Imágenes obtenidas exitosamente",
             "data" => $images,
         ];
     }
-    
+
     /**
      * Sube una imagen al storage y crea el registro en la base de datos.
      * @param array $data Debe contener 'path' (instancia de UploadedFile) y 'family_plan_id'.
@@ -62,6 +62,7 @@ class HousingInfoService
         $image = HousingInfo::create([
             'family_plan_id' => $data['family_plan_id'],
             'path' => $filePath, // Guardamos la ruta relativa
+            'housing_info_type_id' => $data['housing_info_type_id'],
         ]);
 
         return [
@@ -78,7 +79,7 @@ class HousingInfoService
      */
     public function delete(int $id)
     {
-         $image = HousingInfo::where('family_plan_id', $id)->first();
+        $image = HousingInfo::where('family_plan_id', $id)->first();
 
         if (!$image) {
             return [
@@ -99,6 +100,83 @@ class HousingInfoService
             "error" => false,
             "code" => 200,
             "message" => "Imagen eliminada exitosamente",
+        ];
+    }
+
+    public function getByType($familyPlanId, $typeId)
+    {
+        $housingInfo = HousingInfo::where('family_plan_id', $familyPlanId)
+            ->where('housing_info_type_id', $typeId)
+            ->first();
+
+        if (!$housingInfo) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "No existe registro para este tipo",
+            ];
+        }
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Registro obtenido exitosamente",
+            "data" => $housingInfo,
+        ];
+    }
+
+    public function updateByType($familyPlanId, $typeId, $file)
+    {
+        $housingInfo = HousingInfo::where('family_plan_id', $familyPlanId)
+            ->where('housing_info_type_id', $typeId)
+            ->first();
+
+        if (!$housingInfo) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Registro no encontrado",
+            ];
+        }
+
+        // Borra el archivo viejo
+        if ($housingInfo->path && Storage::disk('public')->exists($housingInfo->path)) {
+            Storage::disk('public')->delete($housingInfo->path);
+        }
+
+        // Sube el nuevo
+        $newPath = $file->store('images/around', 'public');
+        $housingInfo->update(['path' => $newPath]);
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Imagen actualizada exitosamente",
+            "data" => $housingInfo,
+        ];
+    }
+
+    public function deleteByType($familyPlanId, $typeId)
+    {
+        $housingInfo = HousingInfo::where('family_plan_id', $familyPlanId)
+            ->where('housing_info_type_id', $typeId)
+            ->first();
+
+        if (!$housingInfo) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Registro no encontrado",
+            ];
+        }
+
+        Storage::delete($housingInfo->path);
+        $housingInfo->delete();
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Registro eliminado exitosamente",
         ];
     }
 }

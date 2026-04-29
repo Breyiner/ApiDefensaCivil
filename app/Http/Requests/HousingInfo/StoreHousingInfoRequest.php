@@ -30,12 +30,15 @@ class StoreHousingInfoRequest extends FormRequest
             /**
              * Se asegura que el plan familiar exista y que no tenga ya una info registrada.
              */
-            'family_plan_id' => 'required|exists:family_plans,id|unique:housing_infos,family_plan_id',
+            // 'family_plan_id' => 'required|exists:family_plans,id|unique:housing_infos,family_plan_id',
+            'family_plan_id' => 'required|exists:family_plans,id',
             
             /**
              * Validación de archivos: tipo imagen, formatos específicos y tamaño (2MB).
              */
             'path' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+
+            'housing_info_type_id' => 'required|exists:housing_info_types,id',
         ];
     }
 

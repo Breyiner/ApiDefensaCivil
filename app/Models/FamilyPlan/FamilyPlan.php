@@ -128,7 +128,7 @@ class FamilyPlan extends Model
     }
     public function housingInfo()
     {
-        return $this->hasOne(HousingInfo::class, 'family_plan_id');
+        return $this->hasMany(HousingInfo::class, 'family_plan_id');
     }
     public function housingGraphic()
     {

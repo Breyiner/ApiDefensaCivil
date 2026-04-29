@@ -192,6 +192,12 @@ class PermissionSeeder extends Seeder
             ['housing-info.store', 'Crear información de vivienda'],
             ['housing-info.destroy', 'Eliminar información de vivienda'],
 
+            ['housing-info-type.index', 'Listar los tipos de informacion de vivienda'],
+            ['housing-info-type.show', ''],
+            ['housing-info-type.update', ''],
+            ['housing-info-type.store', ''],
+            ['housing-info-type.destroy', ''],
+
             // Calidades de Vivienda
             ['housing-qualities.index', 'Listar calidades de vivienda'],
             ['housing-qualities.show', 'Ver calidad de vivienda'],

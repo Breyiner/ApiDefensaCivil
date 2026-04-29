@@ -7,6 +7,7 @@ use App\Jobs\User\ChangeUserStatusJob;
 use App\Jobs\User\RejectAndDeleteRequestsJob;
 use App\Models\User\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -189,7 +190,7 @@ class UserService
      */
     public function getRequestsSupervisors(int $perPage = 10): array
     {
-        $authUser = auth()->user();
+        $authUser = Auth::user();
         $authSectionalId = $authUser?->profile?->organization?->sectional_id;
 
         if (!$authSectionalId) {

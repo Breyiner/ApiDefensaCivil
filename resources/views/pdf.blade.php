@@ -472,8 +472,9 @@
     </p>
 
     <div class="GeoreferenciaCont">
-
-        <img src="{{ storage_path('app/public/' . $georeferencia->path) }}" alt="">
+        @if ($georeferencia && !is_null($georeferencia->path))
+            <img src="{{ public_path('storage/' . $georeferencia->path) }}" alt="">
+        @endif
     </div>
 
 
@@ -811,18 +812,14 @@
 
     @foreach ($familyPlan->housingGraphic as $graphic)
 
-        {{-- @if (!is_null($graphic->path)) --}}
-        {{-- @else
-        <p style="text-align:center; margin-top: 20px; font-size:14px; color: #888;">
-            Sin gráfico registrado.
-        </p> --}}
-        {{-- @endif --}}
-
         <div class="graficoCont">
-            <img src="{{ storage_path('app/public/' . $graphic->path) }}">
+
+            @if (!is_null($graphic->path))
+                <img src="{{ public_path('storage/' . $graphic->path) }}">
+            @endif
 
             <p style="font-size:16px; margin-top:10px;">
-                <strong>Descripción del Grafico:</strong> {{ $graphic->description }}
+                <strong>Descripción del Grafico:</strong> {{ $graphic->description ?? '' }}
             </p>
         </div>
 
@@ -968,8 +965,9 @@
     </div>
 
     <div class="graficoCont">
-
-        <img src="{{ storage_path('app/public/' . $graficoEntorno->path) }}">
+        @if ($graficoEntorno && !is_null($graficoEntorno->path))
+            <img src="{{ public_path('storage/' . $graficoEntorno->path) }}">
+        @endif
     </div>
 
 </body>

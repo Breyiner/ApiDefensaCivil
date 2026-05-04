@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Audit\Audit; // 🔹 Importar Audit para la relación
 use App\Models\AvailableResource\AvailableResource;
+use App\Models\familyType\familyType;
 
 /** * Importación de modelos relacionados para definir las relaciones Eloquent 
  */
@@ -57,6 +58,7 @@ class FamilyPlan extends Model
         'sectional_id',       // Seccional a la que pertenece el registro
         'user_id',            // Usuario responsable o creador del plan
         'comentary',          // Comentarios adicionales o notas del plan
+        'family_type_id',     // Tipo de familia (maestra)
         'authorization'       // Consentimiento o autorización (booleano)
     ];
 
@@ -113,6 +115,11 @@ class FamilyPlan extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function familyType()
+    {
+        return $this->belongsTo(familyType::class, 'family_type_id');
     }
     /**
      * --- RELACIONES HAS MANY (Uno a Muchos) ---

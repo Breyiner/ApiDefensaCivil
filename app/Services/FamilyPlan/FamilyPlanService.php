@@ -289,6 +289,31 @@ class FamilyPlanService
         ];
     }
 
+    public function patchFamilyType(array $data, $id)
+    {
+        $familyPlan = FamilyPlan::find($id);
+
+        if (!$familyPlan) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Plan familiar no encontrado",
+            ];
+        }
+
+        // 🔹 Actualizar solo el campo family_type_id
+        if (isset($data['family_type_id'])) {
+            $familyPlan->update(['family_type_id' => $data['family_type_id']]);
+        }
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Tipo de familia del plan familiar actualizado correctamente",
+            "data" => $familyPlan,
+        ];
+    }
+
     /**
      * Actualiza los datos de identificación específicos del plan.
      * 

@@ -28,11 +28,12 @@ class StoreFamilyPlanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'last_names'   => 'required|alpha_spaces|string|max:255',
-            'zone_id'      => 'required|exists:zones,id',
-            'city_id'      => 'required|exists:cities,id',
-            'sectional_id' => 'required|exists:sectionals,id',
-            'user_id'      => 'required|exists:users,id',
+            'last_names'     => 'required|alpha_spaces|string|max:255',
+            'zone_id'        => 'required|exists:zones,id',
+            'city_id'        => 'required|exists:cities,id',
+            'sectional_id'   => 'required|exists:sectionals,id',
+            'user_id'        => 'required|exists:users,id',
+            'family_type_id' => 'nullable|exists:family_types,id',
         ];
     }
 
@@ -69,11 +70,12 @@ class StoreFamilyPlanRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'last_names'   => 'apellidos de la familia',
-            'zone_id'      => 'zona',
-            'city_id'      => 'ciudad',
-            'sectional_id' => 'seccional',
-            'user_id'      => 'usuario responsable',
+            'last_names'     => 'apellidos de la familia',
+            'zone_id'        => 'zona',
+            'city_id'        => 'ciudad',
+            'sectional_id'   => 'seccional',
+            'user_id'        => 'usuario responsable',
+            'family_type_id' => 'tipo de familia',
         ];
     }
 }

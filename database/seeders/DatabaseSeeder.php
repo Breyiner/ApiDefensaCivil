@@ -35,6 +35,8 @@ use Database\Seeders\Vulnerability\VulnerabilitySeeder;
 use Database\Seeders\VulnerabilityGrade\VulnerabilityGradeSeeder;
 use Database\Seeders\ActionType\ActionTypeSeeder;
 use Database\Seeders\Resource\ResourceSeeder;
+use Database\Seeders\HousingInfoType\housingInfoTypeSeeder;
+use Database\Seeders\familyType\familyTypeSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -72,7 +74,8 @@ class DatabaseSeeder extends Seeder
             VulnerabilityGradeSeeder::class,
             ActionTypeSeeder::class,
             ResourceSeeder::class,
-            \Database\Seeders\HousingInfoType\housingInfoTypeSeeder::class,
+            housingInfoTypeSeeder::class,
+            familyTypeSeeder::class,
         ]);
     }
 }

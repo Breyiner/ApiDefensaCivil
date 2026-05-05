@@ -226,7 +226,7 @@
         ========================= */
         .GeoreferenciaCont {
             width: 100%;
-            height: 400px;
+            height: 320px;
             text-align: center;
         }
 
@@ -242,7 +242,7 @@
 
     <header class="encabezadoDoc">
 
-        <img src="{{ public_path('assets/images/logos/defensa-civil-logo.png') }}" alt="">
+        <img src="{{ public_path('assets/images/logos/defensa-civil-logo.png') }}" alt='null'>
 
         <p> PLAN FAMILIAR DE EMERGENCIA </p>
 
@@ -283,7 +283,7 @@
                         <p>{{ \Carbon\Carbon::parse($familyPlan->created_at)->format('d/m/Y') }}</p>
 
                         <h2>Ciudad</h2>
-                        <p>{{ $familyPlan->city->name }}</p>
+                        <p>{{ $familyPlan->city?->name }}</p>
 
                     </div>
 
@@ -342,11 +342,11 @@
                 <tr>
 
                     <td class="fila_centrada">
-                        {{ str_pad($i++, 2, '0', STR_PAD_LEFT) }}
+                        {{ str_pad($i++, 2, '0', STR_PAD_LEFT) ?? 'null' }}
                     </td>
 
                     <td class="fila_normal">
-                        {{ $test->vulnerableQuestion->description }}
+                        {{ $test->vulnerableQuestion->description ?? 'null' }}
                     </td>
 
                     <td class="fila_centrada">
@@ -365,9 +365,8 @@
 
     </table>
 
-    <p class="nota">RESULTADO: Si existen al menos cinco (05) respuestas son afirmativas (SÍ), entre las preguntas 1 a
-        12, el hogar se considerará como vulnerable. "TEST DE VULNERABILIDAD FAMILIAR"</p>
-
+    <p class="nota"><strong>RESULTADO:</strong> Si al menos cinco (5) de las primeras doce (12) preguntas son respondidas afirmativamente (SÍ), el hogar se 
+        clasificará como familia vulnerable; de lo contrario, se considerará familia no vulnerable.</p>
 
     <div class="salto"></div>
 
@@ -398,7 +397,7 @@
                 <strong>SECCIONAL</strong>
             </td>
             <td class="secciones_tabla_fila" style="width:60%;">
-                <p>{{ $familyPlan->sectional->name }}</p>
+                <p>{{ $familyPlan->sectional->name ?? 'null' }}</p>
             </td>
         </tr>
 
@@ -408,7 +407,7 @@
                 <strong>Familia Segura N°</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->id }}</p>
+                <p>{{ $familyPlan->id ?? 'null' }}</p>
             </td>
         </tr>
 
@@ -418,7 +417,20 @@
                 <small>(Apellidos)</small>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->last_names }}</p>
+                <p>{{ $familyPlan->last_names ?? 'null' }}</p>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="secciones_tabla_fila">
+                <strong>TIPO DE FAMILIA</strong><br>
+                <small>(En base al test de vulnerabilidad se clasifica a la familia como vulnerable o no vulnerable)</small>
+
+            </td>
+
+            <td class="secciones_tabla_fila">
+
+                <p>{{ $familyPlan->familyType?->name ?? 'Por definir' }}</p>
             </td>
         </tr>
 
@@ -427,7 +439,7 @@
                 <strong>DIRECCIÓN</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->address . ', ' . $familyPlan->sector->name . ' ' . $familyPlan->sector_name . ', ' . $familyPlan->city->name . ', ' . $familyPlan->city->department->name}}
+                <p>{{ ($familyPlan->address ?? 'null') . ', ' . ($familyPlan->sector?->name ?? 'null') . ' ' . ($familyPlan->sector_name ?? 'null') . ', ' . ($familyPlan->city?->name ?? 'null') . ', ' . ($familyPlan->city?->department?->name ?? 'null') }}
                 </p>
             </td>
         </tr>
@@ -437,7 +449,7 @@
                 <strong>BARRIO - COMUNA - LOCALIDAD</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->sector->name }}</p>
+                <p>{{ $familyPlan->sector->name ?? 'null' }}</p>
             </td>
         </tr>
 
@@ -446,7 +458,7 @@
                 <strong>TELÉFONO FIJO</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->landline_phone }}</p>
+                <p>{{ $familyPlan->landline_phone ?? 'null' }}</p>
             </td>
         </tr>
 
@@ -456,7 +468,7 @@
                 <small>(Arriendo – Propietario)</small>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->housingQuality->name }}</p>
+                <p>{{ $familyPlan->housingQuality->name ?? 'null' }}</p>
             </td>
         </tr>
 
@@ -473,78 +485,13 @@
 
     <div class="GeoreferenciaCont">
         @if ($georeferencia && !is_null($georeferencia->path))
-            <img src="{{ public_path('storage/' . $georeferencia->path) }}" alt="">
+            <img src="{{ public_path('storage/' . $georeferencia->path) }}" alt='null'>
         @endif
     </div>
 
 
     <div class="salto"></div>
 
-
-    {{-- TABLA MASCOTAS --------------------------------------------------------------------------------------------
-    --}}
-
-    <div class="titulo">
-        <strong>Formato Anexo N° 04 - <em>"MASCOTAS O ANIMALES DE COMPAÑÍA"</em></strong>
-    </div>
-
-    <table class="tablaMascotas">
-
-        <tr class="color_fila_oscuro">
-            <td colspan="6" class="encabezado_tabla">
-                <p class="margin_null">ANEXO N° 04 MASCOTAS O ANIMALES DE COMPAÑÍA</p>
-            </td>
-        </tr>
-
-        {{-- Encabezados de columna --}}
-        <tr class="background_claro">
-            <td class="secciones_tabla_fila">
-                <p class="margin_null">ESPECIE</p>
-            </td>
-            <td class="secciones_tabla_fila">
-                <p class="margin_null">NOMBRE</p>
-            </td>
-            <td class="secciones_tabla_fila">
-                <p class="margin_null">RAZA</p>
-            </td>
-            <td class="secciones_tabla_fila">
-                <p class="margin_null">GENERO</p>
-            </td>
-            <td class="secciones_tabla_fila">
-                <p class="margin_null">EDAD</p>
-            </td>
-            <td class="secciones_tabla_fila">
-                <p class="margin_null">VACUNAS</p>
-            </td>
-        </tr>
-
-        {{-- Filas dinámicas --}}
-        @foreach($familyPlan->pets as $pet)
-            <tr>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->species->name }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->name }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->breed }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->animalGender->name }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->age }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->petVaccine->pluck('name')->join(', ') }}</p>
-                </td>
-            </tr>
-        @endforeach
-
-    </table>
-
-    <div class="salto"></div>
 
     {{-- TABLA INTEGRANTES --------------------------------------------------------------------------------------------
     --}}
@@ -596,33 +543,99 @@
         @foreach($familyPlan->familyMembers as $member)
             <tr>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->last_names . ' ' . $member->member->names}} </p>
+                    <p class="margin_null"> {{ ($member->member->last_names ?? 'null') . ' ' . ($member->member->names ?? 'null') }} </p>
                 </td>
                 <td class="fila_normal">
                     <p class="margin_null">
-                        {{ $member->member->documentType->acronym . ' ' . $member->member->document_number }}
+                        {{ ($member->member->documentType->acronym ?? 'null') . ' ' . ($member->member->document_number ?? 'null') }}
                     </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->age }} </p>
+                    <p class="margin_null"> {{ $member->member->age ?? 'null' }} </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->bloodGroup->name }} </p>
+                    <p class="margin_null"> {{ $member->member->bloodGroup->name ?? 'null' }} </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->kinship->name }} </p>
+                    <p class="margin_null"> {{ $member->member->kinship->name ?? 'null' }} </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->eps }} </p>
+                    <p class="margin_null"> {{ $member->member->eps ?? 'null' }} </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join('<br>')}} </p>
+                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join('<br>') ?? 'null' }} </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('dose')->join('<br>') }} </p>
+                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('dose')->join('<br>') ?? 'null' }} </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->phone }} </p>
+                    <p class="margin_null"> {{ $member->member->phone ?? 'null' }} </p>
+                </td>
+            </tr>
+        @endforeach
+
+    </table>
+
+    <div class="salto"></div>
+
+
+    {{-- TABLA MASCOTAS --------------------------------------------------------------------------------------------
+    --}}
+
+    <div class="titulo">
+        <strong>Formato Anexo N° 04 - <em>"MASCOTAS O ANIMALES DE COMPAÑÍA"</em></strong>
+    </div>
+
+    <table class="tablaMascotas">
+
+        <tr class="color_fila_oscuro">
+            <td colspan="6" class="encabezado_tabla">
+                <p class="margin_null">ANEXO N° 04 MASCOTAS O ANIMALES DE COMPAÑÍA</p>
+            </td>
+        </tr>
+
+        {{-- Encabezados de columna --}}
+        <tr class="background_claro">
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">ESPECIE</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">NOMBRE</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">RAZA</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">GENERO</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">EDAD</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">VACUNAS</p>
+            </td>
+        </tr>
+
+        {{-- Filas dinámicas --}}
+        @foreach($familyPlan->pets as $pet)
+            <tr>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->species->name ?? 'null' }}</p>
+                </td>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->name ?? 'null' }}</p>
+                </td>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->breed ?? 'null' }}</p>
+                </td>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->animalGender->name ?? 'null' }}</p>
+                </td>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->age ?? 'null' }}</p>
+                </td>
+                <td class="secciones_tabla_fila">
+                    <p class="margin_null">{{ $pet->petVaccine->pluck('name')->join(', ') ?? 'null' }}</p>
                 </td>
             </tr>
         @endforeach
@@ -674,26 +687,26 @@
         @foreach($familyPlan->riskFactors as $risk)
             <tr>
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->description }}</p>
+                    <p class="margin_null">{{ $risk->description ?? 'null' }}</p>
                 </td>
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->ubication }}</p>
+                    <p class="margin_null">{{ $risk->ubication ?? 'null' }}</p>
                 </td>
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->threatType->name }}</p>
+                    <p class="margin_null">{{ $risk->threatType->name ?? 'null' }}</p>
                 </td>
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->description }}</p>
+                    <p class="margin_null">{{ $risk->description ?? 'null' }}</p>
                 </td>
 
                 <td class="fila_normal">
                     {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('action')->join(', ') }}</p> --}}
                     @foreach($risk->riskReductionActions as $i => $action)
                         <p class="margin_null">
-                            {{ $i + 1 }}. {{ $action->action }}
+                            {{ $i + 1 }}. {{ $action->action ?? 'null' }}
                         </p>
                         <p></p>
                     @endforeach
@@ -715,7 +728,7 @@
                     @foreach($risk->riskReductionActions as $i => $action)
                         <p class="margin_null">
                             {{-- {{ $i + 1 }}. {{ $action->end_date->format('d/m/Y') }} --}}
-                            {{ $i + 1 }}.{{ \Carbon\Carbon::parse($action->end_date)->format('d/m/Y') }}
+                            {{ $i + 1 }}.{{ \Carbon\Carbon::parse($action->end_date)->format('d/m/Y') ?? '' }}
                         </p>
                         <p></p>
                     @endforeach
@@ -768,32 +781,32 @@
             <tr>
                 <td class="fila_normal">
                     <p class="margin_null">
-                        {{ $resource->resource->name }}
+                        {{ $resource->resource->name ?? 'null' }}
                     </p>
                 </td>
                 <td class="fila_normal">
                     <p class="margin_null">
-                        {{ $resource->location }}
+                        {{ $resource->location ?? 'null' }}
                     </p>
                 </td>
                 <td class="fila_normal">
                     <p class="margin_null">
-                        {{ $resource->distance . ' metros' }}
+                        {{ ($resource->distance ?? 'null') . ' metros' }}
                     </p>
                 </td>
                 <td class="fila_normal">
                     <p class="margin_null">
-                        {{ $resource->resource->service }}
+                        {{ $resource->resource->service ?? 'null' }}
                     </p>
                 </td>
                 <td class="fila_normal">
                     <p class="margin_null">
-                        {{ $resource->description }}
+                        {{ $resource->description ?? 'null' }}
                     </p>
                 </td>
                 <td class="fila_normal">
                     <p class="margin_null">
-                        {{ $resource->phone }}
+                        {{ $resource->phone ?? 'null' }}
                     </p>
                 </td>
             </tr>
@@ -851,7 +864,7 @@
                 @foreach($familyPlan->familyMembers as $familyMember)
                     @foreach ($familyMember->member->actionPlan as $plan)
 
-                        <p class="margin_null">{{$plan->member->names . ' ' . $plan->member->last_names}}</p>
+                        <p class="margin_null">{{ ($plan->member->names ?? 'null') . ' ' . ($plan->member->last_names ?? 'null') }}</p>
                         {{-- <p>{{ $plan->actionPlanAction }}</p> --}}
                     @endforeach
                 @endforeach
@@ -862,7 +875,7 @@
             <td class="fila_normal"><strong>COORDINADOR:</strong></td>
             <td colspan="2" class="fila_normal">
                 <p class="margin_null">
-                    {{ $familyPlan->user->profile->names . ' ' . $familyPlan->user->profile->last_names }}
+                    {{ ($familyPlan->user->profile->names ?? 'null') . ' ' . ($familyPlan->user->profile->last_names ?? 'null') }}
                 </p>
             </td>
         </tr>
@@ -905,11 +918,11 @@
                 @endif
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $action->description }}</p>
+                    <p class="margin_null">{{ $action->description ?? 'null' }}</p>
                 </td>
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $action->member->names . ' ' . $action->member->last_names }}</p>
+                    <p class="margin_null">{{ ($action->member->names ?? 'null') . ' ' . ($action->member->last_names ?? 'null') }}</p>
                 </td>
             </tr>
         @endforeach
@@ -923,11 +936,11 @@
                 @endif
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $action->description }}</p>
+                    <p class="margin_null">{{ $action->description ?? 'null' }}</p>
                 </td>
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $action->member->names . ' ' . $action->member->last_names }}</p>
+                    <p class="margin_null">{{ ($action->member->names ?? 'null') . ' ' . ($action->member->last_names ?? 'null') }}</p>
                 </td>
             </tr>
         @endforeach
@@ -941,11 +954,11 @@
                 @endif
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $action->description }}</p>
+                    <p class="margin_null">{{ $action->description ?? 'null' }}</p>
                 </td>
 
                 <td class="fila_normal">
-                    <p class="margin_null">{{ $action->member->names . ' ' . $action->member->last_names }}</p>
+                    <p class="margin_null">{{ ($action->member->names ?? 'null') . ' ' . ($action->member->last_names ?? 'null') }}</p>
                 </td>
             </tr>
         @endforeach

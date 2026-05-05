@@ -185,18 +185,31 @@ class PermissionSeeder extends Seeder
             ['family-plans.download-pdf', 'Descargar PDF del plan familiar'],
             ['family-plans.has-members', 'Verificar si plan familiar tiene miembros'],
             ['family-plans.validate-requirements', 'Validar requisitos del plan familiar'],
+            ['permission:family-plans.change-family-type', 'Cambiar tipo de familia del plan familiar'],
+
+            // Tipos de Familia
+            ['family-types.index', 'Listar tipos de familia'],
+            ['family-types.show', 'Ver tipo de familia'],
+            ['family-types.history', 'Ver historial de cambios de tipo de familia'],
+            ['family-types.store', 'Crear tipo de familia'],
+            ['family-types.update', 'Actualizar tipo de familia'],
+            ['family-types.partial-update', 'Actualizar parcialmente tipo de familia'],
+            ['family-types.change-status', 'Cambiar estado de tipo de familia'],
+            ['family-types.destroy', 'Eliminar tipo de familia'],
 
             // Información de Vivienda
             ['housing-info.index', 'Listar información de vivienda'],
             ['housing-info.show', 'Ver información de vivienda'],
             ['housing-info.store', 'Crear información de vivienda'],
             ['housing-info.destroy', 'Eliminar información de vivienda'],
-
+            ['housing-info.by-type', 'Ver información de vivienda por tipo'],
+            
+             // Tipos de Información de Vivienda
             ['housing-info-type.index', 'Listar los tipos de informacion de vivienda'],
-            ['housing-info-type.show', ''],
-            ['housing-info-type.update', ''],
-            ['housing-info-type.store', ''],
-            ['housing-info-type.destroy', ''],
+            ['housing-info-type.show', 'Ver tipo de información de vivienda'],
+            ['housing-info-type.update', 'Actualizar tipo de información de vivienda'],
+            ['housing-info-type.store', 'Crear tipo de información de vivienda'],
+            ['housing-info-type.destroy', 'Eliminar tipo de información de vivienda'],
 
             // Calidades de Vivienda
             ['housing-qualities.index', 'Listar calidades de vivienda'],

@@ -135,7 +135,14 @@ Route::prefix('housingInfo')->group(function () {
         ->middleware('permission:housing-info.destroy');
 
     Route::get('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'getByType'])
-        ->middleware('permission:housing-info.type.show');
+        ->middleware('permission:housing-info.by-type');
+
+    Route::post('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'updateByType'])
+        ->middleware('permission:housing-info.by-type');
+
+    Route::delete('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'destroyByType'])
+        ->middleware('permission:housing-info.by-type');
+
 });
 
 

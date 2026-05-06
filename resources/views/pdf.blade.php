@@ -56,29 +56,30 @@
         ENCABEZADO PDF
         ========================= */
         .encabezadoDoc {
-            height: 85px;
+            height: 50px;
             width: 100%;
             position: fixed;
-            top: -120px;
-            padding-top: 15px;
+
+            top: -110px;
+            padding: 10px 0;
             background-color: rgb(0, 111, 192);
-            border-radius: 0 0 30px 30px;
+            /* border-radius: 0 0 30px 30px; */
+            border-radius: 100px;
         }
 
         .encabezadoDoc img {
-            height: 70px;
-            float: left;
+            /* float: left; */
+            height: 55px;
             display: inline-block;
+            margin-top: 10px;
         }
 
         .encabezadoDoc p {
-            float: left;
+            /* float: left; */
             color: white;
             font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 15px;
-            text-align: center;
+            /* text-align: center; */
+            display: inline-block;
         }
 
         /* =========================
@@ -145,10 +146,10 @@
         .encabezado_preguntas {
             text-align: center;
             padding: 6px;
-            border: 1px solid #000;
+            border: 1px solid #858585;
         }
 
-        .background_claro {
+        .background_caution {
             background-color: #fff7b0;
         }
 
@@ -157,31 +158,31 @@
         ========================= */
         .fila_normal {
             padding: 6px;
-            border: 1px solid #000;
+            border: 1px solid #858585;
         }
 
         .fila_centrada {
             text-align: center;
             padding: 6px;
-            border: 1px solid #000;
+            border: 1px solid #858585;
         }
 
         .encabezado_tabla {
             text-align: center;
             padding: 8px;
-            border: 1px solid #000;
+            border: 1px solid #858585;
         }
 
         .secciones_tabla_fila {
             padding: 8px;
-            border: 1px solid #000;
+            border: 1px solid #858585;
         }
 
         /* =========================
         COLORES TABLAS
         ========================= */
         .color_fila_oscuro {
-            background-color: #1a5276;
+            background-color: rgb(0, 111, 192);
             color: #fff;
         }
 
@@ -194,8 +195,8 @@
         ========================= */
         .seccion_accion {
             padding: 6px;
-            border: 1px solid #000;
-            background-color: #1a5276;
+            border: 1px solid #858585;
+            background-color: rgb(0, 111, 192);
             color: #fff;
             font-weight: bold;
             text-align: center;
@@ -217,9 +218,9 @@
         }
 
         .graficoCont img {
-            height: 100%;
+            height: auto;
             max-height: 700px;
-            max-width: 90%;
+            max-width: 95%;
             object-fit: contain;
             display: inline-block;
             margin-top: 100px;
@@ -344,14 +345,14 @@
             @foreach ($familyPlan->vulnerableTest as $test)
 
             
-            <tr class="{{ $test->testVulnerableQuestion->question_caution ? 'background_claro' : '' }}">
+            <tr class="{{ $test->vulnerableQuestion?->question_caution ? 'background_caution' : '' }}">
                 
                 <td class="fila_centrada">
-                    {{ str_pad($i++, 2, '0', STR_PAD_LEFT) ?? 'null' }}
+                    {{ str_pad($i++, 2, '0', STR_PAD_LEFT) ?? '' }}
                 </td>
                 
                 <td class="fila_normal">
-                    {{ $test->vulnerableQuestion->description ?? 'null' }}
+                    {{ $test->vulnerableQuestion->description ?? '' }}
                 </td>
                 
                 <td class="fila_centrada">
@@ -368,7 +369,7 @@
             
             @endforeach
 
-        </tbody>
+            </tbody>
 
     </table>
 
@@ -483,7 +484,7 @@
 
 
     <p class="nota">
-        <strong>GEORREFERENCIACIÓN:</strong><br>
+        <strong>GEORREFERENCIACIÓN: </strong>
         Se debe identificar la ubicación de la vivienda, con dirección, barrio, vereda, finca, municipio
         y en lo posible tomar coordenadas, sexagesimales en grados minutos y segundos
         <em>(N 4°15'25,23" W 74°45'10,05")</em>, captura de <em>Google Earth</em>,
@@ -500,8 +501,7 @@
     <div class="salto"></div>
 
 
-    {{-- TABLA INTEGRANTES --------------------------------------------------------------------------------------------
-    --}}
+    {{-- TABLA INTEGRANTES ----------------------------------------------------------------------------------------------}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 03 - <em>"INTEGRANTES DE LA FAMILIA"</em></strong>
@@ -570,11 +570,30 @@
                     <p class="margin_null"> {{ $member->member->eps ?? 'null' }} </p>
                 </td>
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join('<br>') ?? 'null' }} </p>
+                    <!-- <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join(', ') ?? 'null' }} </p> -->
+                    @foreach($member->member->conditionMember as $i =>$condition)
+                        <p class="margin_null">
+                            {{ $i + 1 }}. {{ $condition->name ?? 'null' }}
+                        </p>
+                        
+                        @if(!$loop->last)
+                            <p></p>
+                        @endif
+                    @endforeach
                 </td>
+
                 <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->conditionMember->pluck('dose')->join('<br>') ?? 'null' }} </p>
+                    @foreach($member->member->conditionMember as $i => $condition)
+                        <p class="margin_null">
+                            {{ $i + 1 }}. {{ $condition->dose ?? 'null' }}
+                        </p>
+                        
+                        @if(!$loop->last)
+                            <p></p>
+                        @endif
+                    @endforeach
                 </td>
+
                 <td class="fila_normal">
                     <p class="margin_null"> {{ $member->member->phone ?? 'null' }} </p>
                 </td>
@@ -642,7 +661,16 @@
                     <p class="margin_null">{{ $pet->age ?? 'null' }}</p>
                 </td>
                 <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->petVaccine->pluck('name')->join(', ') ?? 'null' }}</p>
+                    <!-- <p class="margin_null">{{ $pet->petVaccine->pluck('name')->join(', ') ?? 'null' }}</p> -->
+                    @foreach ($pet->petVaccine as $i => $vaccine)
+                        <p class="margin_null">
+                            {{ $i + 1 }}. {{ $vaccine->name ?? 'null' }}
+                        </p>
+
+                        @if(!$loop->last)
+                            <p></p>
+                        @endif
+                    @endforeach
                 </td>
             </tr>
         @endforeach
@@ -715,7 +743,10 @@
                         <p class="margin_null">
                             {{ $i + 1 }}. {{ $action->action ?? 'null' }}
                         </p>
-                        <p></p>
+
+                        @if(!$loop->last)
+                            <p></p>
+                        @endif
                     @endforeach
                 </td>
 
@@ -724,9 +755,12 @@
                     --}}
                     @foreach($risk->riskReductionActions as $i => $action)
                         <p class="margin_null">
-                            {{ $i + 1 }}. {{ $action->member->names ?? '-' }}
+                            {{ $i + 1 }}. {{ $action->member->names . " " . $action->member->last_names ?? '-' }}
                         </p>
-                        <p></p>
+
+                        @if(!$loop->last)
+                            <p></p>
+                        @endif
                     @endforeach
                 </td>
 
@@ -737,7 +771,10 @@
                             {{-- {{ $i + 1 }}. {{ $action->end_date->format('d/m/Y') }} --}}
                             {{ $i + 1 }}.{{ \Carbon\Carbon::parse($action->end_date)->format('d/m/Y') ?? '' }}
                         </p>
-                        <p></p>
+
+                        @if(!$loop->last)
+                            <p></p>
+                        @endif
                     @endforeach
                 </td>
             </tr>
@@ -748,8 +785,7 @@
     <div class="salto"></div>
 
 
-    {{-- TABLA RECURSOS DISPONIBLES
-    --------------------------------------------------------------------------------------- --}}
+    {{-- TABLA RECURSOS DISPONIBLES --------------------------------------------------------------------------------------- --}}
 
     <div class="titulo">
         <strong>Formato Anexo N° 06 - <em>"RECURSOS DISPONIBLES"</em></strong>

@@ -22,9 +22,9 @@ class VulnerableQuestionSeeder extends Seeder
             ['description' => '¿Hay en su vivienda escaleras sin barandas o sin estabilidad o sin soportes, que puedan presentar riesgo de caída?', 'question_caution' => false],
             ['description' => '¿Están realizando actualmente modificaciones estructurales, locativas o decorativas en su vivienda?', 'question_caution' => false],
             ['description' => '¿Se desarrolla alguna obra o construcción en inmediaciones de su casa, que puedan afectar de alguna manera su vivienda?', 'question_caution' => false],
+            ['description' => '¿El tanque de agua u otros elementos pesados carecen de amarres o anclajes a las placas o vigas, para evitar que se caigan o dañen la estructura en caso de sismo, vendaval o vibración excesiva?', 'question_caution' => false],
 
             // 🟡 Preguntas de precaución
-            ['description' => '¿El tanque de agua u otros elementos pesados carecen de amarres o anclajes a las placas o vigas, para evitar que se caigan o dañen la estructura en caso de sismo, vendaval o vibración excesiva?', 'question_caution' => true],
             ['description' => '¿Su vivienda cuenta con un botiquín, extintor, maletín familiar o elementos para atender una emergencia?', 'question_caution' => true],
             ['description' => '¿Los integrantes de la familia saben dónde están ubicados los registros de agua, gas y los interruptores de luz y saben cómo cerrarlos?', 'question_caution' => true],
             ['description' => '¿Los integrantes de la familia conocen los números de emergencia y saben a quién llamar en caso de un accidente, emergencia o situación de desastre (Bomberos, Policía, Defensa Civil, Cruz Roja, etc.)?', 'question_caution' => true],

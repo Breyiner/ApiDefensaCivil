@@ -148,6 +148,10 @@
             border: 1px solid #000;
         }
 
+        .background_claro {
+            background-color: #fff7b0;
+        }
+
         /* =========================
         TABLAS CELDAS
         ========================= */
@@ -339,26 +343,29 @@
 
             @foreach ($familyPlan->vulnerableTest as $test)
 
-                <tr>
-
-                    <td class="fila_centrada">
-                        {{ str_pad($i++, 2, '0', STR_PAD_LEFT) ?? 'null' }}
-                    </td>
-
-                    <td class="fila_normal">
-                        {{ $test->vulnerableQuestion->description ?? 'null' }}
-                    </td>
-
-                    <td class="fila_centrada">
-                        {{ $test->answer ? 'X' : '' }}
-                    </td>
-
-                    <td class="fila_centrada">
-                        {{ !$test->answer ? 'X' : '' }}
-                    </td>
-
-                </tr>
-
+            
+            <tr class="{{ $test->testVulnerableQuestion->question_caution ? 'background_claro' : '' }}">
+                
+                <td class="fila_centrada">
+                    {{ str_pad($i++, 2, '0', STR_PAD_LEFT) ?? 'null' }}
+                </td>
+                
+                <td class="fila_normal">
+                    {{ $test->vulnerableQuestion->description ?? 'null' }}
+                </td>
+                
+                <td class="fila_centrada">
+                    {{ $test->answer ? 'X' : '' }}
+                </td>
+                
+                <td class="fila_centrada">
+                    {{ !$test->answer ? 'X' : '' }}
+                </td>
+                
+            </tr>
+            
+            <!-- if ($test->testVulnerableQuestion->question_caution=true) {} -->
+            
             @endforeach
 
         </tbody>

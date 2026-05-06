@@ -185,7 +185,7 @@ class PermissionSeeder extends Seeder
             ['family-plans.download-pdf', 'Descargar PDF del plan familiar'],
             ['family-plans.has-members', 'Verificar si plan familiar tiene miembros'],
             ['family-plans.validate-requirements', 'Validar requisitos del plan familiar'],
-            ['permission:family-plans.change-family-type', 'Cambiar tipo de familia del plan familiar'],
+            ['family-plans.change-family-type', 'Cambiar tipo de familia del plan familiar'],
 
             // Tipos de Familia
             ['family-types.index', 'Listar tipos de familia'],

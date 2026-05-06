@@ -42,19 +42,21 @@ class FamilyPlanService
         // 🔹 Transformar la colección para formatear la respuesta
         $items = $paginator->map(function ($plan) {
             return [
-                'id'           => $plan->id,
-                'name'         => $plan->name,
-                'last_names'   => $plan->last_names,
-                'address'      => $plan->address,
-                'comentary'    => $plan->comentary ?? 'No hay comentarios',
-                'zone'         => $plan->zone?->name,              // Usar null safe operator
-                'city'         => $plan->city?->name,
-                'department'   => $plan->city?->department?->name,
-                'status'       => $plan->statusPlan?->name,
-                'status_id'    => $plan->statusPlan?->id,
-                'sectional'    => $plan->sectional?->name,
-                'responsable'  => $plan->user?->profile->names,
-                'date_create'  => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
+                'id'             => $plan->id,
+                'name'           => $plan->name,
+                'last_names'     => $plan->last_names,
+                'address'        => $plan->address,
+                'comentary'      => $plan->comentary ?? 'No hay comentarios',
+                'zone'           => $plan->zone?->name,              // Usar null safe operator
+                'city'           => $plan->city?->name,
+                'department'     => $plan->city?->department?->name,
+                'status'         => $plan->statusPlan?->name,
+                'status_id'      => $plan->statusPlan?->id,
+                'sectional'      => $plan->sectional?->name,
+                'responsable'    => $plan->user?->profile->names,
+                'date_create'    => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
+                'family_type'    => $plan->familyType?->name,
+                'family_type_id' => $plan->familyType?->id,
             ];
         });
 
@@ -97,7 +99,7 @@ class FamilyPlanService
                 'sectional',
                 'user',
                 'housingQuality',
-                'sector'
+                'sector',
             ])->find($id);
 
         if (!$familyPlan) {
@@ -128,6 +130,8 @@ class FamilyPlanService
             'status_plan_id'     => $familyPlan->status_plan_id,
             'sectional_id'       => $familyPlan->sectional_id,
             'user_id'            => $familyPlan->user_id,
+            'family_type_id'     => $familyPlan->familyType?->id,
+            'family_type'        => $familyPlan->familyType?->name,
 
             // Nombres de relaciones
             'zone'               => $familyPlan->zone?->name,
@@ -285,6 +289,31 @@ class FamilyPlanService
             "error" => false,
             "code" => 200,
             "message" => "Cambio de estado del plan familiar actualizado correctamente",
+            "data" => $familyPlan,
+        ];
+    }
+
+    public function patchFamilyType(array $data, $id)
+    {
+        $familyPlan = FamilyPlan::find($id);
+
+        if (!$familyPlan) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Plan familiar no encontrado",
+            ];
+        }
+
+        // 🔹 Actualizar solo el campo family_type_id
+        if (isset($data['family_type_id'])) {
+            $familyPlan->update(['family_type_id' => $data['family_type_id']]);
+        }
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Tipo de familia del plan familiar actualizado correctamente",
             "data" => $familyPlan,
         ];
     }

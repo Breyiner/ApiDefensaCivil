@@ -17,7 +17,10 @@ return new class extends Migration
             $table->id();
 
             // Apellidos que identifican al grupo familiar (ej: 'Familia Rodríguez Pérez')
-            $table->string('last_names', 255);  
+            $table->string('last_names', 255);
+
+            //Tipo de familia (relación con family_types)
+            $table->foreignId('family_type_id')->constrained('family_types');
 
             // --- RELACIONES OBLIGATORIAS ---
             // Zona geográfica (Norte, Sur, etc.)

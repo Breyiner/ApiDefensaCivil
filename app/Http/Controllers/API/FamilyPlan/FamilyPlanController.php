@@ -9,6 +9,7 @@ use App\Http\Requests\FamilyPlan\PartialUpdateFamilyPlanRequest;
 use App\Http\Requests\FamilyPlan\ChangeStatusFamilyPlanRequest;
 use App\Http\Requests\FamilyPlan\GeoreFamilyPlanRequest;
 use App\Http\Requests\FamilyPlan\IdentifyFamilyPlanRequest;
+use App\Http\Requests\FamilyPlan\PatchFamilyTypeRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FamilyPlan\FilterByStatusFamilyPlanRequest;
 use App\Services\FamilyPlan\FamilyPlanService;
@@ -156,6 +157,18 @@ class FamilyPlanController extends Controller
     {
         $data = $request->validated();
         $response = $this->service->changeStatus($data, $id);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+    }
+
+    public function patchFamilyType(PatchFamilyTypeRequest $request, string $id): JsonResponse
+    {
+        $data = $request->validated();
+        $response = $this->service->patchFamilyType($data, $id);
 
         if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);

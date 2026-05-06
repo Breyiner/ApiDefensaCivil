@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\FamilyPlan\FamilyPlanController;
 use App\Http\Controllers\API\HousingInfo\HousingInfoController;
 use App\Http\Controllers\API\HousingGraphic\HousingGraphicController;
+use App\Http\Controllers\API\FamilyType\familyTypeController;
 use App\Http\Controllers\housingInfoType\housingInfoTypeController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,8 +74,26 @@ Route::prefix('familyPlans')->group(function () {
     Route::patch('/{id}/change-status', [FamilyPlanController::class, 'changeStatus'])
         ->middleware('permission:family-plans.change-status');
 
-    Route::delete('/{id}', [FamilyPlanController::class, 'destroy'])
-        ->middleware('permission:family-plans.destroy');
+    Route::patch('/{id}/change-family-type', [FamilyPlanController::class, 'patchFamilyType'])
+        ->middleware('permission:family-plans.change-family-type');
+    
+});
+
+Route::prefix('familyTypes')->group(function(){
+    Route::get('/', [familyTypeController::class, 'index'])
+        ->middleware('permission:family-type.index');
+    
+    Route::post('/', [familyTypeController::class, 'store'])
+        ->middleware('permission:family-type.store');
+
+    Route::get('/{id}', [familyTypeController::class, 'show'])
+        ->middleware('permission:family-type.show');
+
+    Route::put('/{id}', [familyTypeController::class, 'update'])
+        ->middleware('permission:family-type.update');
+
+    Route::delete('/{id}', [familyTypeController::class, 'destroy'])
+        ->middleware('permission:family-type.destroy');
 });
 
 
@@ -115,12 +134,15 @@ Route::prefix('housingInfo')->group(function () {
     Route::delete('/{id}', [HousingInfoController::class, 'destroy'])
         ->middleware('permission:housing-info.destroy');
 
-    
-    Route::get('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'getByType']);
-    
-    Route::delete('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'destroyByType']);
+    Route::get('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'getByType'])
+        ->middleware('permission:housing-info.by-type');
 
-    Route::post('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'updateByType']);
+    Route::post('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'updateByType'])
+        ->middleware('permission:housing-info.by-type');
+
+    Route::delete('/{familyPlanId}/type/{typeId}', [HousingInfoController::class, 'destroyByType'])
+        ->middleware('permission:housing-info.by-type');
+
 });
 
 

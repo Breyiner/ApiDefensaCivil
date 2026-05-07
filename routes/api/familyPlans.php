@@ -76,6 +76,9 @@ Route::prefix('familyPlans')->group(function () {
 
     Route::patch('/{id}/change-family-type', [FamilyPlanController::class, 'patchFamilyType'])
         ->middleware('permission:family-plans.change-family-type');
+
+    // Route::post('/{id}/submit', [FamilyPlanController::class, 'submitPlan'])
+    //     ->middleware('permission:family-plans.submit');
     
 });
 

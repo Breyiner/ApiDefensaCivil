@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\HousingInfoType;
+namespace App\Services\housingInfoType;
 
 use App\Models\HousingInfoType\HousingInfoType;
 
-class housingInfoTypeService
+class HousingInfoTypeService
 {
     public function __construct()
     {

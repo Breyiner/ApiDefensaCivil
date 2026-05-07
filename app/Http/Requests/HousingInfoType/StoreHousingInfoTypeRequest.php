@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\housingInfoType;
+namespace App\Http\Requests\HousingInfoType;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class storeHousingInfoType extends FormRequest
+class StoreHousingInfoTypeRequest extends FormRequest
 {
     public function authorize(): bool
     {

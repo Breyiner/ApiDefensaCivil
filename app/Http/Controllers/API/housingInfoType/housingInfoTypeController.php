@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\housingInfoType;
+namespace App\Http\Controllers\API\housingInfoType;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
@@ -9,7 +9,7 @@ use App\Http\Requests\housingInfoType\updateHousingInfoType;
 use App\Models\housingInfoType\HousingInfoType;
 use App\Services\HousingInfoType\housingInfoTypeService;
 
-class housingInfoTypeController extends Controller
+class HousingInfoTypeController extends Controller
 {
     protected $service;
 

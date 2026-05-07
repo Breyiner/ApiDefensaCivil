@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\HousingInfoType;
 
-use App\Models\housingInfoType\HousingInfoType;
+use App\Models\HousingInfoType\HousingInfoType;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

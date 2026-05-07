@@ -585,30 +585,145 @@ class FamilyPlanService
             ];
         }
 
-        // 🔹 Verificar integrantes
-        $hasMembers = $familyPlan->familyMembers()->exists();
+        // Verifica que haya al menos 2 integrantes registrados
+        $membersCount = $familyPlan->familyMembers()->count();
+        $hasMinMembers = $membersCount >= 2;
+        // $hasMembers = $familyPlan->familyMembers()->exists();
 
-        // 🔹 Verificar factores de riesgo
-        $hasRiskFactors = $familyPlan->riskFactors()->exists();
 
-        // 🔹 Determinar validez (ambos requisitos deben cumplirse)
-        $isValid = $hasMembers && $hasRiskFactors;
+        // Verifica que haya al menos 1 factor de riesgo registrado
+        $riskFactorsCount = $familyPlan->riskFactors()->count();
+        $hasMinRiskFactors = $riskFactorsCount >= 1;
+        // $hasRiskFactors = $familyPlan->riskFactors()->exists();
+
+
+        // Verifica que haya al menos un recurso disponible registrado
+        $resourcesCount = $familyPlan->availableResources()->count();
+        $hasMinResources = $resourcesCount >= 1;
+
+
+        // Al menos debe haber una foto de entorno registrada
+        $photosCount = $familyPlan->housingInfo()->where('housing_info_type_id', 2)->count();
+        $hasMinPhotos = $photosCount === 1;
+
+
+        // Debe al menos existir un grafico (plano) de la vivienda registrado
+        $housingGraphicsCount = $familyPlan->housingInfo()->count();
+        $hasMinHousingGraphics = $housingGraphicsCount >= 1;
+
+
+        // Verificar si el plan de acción al menos tienes un antes, durante y después registrado
+        $actionPlanIds = \App\Models\ActionPlan\ActionPlan::whereHas('riskFactor', function ($q) use ($id) {
+        $q->where('family_plan_id', $id); })->pluck('id');
+
+        $hasActionBefore = \App\Models\ActionPlanAction\ActionPlanAction::whereIn('action_plan_id', $actionPlanIds)
+            ->where('action_type_id', 1)->exists();
+
+        $hasActionDuring = \App\Models\ActionPlanAction\ActionPlanAction::whereIn('action_plan_id', $actionPlanIds)
+            ->where('action_type_id', 2)->exists();
+
+        $hasActionAfter = \App\Models\ActionPlanAction\ActionPlanAction::whereIn('action_plan_id', $actionPlanIds)
+            ->where('action_type_id', 3)->exists();
+
+        $hasActionPlan = $hasActionBefore && $hasActionDuring && $hasActionAfter;
+
+
+        // Determinar validez (ambos requisitos deben cumplirse)
+        // $isValid = $hasMembers && $hasRiskFactors;
+        $isValid = $hasMinMembers
+            && $hasMinRiskFactors
+            && $hasMinResources
+            && $hasMinPhotos
+            && $hasMinHousingGraphics
+            && $hasActionPlan;
+
 
         return [
             'error'   => false,
             'code'    => $isValid ? 200 : 422,
             'message' => $isValid
-                ? 'El plan familiar cumple con todos los requisitos mínimos'
-                : 'El plan familiar requiere al menos 1 integrante Y 1 factor de riesgo',
+                ? 'El plan familiar cumple con todos los requisitos para ser enviado'
+                : 'El plan familiar no cumple con todos los requisitos',
+
             'data'    => [
+
                 'is_valid'           => $isValid,
-                'has_members'        => $hasMembers,
-                'members_count'      => $familyPlan->familyMembers()->count(),
-                'has_risk_factors'   => $hasRiskFactors,
-                'risk_factors_count' => $familyPlan->riskFactors()->count(),
+
+                'has_min_members'    => $hasMinMembers,
+                'members_count'      => $membersCount,
+
+                'has_risk_factors'   => $hasMinRiskFactors,
+                'risk_factors_count' => $riskFactorsCount,
+
+                'has_resources'      => $hasMinResources,
+                'resources_count'    => $resourcesCount,
+
+                'has_photos'         => $hasMinPhotos,
+                'photos_count'       => $photosCount,
+
+                'has_graphics'       => $hasMinHousingGraphics,
+                'graphics_count'     => $housingGraphicsCount,
+
+                'has_action_before'  => $hasActionBefore,
+                'has_action_during'  => $hasActionDuring,
+                'has_action_after'   => $hasActionAfter,
+
+                // 'has_members'        => $hasMembers,
+                // 'members_count'      => $familyPlan->familyMembers()->count(),
+                // 'has_risk_factors'   => $hasRiskFactors,
+                // 'risk_factors_count' => $familyPlan->riskFactors()->count(),
             ],
         ];
     }
+
+    // public function sumitPlan(int $id): array 
+    // {
+    //     $familyPlan = FamilyPlan::forAuthUser()->find($id);
+
+    //     if (!$familyPlan) {
+    //         return [
+    //             "error" => true,
+    //             "code" => 404,
+    //             "message" => "Plan familiar no encontrado",
+    //         ];
+    //     }
+
+    //     // Solo se pueden enviar planes en estado "Creado" (status_plan_id = 1)
+
+    //     if ($familyPlan->status_plan_id !== 1) {
+    //         return [
+    //             'error'   => true,
+    //             'code'    => 422,
+    //             'message' => 'Solo se pueden enviar planes en estado Creado',
+    //         ];
+    //     }
+
+    //     // Correr validación completa
+
+    //     $validation = $this->validateRequirements($id);
+    //     if(!$validation[data][is_valid]) {
+    //         return [
+    //             'error'   => true,
+    //             'code'    => 422,
+    //             'message' => 'El plan no cumple los requisitos para ser enviado',
+    //             'data'    => $validation['data'],
+    //         ];
+    //     }
+
+    //     // Cambiar estado a "Enviado" — confirma el ID de tu tabla status_plans
+
+    //     $familyPlan->update(['status_plan_id' => 4]);
+
+    //     return [
+    //         'error'   => false,
+    //         'code'    => 200,
+    //         'message' => 'Plan familiar enviado exitosamente',
+    //         'data'    => [
+    //             'id'             => $familyPlan->id,
+    //             'status_plan_id' => $familyPlan->status_plan_id,
+    //         ],
+    //     ];
+    // }
 
 
     /**

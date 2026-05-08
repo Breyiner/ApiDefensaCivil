@@ -222,6 +222,8 @@ class UserService
                 'document_number' => $item->profile && $item->profile->documentType
                     ? $item->profile->document_number . ' ' . $item->profile->documentType->acronym
                     : 'N/A',
+                'created_at' => $item->created_at,
+                // Carbon::parse($item->created_at)->format('d/m/Y'),
             ];
         });
 

@@ -1,0 +1,35 @@
+name: Deploy Laravel Backend
+
+on:
+  push:
+    branches: [development]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploying to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/backend.johnbecerra.dev
+            git pull origin development
+
+            # Instalar dependencias
+            composer install --no-dev --optimize-autoloader
+
+            # Ejecutar migraciones si la base de datos ya existe
+            php artisan migrate --force
+
+            # Limpiar y regenerar caché de Laravel
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # Ajustar permisos (Ahora que el código ya bajó)
+            sudo chgrp -R www-data storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache

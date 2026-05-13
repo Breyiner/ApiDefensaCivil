@@ -45,6 +45,8 @@ class RolePermissionSeeder extends Seeder
                 'family-plans.has-members',
                 'family-plans.validate-requirements',
                 'family-plans.change-family-type',
+
+                'users.requests-supervisors' // permiso solo para supervisores, sera ignorado por el rol admin
             ])->get()
         );
 
@@ -97,7 +99,6 @@ class RolePermissionSeeder extends Seeder
             //GESTIÓN DE USUARIOS (solo voluntarios)
                 'users.index',
                 'users.by-status',
-                'users.requests-admins',
                 'users.requests-supervisors',
                 'users.show',
                 'users.history',
@@ -105,7 +106,8 @@ class RolePermissionSeeder extends Seeder
                 'users.update',
                 'users.partial-update',
                 'users.destroy',
-                'users.change-status', 
+                'users.change-status',
+                'users.change-role', //solo podra asignar rol de voluntario
                 'users.approve-bulk',
                 'users.change-status-bulk',
                 'users.reject-delete-bulk',

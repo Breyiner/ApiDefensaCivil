@@ -24,92 +24,122 @@ class RolePermissionSeeder extends Seeder
 
         /*
         |--------------------------------------------------------------------------
-        | ADMINISTRADOR → TODO MENOS CONTROL TOTAL
+        | ADMINISTRADOR → GESTIONA USUARIOS, PERMISOS Y ROLES / GESTIONA DATOS MAESTROS
         |--------------------------------------------------------------------------
         */
 
-        // $admin->syncPermissions(
-        //     Permission::whereNotIn('name', [
-        //         'roles.index',
-        //         'roles.store',
-        //         'roles.update',
-        //         'roles.destroy',
-        //         'permissions.index',
-        //         'permissions.store',
-        //         'permissions.update',
-        //         'permissions.destroy',
-        //     ])->get()
-        // );
+        $admin->syncPermissions(
+            Permission::whereNotIn('name', [
+                'family-plans.index',
+                'family-plans.by-status',
+                'family-plans.by-user',
+                'family-plans.show',
+                'family-plans.store',
+                'family-plans.update',
+                'family-plans.partial-update',
+                'family-plans.identify',
+                'family-plans.change-status',
+                'family-plans.destroy',
+                'family-plans.check-access',
+                'family-plans.download-pdf',
+                'family-plans.has-members',
+                'family-plans.validate-requirements',
+                'family-plans.change-family-type',
+            ])->get()
+        );
 
-        $admin->syncPermissions(Permission::all());
+        // $admin->syncPermissions(Permission::all());
 
         /*
         |--------------------------------------------------------------------------
         | SUPERVISOR → REVISA, ACTUALIZA, CAMBIA ESTADOS
         |--------------------------------------------------------------------------
         */
-        $supervisor->syncPermissions(Permission::all());
-        // $supervisor->syncPermissions([
+        $supervisor->syncPermissions([
+            'users.index', 'users.show',
+            'profiles.index', 'profiles.show',
+            'organizations.index', 'organizations.show',
+            'cities.index', 'cities.show',
+            'zones.index', 'zones.show',
+            'sectors.index', 'sectors.show',
+            'departments.index', 'departments.show',
 
-        //     // Lecturas generales
-        //     'users.index', 'users.show',
-        //     'profiles.index', 'profiles.show',
-        //     'organizations.index', 'organizations.show',
-        //     'cities.index', 'cities.show',
-        //     'zones.index', 'zones.show',
-        //     'sectors.index', 'sectors.show',
-        //     'apartments.index', 'apartments.show',
+            //Planes familiares
+            'family-plans.index',
+            'family-plans.show',
+            'family-plans.update',
+            'family-plans.partial-update',
+            'family-plans.change-status',
+            'family-plans.identify',
+            'family-plans.check-access',
+            'family-plans.has-members',
+            'family-plans.validate-requirements',
 
-        //     // Planes familiares
-        //     'family-plans.index',
-        //     'family-plans.show',
-        //     'family-plans.update',
-        //     'family-plans.partial-update',
-        //     'family-plans.change-state',
-        //     'family-plans.identify',
-        //     'family-plans.georeference',
+            'housing-info.index',
+            'housing-info.show',
 
-        //     // Vivienda
-        //     'housing-info.index',
-        //     'housing-info.show',
+            // Catálogos (gestión)
+            'genders.index',
+            'genders.update',
+            'genders.change-status',
+        
+            'document-types.index',
+            'document-types.update',
+            'document-types.change-status',
+        
+            'housing-qualities.index',
+            'housing-qualities.update',
+            'housing-qualities.change-status',
+        
+            'status-plans.index',
+            'status-plans.update',
 
-        //     // Catálogos (gestión)
-        //     'genders.index', 'genders.update', 'genders.change-state',
-        //     'document-types.index', 'document-types.update', 'document-types.change-state',
-        //     'housing-qualities.index', 'housing-qualities.update', 'housing-qualities.change-state',
-        //     'status-plans.index', 'status-plans.update',
-        // ]);
+            //GESTIÓN DE USUARIOS (solo voluntarios)
+                'users.index',
+                'users.by-status',
+                'users.requests-admins',
+                'users.requests-supervisors',
+                'users.show',
+                'users.history',
+                'users.store',
+                'users.update',
+                'users.partial-update',
+                'users.destroy',
+                'users.change-status', 
+                'users.approve-bulk',
+                'users.change-status-bulk',
+                'users.reject-delete-bulk',
+        ]);
 
         /*
         |--------------------------------------------------------------------------
         | VOLUNTARIO → REGISTRA Y CONSULTA
         |--------------------------------------------------------------------------
         */
-        $voluntario->syncPermissions(Permission::all());
-        // $voluntario->syncPermissions([
-        //     // Catálogos (solo lectura)
-        //     'home-frontend.voluntario',
-        //     'genders.index',
-        //     'document-types.index',
-        //     'cities.index',
-        //     'zones.index',
-        //     'sectors.index',
-        //     'housing-qualities.index',
-        //     'status-plans.index',
+        $voluntario->syncPermissions([
+            // Catalogos (solo lectura)
+            'home-frontend.voluntario',
+            'genders.index',
+            'document-types.index',
+            'cities.index',
+            'zones.index',
+            'sectors.index',
+            'housing-qualities.index',
+            'status-plans.index',
 
-        //     // Plan familiar
-        //     'family-plans.index',
-        //     'family-plans.show',
-        //     'family-plans.store',
+            //Plan familiar
+            'family-plans.index',
+            'family-plans.show',
+            'family-plans.store',
 
-        //     // Vivienda
-        //     'housing-info.store',
+            //Vivienda
+            'housing-info.store',
 
-        //     // Perfil propio
-        //     'profiles.show',
-        //     'profiles.update',
-        //     'cities.apartments',
-        //     'apartments.index'
-        // ]);
+            //Perfil Propio
+            'profiles.show',
+            'profiles.update',
+            'cities.by-department',
+            'departments.index'
+        ]);
     }
 }

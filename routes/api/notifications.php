@@ -48,4 +48,7 @@ Route::prefix('notifications')->group(function () {
 
     Route::delete('/{id}', [NotificationController::class, 'destroy'])
         ->middleware('permission:notifications.destroy');
+
+    Route::patch('/{id}/status', [NotificationController::class, 'changeStatus']);
+    // ->middleware('permission:notifications.change-status');
 });

@@ -1,59 +1,36 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## PHP y COMPOSER | instalación y preparación
+1. Instalación PHP
+```script
+     Para manejar el backend lo principal que se necesita Instalar y buscar COMPOSER y PHP (8.5.0)
+Se instala el php thread save (.zip), se abre variables del entorno del sistema, se ingresa la contraseña y se ingresa la variable del entorno, se selecciona "nuevo" y se ingresa la direccion de la carpeta, en estecaso php, para guardarlo. Para saber si la instalación de php fue exitosa entramos en la consola, como git bash, y se escribe "php -v" para asegurarnos que este presente como variable en el sistema.
+```
+2. Instalación Composer
+```script
+     A la hora de instalar composer solicitara una ubicación, buscamos la carpeta php y seleccionamos el ejecutable de php con destino.
+Con el composer realizaremos todas las peticiones e instalación de laravel.
+```
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+3. Habilitar PHP
+```script
+     Ejecutamos bloc de notas como administrador, luego abrimos en este un archivo de la carpeta php llamado de la misma forma, pero el icono tiene una tuerca, una vez dentro con el buscador del bloc (ctrl + F), se busca "extension=zip", "extension=pdo_mysql" y "extension=fileinfo", a cada una de estas se le borra el punto y coma (;) del principio y guardamos.
+Luego de todo ello reiniciamos todo.
+```
 
-## About Laravel
+3. Instalación de composer en el proyecto y migración de datos PHP a la base de datos
+```script
+     Tras lo anterior procedemos a acceder desde consola al proyecto backend, como lo es el api de Defensa Civil, una vez nos ubicamos escribimos "composer i" o "composer install".
+     tras la instalación de composer en el proyecto api entramos al archivo ".env" y colocamos la contraseña y el usuario de la base de datos previamente creada (MySQL, mariaDB, etc) en "DB_PASSWORD=" y "DB_USERNAME=", Despues de ello ingresa los siguientes comando en consola:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+        1. php artisan migrate --seed (El comando realizara la clonación del proyecto en caso de no haber una base de datos, lo que me permitira que esta se cree junto a todos sus elementos en la base de datos seleccionada)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+        2. php artisan migrate:refresh --seed (Esta se utiliza cuando se hace un cambio en el backend relacionado con las bases de datos, lo que hace es borrar la anterior migración y sustituirla por una nueva con nuevos datos)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Para iniciar el servidor se debe ingresar en consola "php artisan serve" o "php artisan serve --host=localhost"
+Para cerrar cuanquier proceso de serve en git bash se ingresa el comando "ctrl + c"
+```
+## ! ENV para mantener seción en dominio
 
-## Learning Laravel
+```script
+    Se necesita poder manejar bien las token refresh en el dominio para evitar que la sesión se expire en lugar de refrescarse, como alternativa se podria aumentar el tiempo de duración de la sesión antes de su expiración
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```

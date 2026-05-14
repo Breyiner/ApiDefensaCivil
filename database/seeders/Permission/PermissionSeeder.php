@@ -204,7 +204,7 @@ class PermissionSeeder extends Seeder
             ['housing-info.destroy', 'Eliminar información de vivienda'],
             ['housing-info.by-type', 'Ver información de vivienda por tipo'],
             
-             // Tipos de Información de Vivienda
+            // Tipos de Información de Vivienda
             ['housing-info-type.index', 'Listar los tipos de informacion de vivienda'],
             ['housing-info-type.show', 'Ver tipo de información de vivienda'],
             ['housing-info-type.update', 'Actualizar tipo de información de vivienda'],

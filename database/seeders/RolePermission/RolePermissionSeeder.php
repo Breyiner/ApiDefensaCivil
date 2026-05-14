@@ -58,59 +58,103 @@ class RolePermissionSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
         $supervisor->syncPermissions([
-            'users.index', 'users.show',
-            'profiles.index', 'profiles.show',
-            'organizations.index', 'organizations.show',
-            'cities.index', 'cities.show',
-            'zones.index', 'zones.show',
-            'sectors.index', 'sectors.show',
-            'departments.index', 'departments.show',
 
-            //Planes familiares
-            'family-plans.index',
-            'family-plans.show',
-            'family-plans.update',
-            'family-plans.partial-update',
-            'family-plans.change-status',
-            'family-plans.identify',
-            'family-plans.check-access',
-            'family-plans.has-members',
-            'family-plans.validate-requirements',
+            Permission::whereNotIn('name', [
 
-            'housing-info.index',
-            'housing-info.show',
+                'sectionals.history',
+                'sectionals.store',
+                'sectionals.update',
+                'sectionals.partial-update',
+                'sectionals.change-status',
+                'sectionals.destroy',
 
-            // Catálogos (gestión)
-            'genders.index',
-            'genders.update',
-            'genders.change-status',
-        
-            'document-types.index',
-            'document-types.update',
-            'document-types.change-status',
-        
-            'housing-qualities.index',
-            'housing-qualities.update',
-            'housing-qualities.change-status',
-        
-            'status-plans.index',
-            'status-plans.update',
+                'organizations.history',
+                'organizations.store',
+                'organizations.update',
+                'organizations.partial-update',
+                'organizations.change-status',
+                'organizations.destroy',
 
-            //GESTIÓN DE USUARIOS (solo voluntarios)
-                'users.index',
-                'users.by-status',
-                'users.requests-supervisors',
-                'users.show',
-                'users.history',
-                'users.store',
-                'users.update',
-                'users.partial-update',
-                'users.destroy',
-                'users.change-status',
-                'users.change-role', //solo podra asignar rol de voluntario
-                'users.approve-bulk',
-                'users.change-status-bulk',
-                'users.reject-delete-bulk',
+                'zones.store',
+                'zones.update', 
+                'zones.destroy',
+                'sectors.history',
+                'sectors.store',
+                'sectors.update', 
+                'sectors.partial-update',
+                'sectors.change-status',
+                'sectors.destroy',
+
+                'departments.history',
+                'departments.store',
+                'departments.update',
+                'departments.partial-update',
+                'departments.destroy',
+
+                'cities.history',
+                'cities.store',
+                'cities.update',
+                'cities.partial-update',
+                'cities.destroy',
+
+                'housing-qualities.history',
+                'housing-qualities.store',
+                'housing-qualities.update', 
+                'housing-qualities.partial-update',
+                'housing-qualities.change-status',
+                'housing-qualities.destroy',
+
+                'blood-groups.store',
+                'blood-groups.update',
+                'blood-groups.destroy',
+                
+                'nationalities.history',
+                'nationalities.store',
+                'nationalities.update',
+                'nationalities.partial-update',
+                'nationalities.change-status',
+                'nationalities.destroy',
+                
+                'kinships.store', 
+                'kinships.update',
+                'kinships.destroy',
+                
+                'species.history',
+                'species.store',
+                'species.update',
+                'species.partial-update',
+                'species.change-status',
+                'species.destroy',
+                
+                'animal-genders.store',
+                'animal-genders.update',
+                'animal-genders.destroy',
+
+                'threat-types.history',
+                'threat-types.store',
+                'threat-types.update',
+                'threat-types.partial-update',
+                'threat-types.change-status',
+                'threat-types.destroy',
+
+                'vulnerabilities.history',
+                'vulnerabilities.store',
+                'vulnerabilities.update',
+                'vulnerabilities.partial-update',
+                'vulnerabilities.change-status',
+                'vulnerabilities.destroy',
+
+                'resources.history',
+                'resources.store', 
+                'resources.update',
+                'resources.partial-update',
+                'resources.change-status',
+                'resources.destroy',
+
+                'audits.dashboard-admin',
+
+                'users.requests-admins'
+            ])->get()
         ]);
 
         /*
@@ -119,29 +163,119 @@ class RolePermissionSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
         $voluntario->syncPermissions([
-            // Catalogos (solo lectura)
-            'home-frontend.voluntario',
-            'genders.index',
-            'document-types.index',
-            'cities.index',
-            'zones.index',
-            'sectors.index',
-            'housing-qualities.index',
-            'status-plans.index',
 
-            //Plan familiar
-            'family-plans.index',
-            'family-plans.show',
-            'family-plans.store',
+            Permission::whereNotIn('name', [
 
-            //Vivienda
-            'housing-info.store',
+                // 'users.index',
+                // 'users.by-status',
+                // 'users.show',
+                // 'users.history',
+                // 'users.store',
+                // 'users.update',
+                // 'users.partial-update',
+                // 'users.destroy',
+                // 'users.change-role',
+                // 'users.change-status',
+                // 'users.approve-bulk',
+                // 'users.change-status-bulk',
+                // 'users.reject-delete-bulk',
 
-            //Perfil Propio
-            'profiles.show',
-            'profiles.update',
-            'cities.by-department',
-            'departments.index'
+                'sectionals.history',
+                'sectionals.store',
+                'sectionals.update',
+                'sectionals.partial-update',
+                'sectionals.change-status',
+                'sectionals.destroy',
+
+                'organizations.history',
+                'organizations.store',
+                'organizations.update',
+                'organizations.partial-update',
+                'organizations.change-status',
+                'organizations.destroy',
+
+                'zones.store',
+                'zones.update', 
+                'zones.destroy',
+                'sectors.history',
+                'sectors.store',
+                'sectors.update', 
+                'sectors.partial-update',
+                'sectors.change-status',
+                'sectors.destroy',
+
+                'departments.history',
+                'departments.store',
+                'departments.update',
+                'departments.partial-update',
+                'departments.destroy',
+                
+                'cities.history',
+                'cities.store',
+                'cities.update',
+                'cities.partial-update',
+                'cities.destroy',
+
+                'housing-qualities.history',
+                'housing-qualities.store',
+                'housing-qualities.update', 
+                'housing-qualities.partial-update',
+                'housing-qualities.change-status',
+                'housing-qualities.destroy',
+
+                'blood-groups.store',
+                'blood-groups.update',
+                'blood-groups.destroy',
+                
+                'nationalities.history',
+                'nationalities.store',
+                'nationalities.update',
+                'nationalities.partial-update',
+                'nationalities.change-status',
+                'nationalities.destroy',
+                
+                'kinships.store', 
+                'kinships.update',
+                'kinships.destroy',
+                
+                'species.history',
+                'species.store',
+                'species.update',
+                'species.partial-update',
+                'species.change-status',
+                'species.destroy',
+
+                'animal-genders.store',
+                'animal-genders.update',
+                'animal-genders.destroy',
+
+                'threat-types.history',
+                'threat-types.store',
+                'threat-types.update',
+                'threat-types.partial-update',
+                'threat-types.change-status',
+                'threat-types.destroy',
+
+                'vulnerabilities.history',
+                'vulnerabilities.store',
+                'vulnerabilities.update',
+                'vulnerabilities.partial-update',
+                'vulnerabilities.change-status',
+                'vulnerabilities.destroy',
+
+                'resources.history',
+                'resources.store', 
+                'resources.update',
+                'resources.partial-update',
+                'resources.change-status',
+                'resources.destroy',
+
+                'audits.dashboard-admin',
+                'audits.dashboard-supervisor',
+
+                'users.requests-supervisors',
+                'users.requests-admins'
+            ])->get()
         ]);
     }
 }

@@ -105,35 +105,35 @@ class NotificationController extends Controller
         );
     }
 
-    public function update(UpdateNotificationRequest $request, string $id)
-    {
-        $notification = Notification::find($id);
+    // public function update(UpdateNotificationRequest $request, string $id)
+    // {
+    //     $notification = Notification::find($id);
 
-        if (!$notification) {
-            return ResponseFormatter::error(
-                'Registro no encontrado',
-                404
-            );
-        }
+    //     if (!$notification) {
+    //         return ResponseFormatter::error(
+    //             'Registro no encontrado',
+    //             404
+    //         );
+    //     }
 
-        $response = $this->service->update(
-            $request->validated(),
-            $id
-        );
+    //     $response = $this->service->update(
+    //         $request->validated(),
+    //         $id
+    //     );
 
-        if ($response['error']) {
-            return ResponseFormatter::error(
-                $response['message'],
-                $response['code']
-            );
-        }
+    //     if ($response['error']) {
+    //         return ResponseFormatter::error(
+    //             $response['message'],
+    //             $response['code']
+    //         );
+    //     }
 
-        return ResponseFormatter::success(
-            $response['message'],
-            $response['code'],
-            $response['data'] ?? []
-        );
-    }
+    //     return ResponseFormatter::success(
+    //         $response['message'],
+    //         $response['code'],
+    //         $response['data'] ?? []
+    //     );
+    // }
 
         public function changeStatus(ChangeStatusNotificationRequest $request, string $id)
     {

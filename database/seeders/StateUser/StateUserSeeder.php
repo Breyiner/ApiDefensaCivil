@@ -17,7 +17,7 @@ class StateUserSeeder extends Seeder
             'name' => 'Inactivo'
         ]);
         StateUser::create([
-            'name' => 'Peticion'
+            'name' => 'Pendiente'
         ]);
     }
 }

@@ -33,7 +33,7 @@ Route::prefix('users')->group(function () {
     Route::get('/', [UserController::class, 'index'])
         ->middleware('permission:users.index');
 
-    // Filtrar usuarios según su estado (activo, inactivo, pendiente, etc.)
+    // Filtrar usuarios según su estado (activo, inactivo, pendiente,)
     Route::get('/by-status', [UserController::class, 'getByStatus'])
         ->middleware('permission:users.by-status');
 

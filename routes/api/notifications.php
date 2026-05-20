@@ -24,7 +24,7 @@ Route::prefix('notifications')->group(function () {
 
     // Contar notificaciones no leídas de un usuario específico
     Route::get('/user/count/{id}', [NotificationController::class, 'countUnreadByUser'])
-        ->middleware('permission:notifications.count-unread');
+        ->middleware('permission:notifications.count-unread-by-user');
 
     // Obtener notificaciones no leídas de un usuario específico
     Route::get('/user/unread/{id}', [NotificationController::class, 'getUnreadByUser'])

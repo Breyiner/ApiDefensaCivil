@@ -9,6 +9,7 @@ use App\Models\User\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\Notification\NotificationService;
 
 /**
  * Servicio para la gestión de cuentas de usuario.
@@ -698,7 +699,7 @@ class UserService
         DB::beginTransaction();
 
         try {
-            $users = User::with('stateUser')->whereIn('id', $userIds)->get();
+            $users = User::with('stateUser', 'profile.organization')->whereIn('id', $userIds)->get();
 
             if ($users->isEmpty()) {
                 DB::rollBack();
@@ -722,13 +723,15 @@ class UserService
 
             foreach ($users as $user) {
                 $oldStatus = $user->stateUser?->name ?? 'SIN ESTADO';
+                $oldStatusId = (int) $user->state_user_id;
 
                 $user->update(['state_user_id' => $stateUserId]);
                 $user->refresh()->load('stateUser');
 
                 $newStatus = $user->stateUser?->name ?? 'SIN ESTADO';
+                $newStatusId = (int) $stateUserId;
 
-                $user->audits()->create([
+                $audit = $user->audits()->create([
                     'user_name' => $fullName,
                     'rol_name' => $role,
                     'date_time' => now(),
@@ -736,6 +739,17 @@ class UserService
                     'status_old' => $oldStatus,
                     'status_new' => $newStatus,
                 ]);
+
+                if ($oldStatusId !== $newStatusId && in_array($newStatusId, [1, 2])) {
+                    
+                    // Extraemos de forma segura el id de la seccional a la que pertenece el usuario editado
+                    $sectionalId = $user->profile?->organization?->sectional_id;
+
+                    if ($sectionalId) {
+                        NotificationService::notifySupervisoresBySectional($sectionalId, $audit->id);
+                        NotificationService::notifyAdminsBySectional($sectionalId, $audit->id);
+                    }
+                }
             }
 
             DB::commit();

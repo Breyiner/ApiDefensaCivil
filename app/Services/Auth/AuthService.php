@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 
+use App\Services\Notification\NotificationService; //Notificación para petición
+
 class AuthService
 {
 
@@ -57,12 +59,8 @@ class AuthService
                     "message" => "Error al crear el perfil",
                 ];
             }
-
-            DB::commit();
-
-            $user->fresh()->sendEmailVerificationNotification();
-
-            $user->audits()->create([
+            
+            $audit = $user->audits()->create([
                 'user_name'      => $data['names'] . " " . $data['last_names'],
                 'rol_name'       => 'Solicitante',
                 'date_time'      => now(),
@@ -70,12 +68,24 @@ class AuthService
                 'status_old'     => null,
                 'status_new'     => 'Peticion',
             ]);
+                
+            DB::commit();
+
+            $user->fresh()->sendEmailVerificationNotification();
+
+            $sectionalId = $profile->organization?->sectional_id;
+
+            if ($sectionalId) {
+                NotificationService::notifyAdminsBySectional($sectionalId, $audit->id);
+                NotificationService::notifySupervisoresBySectional($sectionalId, $audit->id);
+            }
 
             return [
                 "error" => false,
                 "code" => 201,
                 "message" => "Usuario registrado con exito,verifique su correo electronico para continuar",
             ];
+
         } catch (\Exception $e) {
             DB::rollBack();
             return [

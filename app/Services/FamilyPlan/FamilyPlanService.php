@@ -3,6 +3,7 @@
 namespace App\Services\FamilyPlan;
 
 use App\Models\FamilyPlan\FamilyPlan;
+use App\Services\Notification\NotificationService;
 use App\Models\History\History;
 use Illuminate\support\Arr;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -275,7 +276,8 @@ class FamilyPlanService
 
         // 🔹 Registrar auditoría si no es estado 1, 2 o 3
         if ($newStatus != 1 && $newStatus != 2 && $newStatus != 3) {
-            $familyPlan->audits()->create([
+            // $familyPlan->audits()->create
+            $audit = $familyPlan->audits()->create([
                 'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
                 'rol_name'       => auth()->user()->getRoleNames()->first(),
                 'date_time'      => now(),
@@ -283,6 +285,14 @@ class FamilyPlanService
                 'status_old'     => $oldStatus,
                 'status_new'     => $newStatus,
             ]);
+
+            $newStatusId = $familyPlan->status_plan_id;
+
+            if ($newStatusId == 4) {
+                NotificationService::notifySupervisoresBySectional($familyPlan->sectional_id, $audit->id);
+            } elseif (in_array($newStatusId, [5, 6, 7])) {
+                NotificationService::notify($familyPlan->user_id, $audit->id);
+            }
         }
 
         return [
@@ -675,56 +685,6 @@ class FamilyPlanService
             ],
         ];
     }
-
-    // public function sumitPlan(int $id): array 
-    // {
-    //     $familyPlan = FamilyPlan::forAuthUser()->find($id);
-
-    //     if (!$familyPlan) {
-    //         return [
-    //             "error" => true,
-    //             "code" => 404,
-    //             "message" => "Plan familiar no encontrado",
-    //         ];
-    //     }
-
-    //     // Solo se pueden enviar planes en estado "Creado" (status_plan_id = 1)
-
-    //     if ($familyPlan->status_plan_id !== 1) {
-    //         return [
-    //             'error'   => true,
-    //             'code'    => 422,
-    //             'message' => 'Solo se pueden enviar planes en estado Creado',
-    //         ];
-    //     }
-
-    //     // Correr validación completa
-
-    //     $validation = $this->validateRequirements($id);
-    //     if(!$validation[data][is_valid]) {
-    //         return [
-    //             'error'   => true,
-    //             'code'    => 422,
-    //             'message' => 'El plan no cumple los requisitos para ser enviado',
-    //             'data'    => $validation['data'],
-    //         ];
-    //     }
-
-    //     // Cambiar estado a "Enviado" — confirma el ID de tu tabla status_plans
-
-    //     $familyPlan->update(['status_plan_id' => 4]);
-
-    //     return [
-    //         'error'   => false,
-    //         'code'    => 200,
-    //         'message' => 'Plan familiar enviado exitosamente',
-    //         'data'    => [
-    //             'id'             => $familyPlan->id,
-    //             'status_plan_id' => $familyPlan->status_plan_id,
-    //         ],
-    //     ];
-    // }
-
 
     /**
      * Obtiene los planes familiares filtrados por estado.

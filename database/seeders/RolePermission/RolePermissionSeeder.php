@@ -166,20 +166,6 @@ class RolePermissionSeeder extends Seeder
 
             Permission::whereNotIn('name', [
 
-                // 'users.index',
-                // 'users.by-status',
-                // 'users.show',
-                // 'users.history',
-                // 'users.store',
-                // 'users.update',
-                // 'users.partial-update',
-                // 'users.destroy',
-                // 'users.change-role',
-                // 'users.change-status',
-                // 'users.approve-bulk',
-                // 'users.change-status-bulk',
-                // 'users.reject-delete-bulk',
-
                 'sectionals.history',
                 'sectionals.store',
                 'sectionals.update',

@@ -106,24 +106,57 @@ class NotificationService
     public function getByUserId($user_id)
     {
         $paginator = Notification::where('user_id', $user_id)
-            ->with('audit')
+            ->with('audit.historiable')
             ->latest('created_at')
             ->paginate(10);
 
         $items = $paginator->getCollection()->transform(function ($item) {
+
+            $historiable = $item->audit?->historiable;
+            $tipo = $item->audit?->historiable_type;
+
+            $entidad = null;
+
+            // if ($historiable && class_basename($tipo) === 'User') {
+            //     $historiable->load('profile');
+            // }
+
+            if ($historiable) {
+                $entidad = match(class_basename($tipo)) {
+                    'FamilyPlan' => [
+                        'tipo'       => 'Plan Familiar',
+                        'id'         => $historiable->id,
+                        'apellidos'  => $historiable->last_names,
+                        'direccion'  => $historiable->city?->name . ', ' . $historiable->sectional?->name,
+                        'comentario' => $historiable->comentary,
+                        'estado'     => $historiable->statusPlan?->name,
+                        'estado_id'  => $historiable->status_plan_id,
+                    ],
+                    'User' => [
+                        'tipo'       => 'Usuario',
+                        'nombre'     => $historiable->profile->names . ' ' . $historiable->profile->last_names,
+                        'id'         => $historiable->id,
+                        // 'estado'     => $historiable->stateUser?->name,
+                        'estado_id'  => $historiable->state_user_id,
+                    ],
+                    default => null
+                };
+            }
+
             return [
-                'id' => $item->id,
-                'user_id' => $item->user_id,
-                'is_read' => $item->is_read,
+                'id'         => $item->id,
+                'user_id'    => $item->user_id,
+                'is_read'    => $item->is_read,
                 'created_at' => $item->created_at,
                 'audit' => $item->audit ? [
-                    'id' => $item->audit->id,
-                    'action' => $item->audit->action_execute,
-                    'user' => $item->audit->user_name,
-                    'role' => $item->audit->rol_name,
+                    'id'            => $item->audit->id,
+                    'action'        => $item->audit->action_execute,
+                    'user'          => $item->audit->user_name,
+                    'role'          => $item->audit->rol_name,
                     'status_change' => $item->audit->status_old . ' → ' . $item->audit->status_new,
-                    'timestamp' => $item->audit->date_time,
+                    'timestamp'     => $item->audit->date_time,
                 ] : null,
+                'entidad' => $entidad,
             ];
         });
 
@@ -136,11 +169,11 @@ class NotificationService
             "data"    => $items,
             "paginate" => [
                 'current_page' => $paginator->currentPage(),
-                'per_page' => $paginator->perPage(),
-                'total' => $paginator->total(),
-                'last_page' => $paginator->lastPage(),
-                'from' => $paginator->firstItem(),
-                'to' => $paginator->lastItem(),
+                'per_page'     => $paginator->perPage(),
+                'total'        => $paginator->total(),
+                'last_page'    => $paginator->lastPage(),
+                'from'         => $paginator->firstItem(),
+                'to'           => $paginator->lastItem(),
             ],
         ];
     }
@@ -156,6 +189,7 @@ class NotificationService
                 "message" => "Notificación no encontrada",
             ];
         }
+        
 
         $data = [
             'id' => $notification->id,
@@ -321,6 +355,16 @@ class NotificationService
         ->pluck('id');
 
         foreach ($supervisores as $userId) {
+            self::notify($userId, $auditId);
+        }
+    }
+
+    public static function notifyAdminsBySectional( int $sectionalId, int $auditId): void
+    {
+        $admins = User::whereHas ('roles', fn($rol) => $rol->where('name', 'Administrador'))
+        ->whereHas('profile.organization', fn($po) => $po->where('sectional_id', $sectionalId))->pluck('id');
+
+        foreach ($admins as $userId) {
             self::notify($userId, $auditId);
         }
     }

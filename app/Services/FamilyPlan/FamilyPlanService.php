@@ -686,56 +686,6 @@ class FamilyPlanService
         ];
     }
 
-    // public function sumitPlan(int $id): array 
-    // {
-    //     $familyPlan = FamilyPlan::forAuthUser()->find($id);
-
-    //     if (!$familyPlan) {
-    //         return [
-    //             "error" => true,
-    //             "code" => 404,
-    //             "message" => "Plan familiar no encontrado",
-    //         ];
-    //     }
-
-    //     // Solo se pueden enviar planes en estado "Creado" (status_plan_id = 1)
-
-    //     if ($familyPlan->status_plan_id !== 1) {
-    //         return [
-    //             'error'   => true,
-    //             'code'    => 422,
-    //             'message' => 'Solo se pueden enviar planes en estado Creado',
-    //         ];
-    //     }
-
-    //     // Correr validación completa
-
-    //     $validation = $this->validateRequirements($id);
-    //     if(!$validation[data][is_valid]) {
-    //         return [
-    //             'error'   => true,
-    //             'code'    => 422,
-    //             'message' => 'El plan no cumple los requisitos para ser enviado',
-    //             'data'    => $validation['data'],
-    //         ];
-    //     }
-
-    //     // Cambiar estado a "Enviado" — confirma el ID de tu tabla status_plans
-
-    //     $familyPlan->update(['status_plan_id' => 4]);
-
-    //     return [
-    //         'error'   => false,
-    //         'code'    => 200,
-    //         'message' => 'Plan familiar enviado exitosamente',
-    //         'data'    => [
-    //             'id'             => $familyPlan->id,
-    //             'status_plan_id' => $familyPlan->status_plan_id,
-    //         ],
-    //     ];
-    // }
-
-
     /**
      * Obtiene los planes familiares filtrados por estado.
      *

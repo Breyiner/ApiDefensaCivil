@@ -11,22 +11,22 @@ class StatusPlanSeeder extends Seeder
     public function run(): void
     {
         StatusPlan::create([
-            'name' => 'Pendiente'
-        ]);
-        StatusPlan::create([
-            'name' => 'No aplica'   
-        ]);
-        StatusPlan::create([
             'name' => 'Creado'
         ]);
         StatusPlan::create([
-            'name' => 'Enviado'
+            'name' => 'No Aplica'  //No existe 
         ]);
         StatusPlan::create([
-            'name' => 'Rechazado Cambios'
+            'name' => 'En Proceso'
         ]);
         StatusPlan::create([
-            'name' => 'Rechazado Definitivo'
+            'name' => 'En Revisión' //pasa a supervisor
+        ]);
+        StatusPlan::create([
+            'name' => 'Devuelto con Observaciones'
+        ]);
+        StatusPlan::create([
+            'name' => 'Rechazado'
         ]);
         StatusPlan::create([
             'name' => 'Aprobado'

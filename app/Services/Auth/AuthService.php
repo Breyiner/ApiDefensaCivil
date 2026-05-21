@@ -123,6 +123,14 @@ class AuthService
                     "message" => "Su solicitud de registro no se ha aprobado, por favor contacte al supervisor de su seccional o al administrador.",];
         }
 
+        if (!$user->email_verified_at) {
+            return [
+                "error" => true,
+                "code" => 403,
+                "message" => "Debes verificar tu correo electrónico antes de iniciar sesión.",
+            ];
+        }
+
         if (!Auth::attempt($credentials)) {
             return [
                 "error" => true,

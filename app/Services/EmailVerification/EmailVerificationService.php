@@ -26,6 +26,7 @@ class EmailVerificationService
      * @param  string  $hash  Hash SHA1 del email, usado para validar la autenticidad del enlace.
      * @return array
      */
+
     public function verify(string $id, string $hash): array
     {
         $user = User::find($id);
@@ -34,26 +35,48 @@ class EmailVerificationService
             return ['error' => true, 'code' => 404, 'message' => 'Usuario no encontrado.'];
         }
 
-        // Compara el hash del enlace con el SHA1 del email actual del usuario.
-        // hash_equals() previene timing attacks al comparar cadenas en tiempo constante,
-        // evitando que un atacante deduzca el hash correcto midiendo tiempos de respuesta.
         if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
             return ['error' => true, 'code' => 403, 'message' => 'Link inválido.'];
         }
 
-        // Si ya fue verificado, retorna éxito sin volver a disparar el evento.
-        // Esto hace el endpoint idempotente: verificar dos veces no causa errores.
         if ($user->hasVerifiedEmail()) {
             return ['error' => false, 'code' => 200, 'message' => 'Ya estaba verificado.'];
         }
 
-        // Marca el email como verificado y dispara el evento Verified.
-        // El evento puede ser escuchado para asignar roles, enviar bienvenida, etc.
         $user->markEmailAsVerified();
         event(new Verified($user));
 
-        return ['error' => false, 'code' => 200, 'message' => 'Email verificado.'];
+        return ['error' => false, 'code' => 200, 'message' => 'Email verificado con éxito.'];
     }
+    
+    // public function verify(string $id, string $hash): array
+    // {
+    //     $user = User::find($id);
+
+    //     if (!$user) {
+    //         return ['error' => true, 'code' => 404, 'message' => 'Usuario no encontrado.'];
+    //     }
+
+    //     // Compara el hash del enlace con el SHA1 del email actual del usuario.
+    //     // hash_equals() previene timing attacks al comparar cadenas en tiempo constante,
+    //     // evitando que un atacante deduzca el hash correcto midiendo tiempos de respuesta.
+    //     if (!hash_equals(sha1($user->getEmailForVerification()), $hash)) {
+    //         return ['error' => true, 'code' => 403, 'message' => 'Link inválido.'];
+    //     }
+
+    //     // Si ya fue verificado, retorna éxito sin volver a disparar el evento.
+    //     // Esto hace el endpoint idempotente: verificar dos veces no causa errores.
+    //     if ($user->hasVerifiedEmail()) {
+    //         return ['error' => false, 'code' => 200, 'message' => 'Ya estaba verificado.'];
+    //     }
+
+    //     // Marca el email como verificado y dispara el evento Verified.
+    //     // El evento puede ser escuchado para asignar roles, enviar bienvenida, etc.
+    //     $user->markEmailAsVerified();
+    //     event(new Verified($user));
+
+    //     return ['error' => false, 'code' => 200, 'message' => 'Email verificado.'];
+    // }
 
     /**
      * Reenvía el enlace de verificación al email indicado.

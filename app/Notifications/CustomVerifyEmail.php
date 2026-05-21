@@ -9,6 +9,9 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Notificación personalizada para verificación de email en cola.
@@ -63,6 +66,18 @@ class CustomVerifyEmail extends VerifyEmailBase implements ShouldQueue
                 'url' => $verificationUrl,
                 'user' => $notifiable,
             ]);
+    }
+
+    protected function verificationUrl($notifiable)
+    {
+        return URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            [
+                'id' => $notifiable->getKey(),
+                'hash' => sha1($notifiable->getEmailForVerification()),
+            ]
+        );
     }
 
     /**

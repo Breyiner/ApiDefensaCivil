@@ -36,11 +36,21 @@ return Application::configure(basePath: dirname(__DIR__))
             foreach ($publicRoutes as $routeName) {
                 $routePath = base_path("routes/api/{$routeName}.php");
                 
+                // if (file_exists($routePath)) {
+                //     Route::middleware('api')
+                //         ->prefix('api')
+                //         ->name("{$routeName}.")
+                //         ->group($routePath);
+                // }
+
                 if (file_exists($routePath)) {
-                    Route::middleware('api')
-                        ->prefix('api')
-                        ->name("{$routeName}.")
-                        ->group($routePath);
+                    $route = Route::middleware('api')->prefix('api');
+                    
+                    if ($routeName !== 'auth') {
+                        $route = $route->name("{$routeName}.");
+                    }
+                    
+                    $route->group($routePath);
                 }
             }
 

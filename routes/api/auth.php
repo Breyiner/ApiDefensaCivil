@@ -40,7 +40,9 @@ Route::get('/email/verify', [EmailVerificationController::class, 'notice'])
 
 // Verificación del enlace enviado al correo (requiere firma digital)
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
-    ->middleware(['auth:sanctum', 'signed']);
+    // ->middleware(['auth:sanctum', 'signed'])
+    ->middleware(['signed'])
+    ->name('verification.verify');
 
 // Reenvío del correo de verificación (máx. 6 intentos por minuto)
 Route::post('/email/verification-notification', [EmailVerificationController::class, 'resend'])

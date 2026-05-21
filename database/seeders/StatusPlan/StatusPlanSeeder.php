@@ -30,6 +30,6 @@ class StatusPlanSeeder extends Seeder
         ]);
         StatusPlan::create([
             'name' => 'Aprobado'
-        ]);
+        ]);   
     }
 }

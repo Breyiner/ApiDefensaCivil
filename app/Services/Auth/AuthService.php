@@ -149,13 +149,16 @@ class AuthService
 
         $refreshToken = $this->generateRefreshToken($user);
 
+        $esProduccion = app()->environment('production'); // Devuelve true, en produccion se espera que las cookies sean secure:true para que el navegador en HTTPS lo acepte en lugar de rechazarlo
+
         $cookieToken = cookie(
             'access_token',
             $accessToken,
             60 * 24 * 365 * 100,
             '/',
             null,
-            false,
+            // false,
+            $esProduccion,  // ← true en producción, false en local
             false,
             false,
             'lax'
@@ -167,7 +170,8 @@ class AuthService
             60 * 24 * 365 * 100,
             '/',
             null,
-            false,
+            // false,
+            $esProduccion,  // ← true en producción, false en local
             false,
             false,
             'lax'
@@ -220,13 +224,15 @@ class AuthService
 
         $refreshToken = $this->renewRefreshToken($refreshToken, $user) ?: $currentRefreshToken;
 
+        $esProduccion = app()->environment('production');
+
         $cookieToken = cookie(
             'access_token',
             $accessToken,
             60 * 24 * 365 * 100,
             '/',
             null,
-            false,
+            $esProduccion,
             false,
             false,
             'lax'
@@ -238,7 +244,7 @@ class AuthService
             60 * 24 * 365 * 100,
             '/',
             null,
-            false,
+            $esProduccion,
             false,
             false,
             'lax'
@@ -273,13 +279,15 @@ class AuthService
 
     public function createExpiredCookies()
     {
+        $esProduccion = app()->environment('production'); 
+
         $expiredAccessToken = cookie(
             'access_token',
             '',
             -1,
             '/',
             null,
-            false,
+            $esProduccion,  // ← true en producción, false en local
             false,
             false,
             'lax'
@@ -291,7 +299,7 @@ class AuthService
             -1,
             '/',
             null,
-            false,
+            $esProduccion,
             false,
             false,
             'lax'

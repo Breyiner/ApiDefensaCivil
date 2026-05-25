@@ -82,6 +82,13 @@ class AuthenticationController extends Controller
 
         $result = $this->authService->refreshToken($currentRefreshToken, $user);
 
+        //---
+        if (isset($result['error']) && $result['error']) {
+            
+            return ResponseFormatter::error($result['message'], $result['code']);
+        }
+        //---
+
         // Se envían los nuevos tokens mediante cookies actualizadas
         return response()->json([
             'success' => true,

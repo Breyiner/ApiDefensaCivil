@@ -77,6 +77,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+        $middleware->encryptCookies(except: [  // ← agregar aquí, antes de alias
+            'access_token',
+            'refresh_token',
+        ]);
+
         $middleware->alias([
             'force.json' => ForceJsonRequestHeader::class,
             'ability' => CheckForAnyAbility::class,

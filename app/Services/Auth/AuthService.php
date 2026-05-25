@@ -149,7 +149,7 @@ class AuthService
 
         $refreshToken = $this->generateRefreshToken($user);
 
-        $esProduccion = request()->isSecure(); //app()->environment('production') // Devuelve true, en produccion se espera que las cookies sean secure:true para que el navegador en HTTPS lo acepte en lugar de rechazarlo
+        $secure = request()->isSecure(); //app()->environment('production') // Devuelve true, en produccion se espera que las cookies sean secure:true para que el navegador en HTTPS lo acepte en lugar de rechazarlo
 
         $cookieToken = cookie(
             'access_token',
@@ -158,7 +158,7 @@ class AuthService
             '/',
             null,
             // false,
-            $esProduccion,  // ← true en producción, false en local
+            $secure,  // ← true en producción, false en local
             false,
             false,
             'lax'
@@ -171,7 +171,7 @@ class AuthService
             '/',
             null,
             // false,
-            $esProduccion,  // ← true en producción, false en local
+            $secure,  // ← true en producción, false en local
             false,
             false,
             'lax'
@@ -220,11 +220,16 @@ class AuthService
 
         $refreshToken = PersonalAccessToken::findToken($currentRefreshToken);
 
+        if (!$refreshToken) {
+            return ['error' => true, 'code' => 401, 'message' => 'Token inválido o expirado.'];
+        }
+
+
         $accessToken = $this->generateAccessToken($user);
 
         $refreshToken = $this->renewRefreshToken($refreshToken, $user) ?: $currentRefreshToken;
 
-        $esProduccion = request()->isSecure(); //app()->environment('production')
+        $secure = request()->isSecure(); //app()->environment('production')
 
         $cookieToken = cookie(
             'access_token',
@@ -232,7 +237,7 @@ class AuthService
             60 * 24 * 365 * 100,
             '/',
             null,
-            $esProduccion,
+            $secure,
             false,
             false,
             'lax'
@@ -244,7 +249,7 @@ class AuthService
             60 * 24 * 365 * 100,
             '/',
             null,
-            $esProduccion,
+            $secure,
             false,
             false,
             'lax'
@@ -279,7 +284,7 @@ class AuthService
 
     public function createExpiredCookies()
     {
-        $esProduccion = request()->isSecure(); //app()->environment('production') 
+        $secure = request()->isSecure(); //app()->environment('production') 
 
         $expiredAccessToken = cookie(
             'access_token',
@@ -287,7 +292,7 @@ class AuthService
             -1,
             '/',
             null,
-            $esProduccion,  // ← true en producción, false en local
+            $secure,  // ← true en producción, false en local
             false,
             false,
             'lax'
@@ -299,7 +304,7 @@ class AuthService
             -1,
             '/',
             null,
-            $esProduccion,
+            $secure,
             false,
             false,
             'lax'

@@ -190,6 +190,7 @@ class AuthService
                 'cookieToken' => $cookieToken,
                 'cookieRefreshToken' => $cookieRefreshToken,
                 'token' => $accessToken,
+                'refresh_token' => $refreshToken,  // ← se agrega temporalmente
                 'sectional_id' => $profile->organization?->sectional_id
             ],
         ];

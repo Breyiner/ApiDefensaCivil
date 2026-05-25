@@ -149,7 +149,7 @@ class AuthService
 
         $refreshToken = $this->generateRefreshToken($user);
 
-        $secure = app()->environment('production'); // Devuelve true, en produccion se espera que las cookies sean secure:true para que el navegador en HTTPS lo acepte en lugar de rechazarlo
+        $secure = request()->isSecure(); //app()->environment('production') // Devuelve true, en produccion se espera que las cookies sean secure:true para que el navegador en HTTPS lo acepte en lugar de rechazarlo
 
         $cookieToken = cookie(
             'access_token',
@@ -229,7 +229,7 @@ class AuthService
 
         $refreshToken = $this->renewRefreshToken($refreshToken, $user) ?: $currentRefreshToken;
 
-        $secure = app()->environment('production');
+        $secure = request()->isSecure(); //app()->environment('production')
 
         $cookieToken = cookie(
             'access_token',
@@ -284,7 +284,7 @@ class AuthService
 
     public function createExpiredCookies()
     {
-        $secure = app()->environment('production'); 
+        $secure = request()->isSecure(); //app()->environment('production') 
 
         $expiredAccessToken = cookie(
             'access_token',

@@ -159,6 +159,9 @@ class UserService
                 'document_number' => $item->profile && $item->profile->documentType
                     ? $item->profile->document_number . ' ' . $item->profile->documentType->acronym
                     : 'N/A',
+                'status_id' => $item->state_user_id,
+                'status' => $item->stateUser?->name,
+                'created_at' => $item->created_at,
             ];
         });
 
@@ -223,6 +226,8 @@ class UserService
                 'document_number' => $item->profile && $item->profile->documentType
                     ? $item->profile->document_number . ' ' . $item->profile->documentType->acronym
                     : 'N/A',
+                'status_id' => $item->state_user_id,
+                'status' => $item->stateUser?->name,
                 'created_at' => $item->created_at,
                 // Carbon::parse($item->created_at)->format('d/m/Y'),
             ];

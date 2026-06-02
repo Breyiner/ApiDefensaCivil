@@ -4,10 +4,12 @@ namespace App\Models\HousingInfo;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Importación del modelo principal para la relación de integridad territorial y familiar.
  */
+
 use App\Models\FamilyPlan\FamilyPlan;
 
 /**
@@ -25,12 +27,20 @@ class HousingInfo extends Model
      * * @var array
      */
     protected $fillable = [
-        'id', 
+        'id',
         'family_plan_id', // ID del plan familiar al que pertenecen estos archivos
         'path',            // Ruta de almacenamiento del archivo (ej: 'uploads/housing/foto1.jpg')
         'housing_info_type_id'
     ];
 
+    public function getPathAttribute($value): ?string
+    {
+        if (!$value) return null;
+
+        if (str_starts_with($value, 'http')) return $value;
+
+        return asset('storage/' . $value);
+    }
     /**
      * --- RELACIÓN BELONGS TO (Muchos a Uno) ---
      * * Cada registro de información de vivienda pertenece obligatoriamente a un Plan Familiar.

@@ -12,6 +12,13 @@ class HousingGraphic extends Model
     
     protected $fillable = ['id', 'path','description','family_plan_id',];
 
+    public function getPathAttribute($value): ?string
+    {
+        if (!$value) return null;
+        if (str_starts_with($value, 'http')) return $value;
+        return asset('storage/' . $value);
+    }
+
     public function familyPlan()
     {
         return $this->belongsTo(FamilyPlan::class, 'family_plan_id');

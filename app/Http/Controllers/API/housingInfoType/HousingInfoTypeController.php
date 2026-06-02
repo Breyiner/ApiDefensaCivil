@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API\housingInfoType;
 
 use App\Helpers\ResponseFormatter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\housingInfoType\storeHousingInfoType;
-use App\Http\Requests\housingInfoType\updateHousingInfoType;
+use App\Http\Requests\housingInfoType\StoreHousingInfoRequest;
+use App\Http\Requests\housingInfoType\UpdateHousingInfoTypeRequest;
 use App\Models\housingInfoType\HousingInfoType;
 use App\Services\HousingInfoType\housingInfoTypeService;
 
@@ -54,7 +54,7 @@ class HousingInfoTypeController extends Controller
         );
     }
 
-    public function store(storeHousingInfoType $request)
+    public function store(StoreHousingInfoRequest $request)
     {
         $data = $request->validated();
 
@@ -71,7 +71,7 @@ class HousingInfoTypeController extends Controller
         );
     }
 
-    public function update(updateHousingInfoType $request, string $id)
+    public function update(UpdateHousingInfoTypeRequest $request, string $id)
     {
         $housingType = HousingInfoType::find($id);
 

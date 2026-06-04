@@ -4,7 +4,7 @@ use App\Http\Controllers\API\FamilyPlan\FamilyPlanController;
 use App\Http\Controllers\API\HousingInfo\HousingInfoController;
 use App\Http\Controllers\API\HousingGraphic\HousingGraphicController;
 use App\Http\Controllers\API\FamilyType\familyTypeController;
-use App\Http\Controllers\housingInfoType\HousingInfoTypeController;
+use App\Http\Controllers\API\housingInfoType\HousingInfoTypeController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -29,6 +29,10 @@ Route::prefix('familyPlans')->group(function () {
 
     Route::get('/', [FamilyPlanController::class, 'index'])
         ->middleware('permission:family-plans.index');
+
+    Route::get('/stats_voluntario', [FamilyPlanController::class, 'getStatsVoluntario'])
+    //    ->middleware('permission:family-plans.stats-voluntario')
+    ;
 
     // Filtrar planes familiares por estado
     Route::get('/by-status', [FamilyPlanController::class, 'byStatus'])
@@ -76,9 +80,6 @@ Route::prefix('familyPlans')->group(function () {
 
     Route::patch('/{id}/change-family-type', [FamilyPlanController::class, 'patchFamilyType'])
         ->middleware('permission:family-plans.change-family-type');
-
-    // Route::post('/{id}/submit', [FamilyPlanController::class, 'submitPlan'])
-    //     ->middleware('permission:family-plans.submit');
     
 });
 

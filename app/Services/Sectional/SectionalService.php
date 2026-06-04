@@ -2,7 +2,9 @@
 
 namespace App\Services\Sectional;
 
+use App\Models\FamilyPlan\FamilyPlan;
 use App\Models\Sectional\Sectional;
+use App\Models\User\User;
 
 class SectionalService
 {
@@ -302,6 +304,106 @@ class SectionalService
                 'from' => $data->firstItem(),
                 'to' => $data->lastItem(),
             ]
+        ];
+    }
+
+
+    public function getStatsSupervisor(int $id): array
+    {
+
+        $user = auth()->user();
+
+        if ($user && $user->roles()->whereIn('id', [1, 3])->exists()) {
+            return [
+                'error'   => true,
+                'code'    => 403,
+                'message' => 'Acceso denegado: Los voluntarios y administradores no tienen permisos para consultar estadísticas del supervisor.',
+            ];
+        }
+
+        if ($user && $user->roles()->where('id', 2)->exists()) {
+            $userSectionalId = $user->profile?->organization?->sectional_id;
+
+            if (!$userSectionalId || (int)$userSectionalId !== $id) {
+                return [
+                    'error'   => true,
+                    'code'    => 403,
+                    'message' => 'Acceso denegado: No tienes permisos para ver las estadísticas de otra seccional.',
+                ];
+            }
+        }
+
+        $sectional = Sectional::find($id);
+
+        if (!$sectional) {
+            return [
+                'error'   => true,
+                'code'    => 404,
+                'message' => 'Seccional no encontrada',
+            ];
+        }
+
+        // $planes = FamilyPlan::where('sectional_id', $id)->with('city')->get();
+        $planes = FamilyPlan::whereHas('user.profile.organization', function ($query) use ($id) {
+            $query->where('sectional_id', $id);
+        })->with('city')->get();
+
+        $totalPlanes = $planes->count();
+        $totalAprobados = $planes->where('status_plan_id', 7)->count();
+        $totalRechazados = $planes->where('status_plan_id', 6)->count();
+        $totalPendientes = $planes->where('status_plan_id', 4)->count();
+
+        $dona = [
+            'aprobados'  => $totalAprobados,
+            'pendientes' => $totalPendientes,
+            'rechazados' => $totalRechazados,
+        ];
+
+        $familiasVulnerables = $planes->where('family_type_id', 1)->count();
+        $familiasNoVulnerables = $planes->where('family_type_id', 2)->count();
+
+        $tiposFamilias = [
+            'Familias Vulnerables' => $familiasVulnerables,
+            'Familias no Vulnerables' => $familiasNoVulnerables,
+        ];
+
+        $ciudades = $planes->groupBy('city_id')->map(function ($grupo) {
+
+            $ciudad = $grupo->first()->city;
+
+            return [
+                'city_id'   => $ciudad?->id,
+                'city'      => $ciudad?->name ?? 'Sin ciudad',
+                'department' => $ciudad->department?->name ?? 'Sin departamento',
+                'total'     => $grupo->count(),
+                'aprobados' => $grupo->where('status_plan_id', 7)->count(),
+            ];
+        })
+            ->values();
+
+        $voluntariosAct = User::whereHas('roles', function ($rol) {
+            $rol->where('id', 3);
+        })->where('state_user_id', 1)->whereHas('profile.organization', function ($rol) use ($id) {
+            $rol->where('sectional_id', $id);
+        })->count();
+
+        $promedioVol = $voluntariosAct > 0
+            ? round($totalPlanes / $voluntariosAct, 2) : 0;
+
+        return [
+            'error'   => false,
+            'code'    => 200,
+            'message' => 'Estadísticas de la seccional obtenidas exitosamente',
+            'data'    => [
+                'total_planes'         => $totalPlanes,
+                'total_aprobados'      => $totalAprobados,
+                'familias_registradas' => $tiposFamilias,
+                'dona'                 => $dona,
+                'por_ciudad'           => $ciudades,
+                'voluntarios_activos'  => $voluntariosAct,
+                'promedio_planes_por_voluntario' => $promedioVol,
+
+            ],
         ];
     }
 }

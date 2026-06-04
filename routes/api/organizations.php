@@ -54,8 +54,7 @@ Route::prefix('sectionals')->group(function () {
         ->middleware('permission:sectionals.destroy');
 
     Route::get('/{id}/stats_supervisor', [SectionalController::class, 'getStatsSupervisor'])
-    //    ->middleware('permission:sectionals.stats-supervisor')
-    ;
+       ->middleware('permission:sectionals.stats-supervisor');
 });
 
 

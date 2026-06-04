@@ -31,8 +31,7 @@ Route::prefix('familyPlans')->group(function () {
         ->middleware('permission:family-plans.index');
 
     Route::get('/stats_voluntario', [FamilyPlanController::class, 'getStatsVoluntario'])
-    //    ->middleware('permission:family-plans.stats-voluntario')
-    ;
+       ->middleware('permission:family-plans.stats-voluntario');
 
     // Filtrar planes familiares por estado
     Route::get('/by-status', [FamilyPlanController::class, 'byStatus'])

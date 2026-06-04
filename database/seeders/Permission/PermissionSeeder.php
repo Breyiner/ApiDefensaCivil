@@ -114,6 +114,7 @@ class PermissionSeeder extends Seeder
             ['sectionals.partial-update', 'Actualizar parcialmente seccional'],
             ['sectionals.change-status', 'Cambiar estado de seccional'],
             ['sectionals.destroy', 'Eliminar seccional'],
+            ['sectionals.stats-supervisor', 'Ver estadisticas'],
 
             // Organizaciones
             ['organizations.index', 'Listar organizaciones'],
@@ -172,6 +173,7 @@ class PermissionSeeder extends Seeder
             
             // Planes Familiares
             ['family-plans.index', 'Listar planes familiares'],
+            ['family-plans.stats-voluntario', 'Ver estadisticas'],
             ['family-plans.by-status', 'Filtrar planes familiares por estado'],
             ['family-plans.by-user', 'Ver planes familiares del usuario autenticado'],
             ['family-plans.show', 'Ver plan familiar'],

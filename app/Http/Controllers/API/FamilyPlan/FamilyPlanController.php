@@ -394,18 +394,15 @@ class FamilyPlanController extends Controller
     }
 
 
-    // public function submitPlan(int $id): JsonResponse
-    // {
-    //     $response = $this->service->submitPlan($id);
+    public function getStatsVoluntario()
+    {
+        
+        $response = $this->service->getStatsVoluntario();
 
-    //     if ($response['error']) {
-    //         return ResponseFormatter::error($response['message'], $response['code']);
-    //     }
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
 
-    //     return ResponseFormatter::success(
-    //         $response['message'], 
-    //         $response['code'], 
-    //         $response['data'] ?? []
-    //     );
-    // }
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data']);
+    }
 }

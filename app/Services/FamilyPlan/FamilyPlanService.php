@@ -733,4 +733,40 @@ class FamilyPlanService
             ]
         ];
     }
+
+    public function getStatsVoluntario(): array
+    {
+        $user = auth()->user();
+
+
+        if ($user && $user->roles()->whereIn('id', [1, 2])->exists()) {
+            return [
+                'error'   => true,
+                'code'    => 403,
+                'message' => 'Acceso denegado: Los supervisores y administradores no tienen permisos para consultar estadísticas de voluntario.',
+            ];
+        }
+
+        
+        $planes = FamilyPlan::where('user_id', $user->id)->get();
+
+        $totalPlanes = $planes->count();
+        $familiasVulnerables = $planes->where('family_type_id', 1)->count();
+        $familiasNoVulnerables = $planes->where('family_type_id', 2)->count();
+
+        $tiposFamilias = [
+            'Familias Vulnerables'   => $familiasVulnerables,
+            'Familias no Vulnerables' => $familiasNoVulnerables,
+        ];
+
+        return [
+            'error'   => false,
+            'code'    => 200,
+            'message' => 'Mis estadísticas personales de voluntario obtenidas exitosamente',
+            'data'    => [
+                'total_planes'         => $totalPlanes,
+                'familias_registradas' => $tiposFamilias,
+            ],
+        ];
+    }
 }

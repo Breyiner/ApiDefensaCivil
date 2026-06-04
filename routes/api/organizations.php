@@ -52,6 +52,9 @@ Route::prefix('sectionals')->group(function () {
 
     Route::delete('/{sectional_id}', [SectionalController::class, 'destroy'])
         ->middleware('permission:sectionals.destroy');
+
+    Route::get('/{id}/stats_supervisor', [SectionalController::class, 'getStatsSupervisor'])
+       ->middleware('permission:sectionals.stats-supervisor');
 });
 
 

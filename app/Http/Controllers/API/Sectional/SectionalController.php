@@ -34,8 +34,7 @@ class SectionalController extends Controller
     {
         $response = $this->service->getAll();
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             // Nota: Corregido a ResponseFormatter (PascalCase).
             return ResponseFormatter::error($response['message'], $response['code']);
         }
@@ -50,8 +49,7 @@ class SectionalController extends Controller
     {
         $response = $this->service->getActiveWithOrganization();
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -80,8 +78,7 @@ class SectionalController extends Controller
         $data = $request->validated();
         $response = $this->service->create($data);
 
-        if ($response['error'])
-        {    
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -96,8 +93,7 @@ class SectionalController extends Controller
         $data = $request->validated();
         $response = $this->service->update($data, $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -112,12 +108,11 @@ class SectionalController extends Controller
         $data = $request->validated();
         $response = $this->service->partialUpdate($data, $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []); 
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
     }
 
     /**
@@ -128,12 +123,11 @@ class SectionalController extends Controller
         $data = $request->validated();
         $response = $this->service->changeStatus($data, $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
-        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []); 
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
     }
 
     /**
@@ -143,8 +137,7 @@ class SectionalController extends Controller
     {
         $response = $this->service->delete($id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -162,5 +155,17 @@ class SectionalController extends Controller
         }
 
         return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? [], $response['paginate'] ?? []);
+    }
+
+    public function getStatsSupervisor(int $id)
+    {
+        
+        $response = $this->service->getStatsSupervisor($id);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data']);
     }
 }

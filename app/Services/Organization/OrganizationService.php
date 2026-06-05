@@ -4,8 +4,7 @@ namespace App\Services\Organization;
 
 use App\Models\Organization\Organization;
 use App\Models\Sectional\Sectional;
-use App\Models\Audit\Audit;
-use Illuminate\Support\Arr;
+use App\Models\User\User;
 
 class OrganizationService
 {
@@ -85,6 +84,10 @@ class OrganizationService
     {
 
         $organization = Organization::create($data);
+        $organization->load('sectional');
+
+        $currentData = $organization->name;
+        $currentSubData = $organization->sectional?->name;
 
         $organization->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -92,8 +95,13 @@ class OrganizationService
             'date_time'      => now(),
             'action_execute' => 'Creado',
             'status_old'     => null,
-            'status_new'     => "Activo",
+            'status_new'     => 'Activo',
+            'data_old'       => null,
+            'data_new'       => $currentData,
+            'subData_old'    => null,
+            'subData_new'    => $currentSubData
         ]);
+
 
         return [
             "error" => false,
@@ -110,6 +118,7 @@ class OrganizationService
     {
         $organization = Organization::find($id);
 
+
         if (!$organization) {
             return [
                 "error" => true,
@@ -118,17 +127,30 @@ class OrganizationService
             ];
         }
 
-        $oldStatus = $organization->is_active ? "Activo" : "Inactivo";
+
+        $statusOld  = $organization->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $organization->getOriginal('name');
+        $subDataOld = $organization->sectional?->name;
 
         $organization->update($data);
+        $organization->refresh()->load('sectional');
+
+        $statusNew  = $organization->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $organization->name;
+        $subDataNew = $organization->sectional?->name;
+
 
         $organization->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $organization->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -154,17 +176,28 @@ class OrganizationService
             ];
         }
 
-        $oldStatus = $organization->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $organization->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $organization->getOriginal('name');
+        $subDataOld = $organization->sectional?->name;
 
         $organization->update($data);
+        $organization->refresh()->load('sectional');
+
+        $statusNew  = $organization->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $organization->name;
+        $subDataNew = $organization->sectional?->name;
 
         $organization->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado parcialmente',
-            'status_old'     => $oldStatus,
-            'status_new'     => $organization->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -207,17 +240,28 @@ class OrganizationService
             }
         }
 
-        $oldStatus = $organization->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $organization->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $organization->getOriginal('name');
+        $subDataOld = $organization->sectional?->name;
 
         $organization->update($data);
+        $organization->refresh()->load('sectional');
+
+        $statusNew  = $organization->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $organization->name;
+        $subDataNew = $organization->sectional?->name;
 
         $organization->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $organization->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -251,17 +295,22 @@ class OrganizationService
             ];
         }
 
-        $oldStatus = $organization->is_active ? "Activo" : "Inactivo";
 
-        $organization->delete();
+        $statusOld  = $organization->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $organization->name;
+        $subDataOld = $organization->sectional?->name;
 
         $organization->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => $oldStatus,
+            'status_old'     => $statusOld,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => null,
         ]);
 
         return [
@@ -298,6 +347,10 @@ class OrganizationService
                 'action_execute' => $audit->action_execute,
                 'status_old'     => $audit->status_old,
                 'status_new'     => $audit->status_new,
+                'data_old'       => $audit->data_old,
+                'data_new'       => $audit->data_new,,
+                'subData_old'    => $audit->subData_old,
+                'subData_new'    => $audit->subData_new,
             ];
         });
 

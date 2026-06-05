@@ -67,6 +67,7 @@ class SectionalService
     public function create(array $data)
     {
         $sectional = Sectional::create($data);
+        $currentData = $sectional->name;
 
         $sectional->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -75,6 +76,8 @@ class SectionalService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => 'Activo',
+            'data_old'       => null,
+            'data_new'       => $currentData,
         ]);
 
         return [
@@ -101,8 +104,12 @@ class SectionalService
         }
 
         $oldStatus = $sectional->is_active ? "Activo" : "Inactivo";
+        $dataOld = $sectional->getOriginal('name');
 
         $sectional->update($data);
+
+        $newStatus  = $sectional->is_active ? 'Activo' : 'Inactivo';
+        $dataNew = $sectional->name;
 
         $sectional->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -110,7 +117,9 @@ class SectionalService
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
             'status_old'     => $oldStatus,
-            'status_new'     => $sectional->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -137,8 +146,12 @@ class SectionalService
         }
 
         $oldStatus = $sectional->is_active ? "Activo" : "Inactivo";
+        $dataOld = $sectional->getOriginal('name');
 
         $sectional->update($data);
+
+        $newStatus  = $sectional->is_active ? 'Activo' : 'Inactivo';
+        $dataNew = $sectional->name;
 
         $sectional->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -146,7 +159,9 @@ class SectionalService
             'date_time'      => now(),
             'action_execute' => 'Actualizado parcialmente',
             'status_old'     => $oldStatus,
-            'status_new'     => $sectional->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -187,10 +202,12 @@ class SectionalService
         }
 
         $oldStatus = $sectional->is_active ? "Activo" : "Inactivo";
+        $dataOld = $sectional->getOriginal('name');
 
         $sectional->update($data);
 
-        $newStatus = $sectional->is_active ? "Activo" : "Inactivo";
+        $newStatus  = $sectional->is_active ? 'Activo' : 'Inactivo';
+        $dataNew = $sectional->name;
 
         $sectional->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -199,6 +216,9 @@ class SectionalService
             'action_execute' => 'Cambio de estado',
             'status_old'     => $oldStatus,
             'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+
         ]);
 
         return [
@@ -240,7 +260,9 @@ class SectionalService
             ];
         }
 
-        $originalData = $sectional->toArray();
+        $oldStatus = $sectional->is_active ? "Activo" : "Inactivo";
+        $dataOld = $sectional->getOriginal('name');
+        // $originalData = $sectional->toArray();
 
         // Guardamos auditoría antes de eliminar
         $sectional->audits()->create([
@@ -248,8 +270,10 @@ class SectionalService
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => $originalData['is_active'] ? "Activo" : "Inactivo",
+            'status_old'     => $oldStatus,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
         ]);
 
         $sectional->delete();
@@ -288,6 +312,8 @@ class SectionalService
                 'action_execute' => $audit->action_execute,
                 'status_old'     => $audit->status_old,
                 'status_new'     => $audit->status_new,
+                'data_old'       => $audit->data_old,
+                'data_new'       => $audit->data_new,
             ];
         });
 

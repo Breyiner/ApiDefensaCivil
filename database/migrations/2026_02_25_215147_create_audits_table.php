@@ -25,6 +25,12 @@ return new class extends Migration
             $table->string('status_old')->nullable();
             $table->string('status_new')->nullable();
 
+            //Datos capturados
+            $table->text('data_old')->nullable();
+            $table->text('data_new')->nullable();
+            $table->text('subData_old')->nullable();
+            $table->text('subData_new')->nullable();
+
             // Relación polimórfica
             $table->morphs('historiable');
 

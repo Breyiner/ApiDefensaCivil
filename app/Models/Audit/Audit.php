@@ -16,6 +16,10 @@ class Audit extends Model
         'action_execute',
         'status_old',
         'status_new',
+        'data_old',
+        'data_new',
+        'subData_old',
+        'subData_new',
         'historiable_id',
         'historiable_type',
     ];
@@ -25,4 +29,3 @@ class Audit extends Model
         return $this->morphTo();
     }
 }
-

@@ -44,6 +44,8 @@ class HousingQualityService
     {
         $housingQuality = HousingQuality::create($data);
 
+        $currentData = $housingQuality->name;
+
         $housingQuality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -51,6 +53,8 @@ class HousingQualityService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => "Activo",
+            'data_old'       => null,
+            'data_new'       => $currentData,
         ]);
 
         return [
@@ -74,8 +78,13 @@ class HousingQualityService
         }
 
         $oldStatus = $housingQuality->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $housingQuality->getOriginal('name');
 
         $housingQuality->update($data);
+        $housingQuality->refresh();
+
+        $newStatus = $housingQuality->is_active ? "Activo" : "Inactivo";
+        $dataNew   = $housingQuality->name;
 
         $housingQuality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -83,7 +92,9 @@ class HousingQualityService
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
             'status_old'     => $oldStatus,
-            'status_new'     => $housingQuality->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -107,8 +118,13 @@ class HousingQualityService
         }
 
         $oldStatus = $housingQuality->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $housingQuality->getOriginal('name');
 
         $housingQuality->update($data);
+        $housingQuality->refresh();
+
+        $newStatus = $housingQuality->is_active ? "Activo" : "Inactivo";
+        $dataNew   = $housingQuality->name;
 
         $housingQuality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -116,7 +132,9 @@ class HousingQualityService
             'date_time'      => now(),
             'action_execute' => 'Actualizado parcialmente',
             'status_old'     => $oldStatus,
-            'status_new'     => $housingQuality->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -153,8 +171,13 @@ class HousingQualityService
         }    
 
         $oldStatus = $housingQuality->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $housingQuality->getOriginal('name');
 
         $housingQuality->update($data);
+        $housingQuality->refresh();
+
+        $newStatus = $housingQuality->is_active ? "Activo" : "Inactivo";
+        $dataNew   = $housingQuality->name;
 
         $housingQuality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -162,7 +185,9 @@ class HousingQualityService
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
             'status_old'     => $oldStatus,
-            'status_new'     => $housingQuality->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -194,9 +219,9 @@ class HousingQualityService
         }
 
         $oldStatus = $housingQuality->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $housingQuality->name;
 
-        $housingQuality->delete();
-
+        // CORRECCIÓN CRÍTICA: Primero se guarda el historial de auditoría y luego se elimina físicamente de la BD
         $housingQuality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -204,7 +229,11 @@ class HousingQualityService
             'action_execute' => 'Eliminado',
             'status_old'     => $oldStatus,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
         ]);
+
+        $housingQuality->delete();
 
         return [
             "error" => false,
@@ -237,6 +266,8 @@ class HousingQualityService
                     'action_execute' => $audit->action_execute,
                     'status_old'     => $audit->status_old,
                     'status_new'     => $audit->status_new,
+                    'subData_old'    => $audit->subData_old,
+                    'subData_new'    => $audit->subData_new,
                 ];
             });
 

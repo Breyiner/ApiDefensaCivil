@@ -3,12 +3,11 @@
 namespace App\Http\Requests\Department;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
- * Clase UpdateApartmentRequest
- * * Se encarga de validar la edición de departamentos existentes.
- * Gestiona la excepción de unicidad para permitir que el registro mantenga su nombre 
- * original sin generar conflictos durante la actualización.
+ * Clase UpdateDepartmentRequest
+ * Se encarga de validar la edición de departamentos existentes de forma segura.
  */
 class UpdateDepartmentRequest extends FormRequest
 {
@@ -28,29 +27,42 @@ class UpdateDepartmentRequest extends FormRequest
     public function rules(): array
     {
         /**
-         * Obtenemos el ID de la ruta para la excepción en la regla 'unique'.
-         * Esto evita que falle la validación si no se cambia el nombre.
+         * En los apiResource de Laravel, el parámetro de la ruta se llama igual que el recurso en singular ('department').
+         * Evaluamos ambas opciones por seguridad de arquitectura.
          */
-        $departmentId = $this->route('department_id');
+        $departmentParam = $this->route('department') ?? $this->route('department_id');
+
+        /**
+         * Si Laravel inyectó el objeto del modelo completo en la ruta, extraemos solo su ID.
+         * De lo contrario, conservamos el valor tal como viene.
+         */
+        $departmentId = is_object($departmentParam) ? $departmentParam->id : $departmentParam;
 
         return [
-            'name' => "required|alpha_spaces|string|max:50|unique:departments,name,{$departmentId}",
+            'name' => [
+                'required',
+                'string',
+                'max:50',
+                // Expresión regular nativa para permitir letras, tildes (áéíóú), eñes (ñÑ) y espacios en blanco
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+                // Uso fluido de Rule::unique para ignorar el ID actual de forma segura y evitar fallos de sintaxis SQL
+                Rule::unique('departments', 'name')->ignore($departmentId),
+            ],
         ];
     }
 
     /**
      * Mensajes de error personalizados.
-     * * Se usa :attribute para dinamismo y se eliminan los puntos finales.
      * @return array
      */
     public function messages(): array
     {
         return [
-            'name.required'     => 'El :attribute es obligatorio',
-            'name.alpha_spaces' => 'El :attribute debe tener solo letras y espacios',
-            'name.string'       => 'El :attribute debe ser de tipo texto',
-            'name.unique'       => 'El :attribute ya existe',
-            'name.max'          => 'El :attribute tiene un máximo de 50 caracteres'
+            'name.required' => 'El :attribute es obligatorio',
+            'name.regex'    => 'El :attribute debe tener solo letras y espacios',
+            'name.string'   => 'El :attribute debe ser de tipo texto',
+            'name.unique'   => 'El :attribute ya existe',
+            'name.max'      => 'El :attribute tiene un máximo de 50 caracteres'
         ];
     }
 

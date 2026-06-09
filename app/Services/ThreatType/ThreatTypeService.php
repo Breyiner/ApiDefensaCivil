@@ -48,6 +48,8 @@ class ThreatTypeService
     {
         $threatType = ThreatType::create($data);
 
+        $currentData = $threatType->name;
+
         $threatType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -55,6 +57,8 @@ class ThreatTypeService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => 'Activo',
+            'data_old'       => null,
+            'data_new'       => $currentData,
         ]);
 
         return [
@@ -77,16 +81,25 @@ class ThreatTypeService
             ];
         }
 
-        $oldStatus = $threatType->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $threatType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $threatType->getOriginal('name');
+
         $threatType->update($data);
+        $threatType->refresh();
+
+        $statusNew  = $threatType->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $threatType->name;
+
 
         $threatType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $threatType->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -109,16 +122,25 @@ class ThreatTypeService
             ];
         }
 
-        $oldStatus = $threatType->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $threatType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $threatType->getOriginal('name');
+
         $threatType->update($data);
+        $threatType->refresh();
+
+        $statusNew  = $threatType->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $threatType->name;
+
 
         $threatType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
-            'action_execute' => 'Actualizado parcialmente',
-            'status_old'     => $oldStatus,
-            'status_new'     => $threatType->is_active ? "Activo" : "Inactivo",
+            'action_execute' => 'Actualizado',
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -154,17 +176,25 @@ class ThreatTypeService
             }
         } 
 
-        $oldStatus = $threatType->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $threatType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $threatType->getOriginal('name');
+
         $threatType->update($data);
-        $newStatus = $threatType->is_active ? "Activo" : "Inactivo";
+        $threatType->refresh();
+
+        $statusNew  = $threatType->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $threatType->name;
+
 
         $threatType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $newStatus,
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -187,18 +217,22 @@ class ThreatTypeService
             ];
         }
 
-        $originalData = $threatType->toArray();
-        $threatType->delete();
+        $statusOld  = $threatType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $threatType->getOriginal('name');
 
         $threatType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => $originalData['is_active'] ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
         ]);
-
+            
+        $threatType->delete();
+            
         return [
             "error" => false,
             "code" => 200,
@@ -231,6 +265,8 @@ class ThreatTypeService
                     'action_execute' => $audit->action_execute,
                     'status_old'     => $audit->status_old,
                     'status_new'     => $audit->status_new,
+                    'data_old'       => $audit->data_old,
+                    'data_new'       => $audit->data_new,
                 ];
             });
 

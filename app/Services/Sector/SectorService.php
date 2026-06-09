@@ -183,7 +183,7 @@ class SectorService
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
-            'action_execute' => 'Actualizado',
+            'action_execute' => 'Cambio de estado',
             'status_old'     => $oldStatus,
             'status_new'     => $newStatus,
             'data_old'       => $dataOld,
@@ -221,7 +221,6 @@ class SectorService
         $oldStatus = $sector->is_active ? "Activo" : "Inactivo";
         $dataOld   = $sector->name;
 
-        // Primero guardamos la auditoría antes de destruir el objeto físico en la BD
         $sector->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -268,6 +267,7 @@ class SectorService
                 'status_new'     => $audit->status_new,
                 'data_old'       => $audit->data_old,
                 'data_new'       => $audit->data_new,
+                'id'             => $audit->id
             ];
         });
 

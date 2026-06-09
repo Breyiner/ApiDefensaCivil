@@ -57,6 +57,8 @@ class SpecieServices
     {
         $species = Species::create($data);
 
+        $currentData = $species->name;
+
         $species->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -64,6 +66,8 @@ class SpecieServices
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => 'Activo',
+            'data_old'       => null,
+            'data_new'       => $currentData,
         ]);
 
         return [
@@ -86,16 +90,25 @@ class SpecieServices
             ];
         }
 
-        $oldStatus = $species->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $species->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $species->getOriginal('name');
+
         $species->update($data);
+        $species->refresh();
+
+        $statusNew  = $species->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $species->name;
+
 
         $species->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $species->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -118,16 +131,25 @@ class SpecieServices
             ];
         }
 
-        $oldStatus = $species->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $species->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $species->getOriginal('name');
+
         $species->update($data);
+        $species->refresh();
+
+        $statusNew  = $species->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $species->name;
+
 
         $species->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
-            'action_execute' => 'Actualizado parcialmente',
-            'status_old'     => $oldStatus,
-            'status_new'     => $species->is_active ? "Activo" : "Inactivo",
+            'action_execute' => 'Actualizado',
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -163,17 +185,25 @@ class SpecieServices
             }
         }
 
-        $oldStatus = $species->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $species->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $species->getOriginal('name');
+
         $species->update($data);
-        $newStatus = $species->is_active ? "Activo" : "Inactivo";
+        $species->refresh();
+
+        $statusNew  = $species->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $species->name;
+
 
         $species->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $newStatus,
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -196,17 +226,22 @@ class SpecieServices
             ];
         }
 
-        $originalData = $species->toArray();
-        $species->delete();
+        $oldStatus = $species->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $species->name;
 
+        // Primero guardamos la auditoría antes de destruir el objeto físico en la BD
         $species->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => $originalData['is_active'] ? "Activo" : "Inactivo",
+            'status_old'     => $oldStatus,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
         ]);
+            
+        $species->delete();
 
         return [
             "error" => false,
@@ -239,6 +274,9 @@ class SpecieServices
                     'action_execute' => $audit->action_execute,
                     'status_old'     => $audit->status_old,
                     'status_new'     => $audit->status_new,
+                    'data_old'       => $audit->data_old,
+                    'data_new'       => $audit->data_new,
+                    'id'             => $audit->id
                 ];
             });
 

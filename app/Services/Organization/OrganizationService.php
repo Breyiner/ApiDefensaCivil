@@ -348,9 +348,10 @@ class OrganizationService
                 'status_old'     => $audit->status_old,
                 'status_new'     => $audit->status_new,
                 'data_old'       => $audit->data_old,
-                'data_new'       => $audit->data_new,,
+                'data_new'       => $audit->data_new,
                 'subData_old'    => $audit->subData_old,
                 'subData_new'    => $audit->subData_new,
+                'id'             => $audit->id
             ];
         });
 

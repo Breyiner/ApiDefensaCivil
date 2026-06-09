@@ -48,13 +48,20 @@ class ResourceService
     {
         $resource = Resource::create($data);
 
+        $currentData = $resource->name;
+        $currentSubData = $resource->service;
+
         $resource->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Creado',
             'status_old'     => null,
-            'status_new'     => 'Activo',
+            'status_new'     => "Activo",
+            'data_old'       => null,
+            'data_new'       => $currentData,
+            'subData_old'    => null,
+            'subData_new'    => $currentSubData
         ]);
 
         return [
@@ -77,16 +84,28 @@ class ResourceService
             ];
         }
 
-        $oldStatus = $resource->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $resource->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $resource->getOriginal('name');
+        $subDataOld = $resource->getOriginal('service');
+
         $resource->update($data);
+        $resource->refresh();
+
+        $statusNew  = $resource->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $resource->name;
+        $subDataNew = $resource->service;
 
         $resource->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $resource->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -109,16 +128,28 @@ class ResourceService
             ];
         }
 
-        $oldStatus = $resource->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $resource->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $resource->getOriginal('name');
+        $subDataOld = $resource->getOriginal('service');
+
         $resource->update($data);
+        $resource->refresh();
+
+        $statusNew  = $resource->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $resource->name;
+        $subDataNew = $resource->service;
 
         $resource->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
-            'action_execute' => 'Actualizado parcialmente',
-            'status_old'     => $oldStatus,
-            'status_new'     => $resource->is_active ? "Activo" : "Inactivo",
+            'action_execute' => 'Actualizado',
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -154,17 +185,28 @@ class ResourceService
             }
         }
 
-        $oldStatus = $resource->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $resource->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $resource->getOriginal('name');
+        $subDataOld = $resource->getOriginal('service');
+
         $resource->update($data);
-        $newStatus = $resource->is_active ? "Activo" : "Inactivo";
+        $resource->refresh();
+
+        $statusNew  = $resource->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $resource->name;
+        $subDataNew = $resource->service;
 
         $resource->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $newStatus,
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -187,17 +229,24 @@ class ResourceService
             ];
         }
 
-        $originalData = $resource->toArray();
-        $resource->delete();
+        $statusOld  = $resource->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $resource->name;
+        $subDataOld = $resource->service;
 
         $resource->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => $originalData['is_active'] ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => null,
         ]);
+            
+        $resource->delete();
 
         return [
             "error" => false,
@@ -230,6 +279,11 @@ class ResourceService
                     'action_execute' => $audit->action_execute,
                     'status_old'     => $audit->status_old,
                     'status_new'     => $audit->status_new,
+                    'data_old'       => $audit->data_old,
+                    'data_new'       => $audit->data_new,
+                    'subData_old'    => $audit->subData_old,
+                    'subData_new'    => $audit->subData_new,
+                    'id'             => $audit->id
                 ];
             });
 

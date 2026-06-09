@@ -197,7 +197,7 @@ class VulnerableQuestionService
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
-            'action_execute' => 'Actualizado parcialmente',
+            'action_execute' => 'Cambio de estado',
             'status_old'     => $oldStatus,
             'status_new'     => $newStatus,
             'data_old'       => $dataOld,
@@ -280,6 +280,7 @@ class VulnerableQuestionService
                     'data_new'       => $audit->data_new,
                     'subData_old'    => $audit->subData_old,
                     'subData_new'    => $audit->subData_new,
+                    'id'             => $audit->id 
                 ];
             });
 

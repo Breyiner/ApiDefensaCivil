@@ -475,6 +475,7 @@ class PermissionSeeder extends Seeder
             // ================================================================
             ['audits.dashboard-admin', 'Ver dashboard de administrador'],
             ['audits.delete_id-admin', 'Eliminar dato audit'],
+            ['audits.delete_bulk-admin', 'Eliminar datos audit multiple'],
             ['audits.dashboard-supervisor', 'Ver dashboard de supervisor'],
 
             // ================================================================

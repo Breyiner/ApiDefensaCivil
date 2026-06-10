@@ -26,7 +26,10 @@ Route::prefix('audits')->group(function () {
     Route::get('/dashBoardSupervisor', [AuditController::class, 'dashBoardSupervisor'])
         ->middleware('permission:audits.dashboard-supervisor');
 
-    Route::get('/{id}/delete_audit', [AuditController::class, 'destroy'])
-        // ->middleware('permission:audits.dashboard-supervisor')
+    Route::delete('/bulk_delete', [AuditController::class, 'bulkDestroy'])
+        // ->middleware('permission:audits.delete_bulk-admin')
+    ;
+    Route::delete('/{id}/delete_audit', [AuditController::class, 'destroy'])
+        // ->middleware('permission:audits.delete_id-admin')
     ;
 });

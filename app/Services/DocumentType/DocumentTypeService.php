@@ -287,6 +287,7 @@ class DocumentTypeService
                 'data_new'       => $audit->data_new,
                 'subData_old'    => $audit->subData_old,
                 'subData_new'    => $audit->subData_new,
+                'id'             => $audit->id
             ];
         });
 

@@ -267,6 +267,7 @@ class ThreatTypeService
                     'status_new'     => $audit->status_new,
                     'data_old'       => $audit->data_old,
                     'data_new'       => $audit->data_new,
+                    'id'             => $audit->id 
                 ];
             });
 

@@ -245,4 +245,54 @@ class AuditService
             "message" => "Se elimino exitosamente el registro de la actividad.",
         ];
     }
+
+    /**
+     * Procesa la eliminación masiva de registros de auditoría.
+     * Permite eliminar uno, varios o todos los registros seleccionados.
+     *
+     * @param array $auditIds IDs de las auditorías a eliminar
+     * @return array
+     */
+    public function bulkDelete(array $auditIds): array
+    {
+        DB::beginTransaction();
+
+        try {
+            // Buscamos todos los registros que coincidan con los IDs provistos
+            $audits = Audit::whereIn('id', $auditIds)->get();
+
+            if ($audits->isEmpty()) {
+                DB::rollBack();
+
+                return [
+                    'error' => true,
+                    'code' => 404,
+                    'message' => 'No se encontraron registros de actividad para eliminar.',
+                ];
+            }
+
+            // Iteramos y eliminamos cada registro de auditoría encontrado
+            foreach ($audits as $audit) {
+                $audit->delete();
+            }
+
+            DB::commit();
+
+            return [
+                'error' => false,
+                'code' => 200,
+                'message' => count($auditIds) === 1 
+                    ? 'Se eliminó exitosamente el registro de la actividad.' 
+                    : 'Se eliminaron exitosamente los registros de actividad seleccionados.',
+            ];
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return [
+                'error' => true,
+                'code' => 500,
+                'message' => 'Error al intentar eliminar los registros de actividad.',
+            ];
+        }
+    }
 }

@@ -62,6 +62,7 @@ class OrganizationSeeder extends Seeder
 
         foreach ($organizations as $organizationData) {
             $organization = Organization::create($organizationData);
+            $organization->load('sectional');
 
             // Crear auditoría
             $organization->fresh()->audits()->create([
@@ -71,6 +72,10 @@ class OrganizationSeeder extends Seeder
                 'action_execute' => 'Creado',
                 'status_old'     => null,
                 'status_new'     => "Activo",
+                'data_old'       => null,
+                'data_new'       => $organization->name,
+                'subData_old'    => null,
+                'subData_new'    => $organization->sectional?->name,
             ]);
         }
     }

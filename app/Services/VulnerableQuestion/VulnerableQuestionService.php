@@ -43,6 +43,9 @@ class VulnerableQuestionService
     {
         $question = VulnerableQuestion::create($data);
 
+        $currentData = $question->description;
+        $currentSubData = (int) $question->question_caution === 0 ? 'Sí' : 'No';
+
         $question->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -50,6 +53,10 @@ class VulnerableQuestionService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => "Activo",
+            'data_old'       => null,
+            'data_new'       => $currentData,
+            'subData_old'    => null,
+            'subData_new'    => $currentSubData
         ]);
 
         return [
@@ -72,9 +79,16 @@ class VulnerableQuestionService
             ];
         }
 
-        $oldStatus = $question->is_active ? "Activo" : "Inactivo";
+        $oldStatus  = $question->is_active ? "Activo" : "Inactivo";
+        $dataOld    = $question->getOriginal('description');
+        $subDataOld = (int) $question->getOriginal('question_caution') === 0 ? 'Sí' : 'No';
 
         $question->update($data);
+        $question->refresh();
+        
+        $newStatus  = $question->is_active ? "Activo" : "Inactivo";
+        $dataNew    = $question->description;
+        $subDataNew = (int) $question->getOriginal('question_caution') === 0 ? 'Sí' : 'No';
 
         $question->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -82,7 +96,11 @@ class VulnerableQuestionService
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
             'status_old'     => $oldStatus,
-            'status_new'     => $question->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -105,9 +123,17 @@ class VulnerableQuestionService
             ];
         }
 
-        $oldStatus = $question->is_active ? "Activo" : "Inactivo";
+
+        $oldStatus  = $question->is_active ? "Activo" : "Inactivo";
+        $dataOld    = $question->getOriginal('description');
+        $subDataOld = (int) $question->getOriginal('question_caution') === 0 ? 'Sí' : 'No';
 
         $question->update($data);
+        $question->refresh();
+
+        $newStatus  = $question->is_active ? "Activo" : "Inactivo";
+        $dataNew    = $question->description;
+        $subDataNew = (int) $question->getOriginal('question_caution') === 0 ? 'Sí' : 'No';
 
         $question->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -115,7 +141,11 @@ class VulnerableQuestionService
             'date_time'      => now(),
             'action_execute' => 'Actualizado parcialmente',
             'status_old'     => $oldStatus,
-            'status_new'     => $question->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -151,11 +181,17 @@ class VulnerableQuestionService
             }
         }    
 
-        $oldStatus = $question->is_active ? "Activo" : "Inactivo";
 
-        $question->update([
-            'is_active' => $data['is_active']
-        ]);
+        $oldStatus  = $question->is_active ? "Activo" : "Inactivo";
+        $dataOld    = $question->getOriginal('description');
+        $subDataOld = (int) $question->getOriginal('question_caution') === 0 ? 'Sí' : 'No';
+
+        $question->update($data);
+        $question->refresh();
+
+        $newStatus  = $question->is_active ? "Activo" : "Inactivo";
+        $dataNew    = $question->description;
+        $subDataNew = (int) $question->getOriginal('question_caution') === 0 ? 'Sí' : 'No';
 
         $question->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -163,7 +199,11 @@ class VulnerableQuestionService
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
             'status_old'     => $oldStatus,
-            'status_new'     => $question->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -186,9 +226,9 @@ class VulnerableQuestionService
             ];
         }
 
-        $oldStatus = $question->is_active ? "Activo" : "Inactivo";
-
-        $question->delete();
+        $oldStatus  = $question->is_active ? "Activo" : "Inactivo";
+        $dataOld    = $question->description;
+        $subDataOld = (int) $question->getOriginal('question_caution') === 0 ? 'Sí' : 'No';
 
         $question->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -197,7 +237,13 @@ class VulnerableQuestionService
             'action_execute' => 'Eliminado',
             'status_old'     => $oldStatus,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => null,
         ]);
+            
+        $question->delete();
 
         return [
             "error" => false,
@@ -230,6 +276,11 @@ class VulnerableQuestionService
                     'action_execute' => $audit->action_execute,
                     'status_old'     => $audit->status_old,
                     'status_new'     => $audit->status_new,
+                    'data_old'       => $audit->data_old,
+                    'data_new'       => $audit->data_new,
+                    'subData_old'    => $audit->subData_old,
+                    'subData_new'    => $audit->subData_new,
+                    'id'             => $audit->id 
                 ];
             });
 

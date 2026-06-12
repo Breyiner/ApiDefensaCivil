@@ -25,4 +25,11 @@ Route::prefix('audits')->group(function () {
     // Dashboard con métricas y actividad reciente para el rol Supervisor
     Route::get('/dashBoardSupervisor', [AuditController::class, 'dashBoardSupervisor'])
         ->middleware('permission:audits.dashboard-supervisor');
+
+    Route::delete('/bulk_delete', [AuditController::class, 'bulkDestroy'])
+        ->middleware('permission:audits.delete_bulk-admin')
+    ;
+    Route::delete('/{id}/delete_audit', [AuditController::class, 'destroy'])
+        ->middleware('permission:audits.delete_id-admin')
+    ;
 });

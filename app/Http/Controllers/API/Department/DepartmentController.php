@@ -33,9 +33,7 @@ class DepartmentController extends Controller
     {
         $response = $this->service->getAll();
 
-        if ($response['error'])
-        {
-            // Nota: Se corrigió la minúscula en 'responseFormatter' para mantener consistencia
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -58,15 +56,13 @@ class DepartmentController extends Controller
 
     /**
      * Crea un nuevo registro de departamento.
-     * La validación se maneja de forma aislada en StoreDepartmentRequest.
      */
     public function store(StoreDepartmentRequest $request)
     {
         $data = $request->validated();
         $response = $this->service->create($data);
 
-        if ($response['error'])
-        {    
+        if ($response['error']) {    
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -78,11 +74,25 @@ class DepartmentController extends Controller
      */
     public function update(UpdateDepartmentRequest $request, string $id)
     {
+        dd("¡Sí entra al controlador!", "ID recibido: " . $id, "Datos: ", $request->all());
+
         $data = $request->validated();
         $response = $this->service->update($data, $id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+    }
+
+    public function partialUpdate(UpdateDepartmentRequest $request, string $id)
+    {
+        // Reutiliza la validación parcial y el mismo método de actualización del servicio
+        $data = $request->validated();
+        $response = $this->service->update($data, $id);
+
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -96,8 +106,7 @@ class DepartmentController extends Controller
     {
         $response = $this->service->delete($id);
 
-        if ($response['error'])
-        {
+        if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
         }
 
@@ -105,16 +114,11 @@ class DepartmentController extends Controller
     }
 
     /**
-     * Obtiene el historial del departamento
-     * @param string $id
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * Obtiene el historial del departamento.
      */
     public function history(Request $request, string $id)
     {
-
         $perPage = $request->input('per_page', 10);
-    
         $response = $this->service->history($id, $perPage);
 
         if ($response['error']) {

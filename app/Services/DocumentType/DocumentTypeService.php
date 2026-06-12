@@ -24,7 +24,7 @@ class DocumentTypeService
     {
         $documentType = DocumentType::find($id);
 
-        if (!$documentType){
+        if (!$documentType) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -44,6 +44,9 @@ class DocumentTypeService
     {
         $documentType = DocumentType::create($data);
 
+        $currentData = $documentType->name;
+        $currentSubData = $documentType->acronym;
+
         $documentType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -51,6 +54,10 @@ class DocumentTypeService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => "Activo",
+            'data_old'       => null,
+            'data_new'       => $currentData,
+            'subData_old'    => null,
+            'subData_new'    => $currentSubData
         ]);
 
         return [
@@ -65,7 +72,7 @@ class DocumentTypeService
     {
         $documentType = DocumentType::find($id);
 
-        if (!$documentType){
+        if (!$documentType) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -73,17 +80,30 @@ class DocumentTypeService
             ];
         }
 
-        $oldStatus = $documentType->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $documentType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $documentType->getOriginal('name');
+        $subDataOld = $documentType->getOriginal('acronym');
 
+        // 2. ACTUALIZAR Y REFRESCAR
         $documentType->update($data);
+        $documentType->refresh();
+
+        // 3. CAPTURAR DESPUÉS
+        $statusNew  = $documentType->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $documentType->name;
+        $subDataNew = $documentType->acronym;
 
         $documentType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $documentType->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -94,11 +114,11 @@ class DocumentTypeService
         ];
     }
 
-    public function partialUpdate(array $data,$id)
+    public function partialUpdate(array $data, $id)
     {
         $documentType = DocumentType::find($id);
 
-        if (!$documentType){
+        if (!$documentType) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -106,17 +126,28 @@ class DocumentTypeService
             ];
         }
 
-        $oldStatus = $documentType->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $documentType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $documentType->getOriginal('name');
+        $subDataOld = $documentType->getOriginal('acronym');
 
         $documentType->update($data);
+        $documentType->refresh();
+
+        $statusNew  = $documentType->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $documentType->name;
+        $subDataNew = $documentType->acronym;
 
         $documentType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado parcialmente',
-            'status_old'     => $oldStatus,
-            'status_new'     => $documentType->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -127,11 +158,11 @@ class DocumentTypeService
         ];
     }
 
-    public function changeStatus(array $data,$id)
+    public function changeStatus(array $data, $id)
     {
         $documentType = DocumentType::find($id);
 
-        if (!$documentType){
+        if (!$documentType) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -152,17 +183,28 @@ class DocumentTypeService
             }
         }
 
-        $oldStatus = $documentType->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $documentType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $documentType->getOriginal('name');
+        $subDataOld = $documentType->getOriginal('acronym');
 
         $documentType->update($data);
+        $documentType->refresh();
+
+        $statusNew  = $documentType->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $documentType->name;
+        $subDataNew = $documentType->acronym;
 
         $documentType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $documentType->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $subDataNew,
         ]);
 
         return [
@@ -177,7 +219,7 @@ class DocumentTypeService
     {
         $documentType = DocumentType::find($id);
 
-        if (!$documentType){
+        if (!$documentType) {
             return [
                 "error" => true,
                 "code" => 404,
@@ -193,18 +235,24 @@ class DocumentTypeService
             ];
         }
 
-        $oldStatus = $documentType->is_active ? "Activo" : "Inactivo";
-
-        $documentType->delete();
+        $statusOld  = $documentType->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $documentType->name;
+        $subDataOld = $documentType->acronym;
 
         $documentType->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => $oldStatus,
+            'status_old'     => $statusOld,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => null,
         ]);
+
+        $documentType->delete();
 
         return [
             "error" => false,
@@ -227,16 +275,21 @@ class DocumentTypeService
 
         $data = $documentType->audits()->paginate($perPage);
 
-        $history = $data->map(function($audit) {
-                return [
-                    'date_time'      => $audit->date_time,
-                    'user_name'      => $audit->user_name,
-                    'rol'            => $audit->rol_name,
-                    'action_execute' => $audit->action_execute,
-                    'status_old'     => $audit->status_old,
-                    'status_new'     => $audit->status_new,
-                ];
-            });
+        $history = $data->map(function ($audit) {
+            return [
+                'date_time'      => $audit->date_time,
+                'user_name'      => $audit->user_name,
+                'rol'            => $audit->rol_name,
+                'action_execute' => $audit->action_execute,
+                'status_old'     => $audit->status_old,
+                'status_new'     => $audit->status_new,
+                'data_old'       => $audit->data_old,
+                'data_new'       => $audit->data_new,
+                'subData_old'    => $audit->subData_old,
+                'subData_new'    => $audit->subData_new,
+                'id'             => $audit->id
+            ];
+        });
 
         return [
             "error" => false,

@@ -1,21 +1,22 @@
 <?php
-    namespace App\Services\Audit;
 
-    use App\Models\User\User;
-    use App\Models\Audit\Audit;
-    use App\Models\FamilyPlan\FamilyPlan;
-    use Illuminate\Support\Facades\DB;
-    use Carbon\Carbon;
+namespace App\Services\Audit;
 
-    
-    class AuditService
+use App\Models\User\User;
+use App\Models\Audit\Audit;
+use App\Models\FamilyPlan\FamilyPlan;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+
+class AuditService
+{
+    public function DashBoardAdmin()
     {
-        public function DashBoardAdmin()
-        {
-            // 🔹 1. RESUMEN USUARIOS
-            $summaryData = User::whereDoesntHave('roles', function ($query) {
-                $query->where('name', 'Administrador');
-            })
+        // 🔹 1. RESUMEN USUARIOS
+        $summaryData = User::whereDoesntHave('roles', function ($query) {
+            $query->where('name', 'Administrador');
+        })
             ->selectRaw("
                 SUM(CASE WHEN state_user_id = 1 THEN 1 ELSE 0 END) as active,
                 SUM(CASE WHEN state_user_id = 2 THEN 1 ELSE 0 END) as inactive,
@@ -23,57 +24,57 @@
             ")
             ->first();
 
-            $summary = [
-                "active"   => (int) ($summaryData->active ?? 0),
-                "inactive" => (int) ($summaryData->inactive ?? 0),
-                "request"  => (int) ($summaryData->request ?? 0),
-            ];
+        $summary = [
+            "active"   => (int) ($summaryData->active ?? 0),
+            "inactive" => (int) ($summaryData->inactive ?? 0),
+            "request"  => (int) ($summaryData->request ?? 0),
+        ];
 
-            // 🔹 2. ROLES
-            $rolesData = DB::table('model_has_roles')
-                ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-                ->selectRaw("
+        // 🔹 2. ROLES
+        $rolesData = DB::table('model_has_roles')
+            ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->selectRaw("
                     SUM(CASE WHEN roles.name = 'Supervisor' THEN 1 ELSE 0 END) as supervisor,
                     SUM(CASE WHEN roles.name = 'Voluntario' THEN 1 ELSE 0 END) as volunteer
                 ")
-                ->first();
+            ->first();
 
-            $rols = [
-                "supervisor" => (int) ($rolesData->supervisor ?? 0),
-                "volunteer"  => (int) ($rolesData->volunteer ?? 0),
-            ];
+        $rols = [
+            "supervisor" => (int) ($rolesData->supervisor ?? 0),
+            "volunteer"  => (int) ($rolesData->volunteer ?? 0),
+        ];
 
-            // 🔹 3. CAMBIOS ÚLTIMOS 6 MESES (AUDIT)
-            $now = Carbon::now();
-            $startDate = $now->copy()->subMonths(5)->startOfMonth();
-            $endDate = $now->copy()->endOfMonth();
+        // 🔹 3. CAMBIOS ÚLTIMOS 6 MESES (AUDIT)
+        $now = Carbon::now();
+        $startDate = $now->copy()->subMonths(5)->startOfMonth();
+        $endDate = $now->copy()->endOfMonth();
 
-            $rawAudit = Audit::where('historiable_type', '!=', User::class)
-                ->where('historiable_type', '!=', FamilyPlan::class)
-                ->whereBetween('date_time', [$startDate, $endDate])
-                ->selectRaw("
+        $rawAudit = Audit::where('historiable_type', '!=', User::class)
+            ->where('historiable_type', '!=', FamilyPlan::class)
+            ->whereBetween('date_time', [$startDate, $endDate])
+            ->selectRaw("
                     DATE_FORMAT(date_time, '%Y-%m') as 'year_month',
                     COUNT(*) as total
                 ")
-                ->groupBy(DB::raw("DATE_FORMAT(date_time, '%Y-%m')"))
-                ->orderBy('year_month')
-                ->get()
-                ->keyBy('year_month');
+            ->groupBy(DB::raw("DATE_FORMAT(date_time, '%Y-%m')"))
+            ->orderBy('year_month')
+            ->get()
+            ->keyBy('year_month');
 
-            $monthly = [];
-            Carbon::setLocale('es');
-            for ($i = 5; $i >= 0; $i--) {
+        $monthly = [];
+        Carbon::setLocale('es');
+        for ($i = 5; $i >= 0; $i--) {
 
-                $date = Carbon::now()->subMonths($i);
-                $key = $date->format('Y-m');
+            $date = Carbon::now()->subMonths($i);
+            $key = $date->format('Y-m');
 
-                $monthly[] = [
-                    "month" => $date->translatedFormat('F'),
-                    "total" => (int) ($rawAudit[$key]->total ?? 0)
-                ];
-            }
+            $monthly[] = [
+                "month" => $date->translatedFormat('F'),
+                "total" => (int) ($rawAudit[$key]->total ?? 0)
+            ];
+        }
 
-            $historyGeneral = Audit::with('historiable')
+        $historyGeneral = Audit::with('historiable')
             ->whereNotIn('historiable_type', [
                 FamilyPlan::class,
                 Member::class,
@@ -84,147 +85,214 @@
             ->get()
             ->map(fn($audit) => $this->formatAudit($audit));
 
-            $historyMembers = Audit::with('historiable')
+        $historyMembers = Audit::with('historiable')
             ->where('historiable_type', User::class)
             ->latest('date_time')
             ->take(10)
             ->get()
             ->map(fn($audit) => $this->formatAudit($audit));
 
-            // 🔹 RESPUESTA FINAL
+        // 🔹 RESPUESTA FINAL
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Dashboard obtenido correctamente",
+            "data" => [
+                "summary" => $summary,
+                "rols" => $rols,
+                "monthly_changes" => $monthly,
+                "history_general" => $historyGeneral,
+                "history_members" => $historyMembers
+            ]
+        ];
+    }
+
+    private function formatAudit($audit)
+    {
+        return [
+            'date_time'      => $audit->date_time,
+            'user_name'      => $audit->user_name,
+            'rol'            => $audit->rol_name,
+            'action_execute' => $audit->action_execute,
+            'status_old'     => $audit->status_old,
+            'status_new'     => $audit->status_new,
+            // 'historiable_id' => $audit->historiable_id,
+            // 'tabla'          => class_basename($audit->historiable_type),
+            'name_model' =>
+            $audit->historiable?->name
+                ?? $audit->historiable?->description
+                ?? $audit->historiable?->profile?->names . ' ' . $audit->historiable?->profile?->last_names
+        ];
+    }
+
+    public function dashBoardSupervisor()
+    {
+        $user = auth()->user();
+
+        if (!$user) {
             return [
-                "error" => false,
-                "code" => 200,
-                "message" => "Dashboard obtenido correctamente",
-                "data" => [
-                    "summary" => $summary,
-                    "rols" => $rols,
-                    "monthly_changes" => $monthly,
-                    "history_general" => $historyGeneral,
-                    "history_members" => $historyMembers
-                ]
+                "error" => true,
+                "code" => 401,
+                "message" => "No autenticado"
             ];
         }
 
-        private function formatAudit($audit)
-        {
+        // 🔹 1. Obtener seccional desde profile
+        $sectionalId = $user->profile->organization->sectional->id ?? null;
+
+        if (!$sectionalId) {
             return [
-                'date_time'      => $audit->date_time,
-                'user_name'      => $audit->user_name,
-                'rol'            => $audit->rol_name,
-                'action_execute' => $audit->action_execute,
-                'status_old'     => $audit->status_old,
-                'status_new'     => $audit->status_new,
-                // 'historiable_id' => $audit->historiable_id,
-                // 'tabla'          => class_basename($audit->historiable_type),
-                'name_model' => 
-                    $audit->historiable?->name
-                    ?? $audit->historiable?->description
-                    ?? $audit->historiable?->profile?->names . ' ' . $audit->historiable?->profile?->last_names
+                "error" => true,
+                "code" => 404,
+                "message" => "Supervisor sin seccional asignada"
             ];
         }
 
-        public function dashBoardSupervisor()
-        {
-            $user = auth()->user();
+        // 🔹 2. Contadores de planes
+        $pending = FamilyPlan::where('sectional_id', $sectionalId)
+            ->where('status_plan_id', 4)
+            ->count();
 
-            if (!$user) {
-                return [
-                    "error" => true,
-                    "code" => 401,
-                    "message" => "No autenticado"
-                ];
-            }
+        $approved = FamilyPlan::where('sectional_id', $sectionalId)
+            ->where('status_plan_id', 7)
+            ->count();
 
-            // 🔹 1. Obtener seccional desde profile
-            $sectionalId = $user->profile->organization->sectional->id ?? null;
+        $rejected = FamilyPlan::where('sectional_id', $sectionalId)
+            ->whereIn('status_plan_id', [5, 6])
+            ->count();
 
-            if (!$sectionalId) {
-                return [
-                    "error" => true,
-                    "code" => 404,
-                    "message" => "Supervisor sin seccional asignada"
-                ];
-            }
+        // 🔹 3. Tiempo promedio de validación
 
-            // 🔹 2. Contadores de planes
-            $pending = FamilyPlan::where('sectional_id', $sectionalId)
-                ->where('status_plan_id', 4)
-                ->count();
+        $audits = Audit::where('historiable_type', FamilyPlan::class)
+            ->whereIn('status_new', [
+                'Enviado',
+                'Aprobado',
+                'Rechazado Cambios',
+                'Rechazado Definitivo',
+            ])
+            ->orderBy('date_time')
+            ->get()
+            ->groupBy('historiable_id');
 
-            $approved = FamilyPlan::where('sectional_id', $sectionalId)
-                ->where('status_plan_id', 7)
-                ->count();
+        $totalMinutes = 0;
+        $totalValidations = 0;
 
-            $rejected = FamilyPlan::where('sectional_id', $sectionalId)
-                ->whereIn('status_plan_id', [5, 6])
-                ->count();
+        foreach ($audits as $familyPlanId => $records) {
 
-            // 🔹 3. Tiempo promedio de validación
+            $sent = null;
 
-            $audits = Audit::where('historiable_type', FamilyPlan::class)
-                ->whereIn('status_new', [
-                    'Enviado',
+            foreach ($records as $audit) {
+
+                // Cuando encuentra "Enviado"
+                if ($audit->status_new === 'Enviado') {
+                    $sent = Carbon::parse($audit->date_time);
+                }
+
+                // Si ya hubo enviado y luego viene resultado
+                if ($sent && in_array($audit->status_new, [
                     'Aprobado',
                     'Rechazado Cambios',
-                    'Rechazado Definitivo',
-                ])
-                ->orderBy('date_time')
-                ->get()
-                ->groupBy('historiable_id');
+                    'Rechazado Definitivo'
+                ])) {
 
-            $totalMinutes = 0;
-            $totalValidations = 0;
+                    $validated = Carbon::parse($audit->date_time);
 
-            foreach ($audits as $familyPlanId => $records) {
+                    $minutes = $sent->diffInMinutes($validated);
 
-                $sent = null;
+                    $totalMinutes += $minutes;
+                    $totalValidations++;
 
-                foreach ($records as $audit) {
-
-                    // Cuando encuentra "Enviado"
-                    if ($audit->status_new === 'Enviado') {
-                        $sent = Carbon::parse($audit->date_time);
-                    }
-
-                    // Si ya hubo enviado y luego viene resultado
-                    if ($sent && in_array($audit->status_new, [
-                        'Aprobado',
-                        'Rechazado Cambios',
-                        'Rechazado Definitivo'
-                    ])) {
-
-                        $validated = Carbon::parse($audit->date_time);
-
-                        $minutes = $sent->diffInMinutes($validated);
-
-                        $totalMinutes += $minutes;
-                        $totalValidations++;
-
-                        // Reinicia para siguientes ciclos
-                        $sent = null;
-                    }
+                    // Reinicia para siguientes ciclos
+                    $sent = null;
                 }
             }
+        }
 
-            $averageValidationTime = $totalValidations > 0
-                ? round($totalMinutes / $totalValidations)
-                : 0;
+        $averageValidationTime = $totalValidations > 0
+            ? round($totalMinutes / $totalValidations)
+            : 0;
 
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Dashboard planes familiares obtenido correctamente",
+            "data" => [
+                "pending_plans" => $pending,
+                "approved_plans" => $approved,
+                "rejected_plans" => $rejected,
+                "time_validation" => $averageValidationTime,
+            ]
+        ];
+    }
+
+    public function delete($id)
+    {
+        $Audit = Audit::find($id);
+
+        if (!$Audit) {
             return [
-                "error" => false,
-                "code" => 200,
-                "message" => "Dashboard planes familiares obtenido correctamente",
-                "data" => [
-                    "pending_plans" => $pending,
-                    "approved_plans" => $approved,
-                    "rejected_plans" => $rejected,
-                    "time_validation" => $averageValidationTime,
-                ]
+                "error" => true,
+                "code" => 404,
+                "message" => "El registro de la actividad no fue encontrado.",
             ];
         }
+
+        $Audit->delete();
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Se elimino exitosamente el registro de la actividad.",
+        ];
+    }
+
+    /**
+     * Procesa la eliminación masiva de registros de auditoría.
+     * Permite eliminar uno, varios o todos los registros seleccionados.
+     *
+     * @param array $auditIds IDs de las auditorías a eliminar
+     * @return array
+     */
+    public function bulkDelete(array $auditIds): array
+    {
+        DB::beginTransaction();
+
+        try {
+            // Buscamos todos los registros que coincidan con los IDs provistos
+            $audits = Audit::whereIn('id', $auditIds)->get();
+
+            if ($audits->isEmpty()) {
+                DB::rollBack();
+
+                return [
+                    'error' => true,
+                    'code' => 404,
+                    'message' => 'No se encontraron registros de actividad para eliminar.',
+                ];
+            }
+
+            // Iteramos y eliminamos cada registro de auditoría encontrado
+            foreach ($audits as $audit) {
+                $audit->delete();
+            }
+
+            DB::commit();
+
+            return [
+                'error' => false,
+                'code' => 200,
+                'message' => count($auditIds) === 1 
+                    ? 'Se eliminó exitosamente el registro de la actividad.' 
+                    : 'Se eliminaron exitosamente los registros de actividad seleccionados.',
+            ];
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return [
+                'error' => true,
+                'code' => 500,
+                'message' => 'Error al intentar eliminar los registros de actividad.',
+            ];
+        }
+    }
 }
-
-    
-
-

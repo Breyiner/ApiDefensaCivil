@@ -47,6 +47,9 @@ class NationalityService
     {
         $nationality = Nationality::create($data);
 
+        
+        $currentData = $nationality->name;
+
         $nationality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -54,6 +57,8 @@ class NationalityService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => 'Activo',
+            'data_old'       => null,
+            'data_new'       => $currentData,
         ]);
 
         return [
@@ -76,16 +81,25 @@ class NationalityService
             ];
         }
 
-        $oldStatus = $nationality->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $nationality->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $nationality->getOriginal('name');
+
         $nationality->update($data);
+        $nationality->refresh();
+
+        $statusNew  = $nationality->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $nationality->name;
+
 
         $nationality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $nationality->is_active ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -108,16 +122,25 @@ class NationalityService
             ];
         }
 
-        $oldStatus = $nationality->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $nationality->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $nationality->getOriginal('name');
+
         $nationality->update($data);
+        $nationality->refresh();
+
+        $statusNew  = $nationality->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $nationality->name;
+
 
         $nationality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
-            'action_execute' => 'Actualizado parcialmente',
-            'status_old'     => $oldStatus,
-            'status_new'     => $nationality->is_active ? "Activo" : "Inactivo",
+            'action_execute' => 'Actualizado',
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -153,17 +176,25 @@ class NationalityService
             }
         }  
 
-        $oldStatus = $nationality->is_active ? "Activo" : "Inactivo";
+        $statusOld  = $nationality->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $nationality->getOriginal('name');
+
         $nationality->update($data);
-        $newStatus = $nationality->is_active ? "Activo" : "Inactivo";
+        $nationality->refresh();
+
+        $statusNew  = $nationality->is_active ? 'Activo' : 'Inactivo';
+        $dataNew    = $nationality->name;
+
 
         $nationality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
-            'status_old'     => $oldStatus,
-            'status_new'     => $newStatus,
+            'status_old'     => $statusOld,
+            'status_new'     => $statusNew,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -186,18 +217,23 @@ class NationalityService
             ];
         }
 
-        $originalData = $nationality->toArray();
-        $nationality->delete();
+        $statusOld  = $nationality->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $nationality->getOriginal('name');
+
 
         $nationality->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => $originalData['is_active'] ? "Activo" : "Inactivo",
+            'status_old'     => $statusOld,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
         ]);
 
+        $nationality->delete();
+            
         return [
             "error" => false,
             "code" => 200,
@@ -229,6 +265,9 @@ class NationalityService
                     'action_execute' => $audit->action_execute,
                     'status_old'     => $audit->status_old,
                     'status_new'     => $audit->status_new,
+                    'data_old'       => $audit->data_old,
+                    'data_new'       => $audit->data_new,
+                    'id'             => $audit->id 
                 ];
             });
 

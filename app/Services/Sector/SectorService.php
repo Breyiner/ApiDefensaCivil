@@ -44,6 +44,8 @@ class SectorService
     {
         $sector = Sector::create($data);
 
+        $currentData = $sector->name;
+
         $sector->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -51,6 +53,8 @@ class SectorService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => "Activo",
+            'data_old'       => null,
+            'data_new'       => $currentData,
         ]);
 
         return [
@@ -74,8 +78,13 @@ class SectorService
         }
 
         $oldStatus = $sector->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $sector->getOriginal('name');
 
         $sector->update($data);
+        $sector->refresh();
+
+        $newStatus = $sector->is_active ? "Activo" : "Inactivo";
+        $dataNew   = $sector->name;
 
         $sector->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -83,7 +92,9 @@ class SectorService
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
             'status_old'     => $oldStatus,
-            'status_new'     => $sector->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -107,16 +118,23 @@ class SectorService
         }
 
         $oldStatus = $sector->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $sector->getOriginal('name');
 
         $sector->update($data);
+        $sector->refresh();
+
+        $newStatus = $sector->is_active ? "Activo" : "Inactivo";
+        $dataNew   = $sector->name;
 
         $sector->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
-            'action_execute' => 'Actualizado parcialmente',
+            'action_execute' => 'Actualizado',
             'status_old'     => $oldStatus,
-            'status_new'     => $sector->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -153,8 +171,13 @@ class SectorService
         }
 
         $oldStatus = $sector->is_active ? "Activo" : "Inactivo";
+        $dataOld   = $sector->getOriginal('name');
 
         $sector->update($data);
+        $sector->refresh();
+
+        $newStatus = $sector->is_active ? "Activo" : "Inactivo";
+        $dataNew   = $sector->name;
 
         $sector->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -162,7 +185,9 @@ class SectorService
             'date_time'      => now(),
             'action_execute' => 'Cambio de estado',
             'status_old'     => $oldStatus,
-            'status_new'     => $sector->is_active ? "Activo" : "Inactivo",
+            'status_new'     => $newStatus,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -194,8 +219,7 @@ class SectorService
         }
 
         $oldStatus = $sector->is_active ? "Activo" : "Inactivo";
-
-        $sector->delete();
+        $dataOld   = $sector->name;
 
         $sector->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -204,8 +228,12 @@ class SectorService
             'action_execute' => 'Eliminado',
             'status_old'     => $oldStatus,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
         ]);
-
+            
+        $sector->delete();
+        
         return [
             "error" => false,
             "code" => 200,
@@ -237,6 +265,9 @@ class SectorService
                 'action_execute' => $audit->action_execute,
                 'status_old'     => $audit->status_old,
                 'status_new'     => $audit->status_new,
+                'data_old'       => $audit->data_old,
+                'data_new'       => $audit->data_new,
+                'id'             => $audit->id
             ];
         });
 

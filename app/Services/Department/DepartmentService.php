@@ -73,6 +73,8 @@ class DepartmentService
     {
         $department = Department::create($data);
 
+        $currentData = $department->name;
+
         $department->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -80,6 +82,8 @@ class DepartmentService
             'action_execute' => 'Creado',
             'status_old'     => null,
             'status_new'     => null,
+            'data_old'       => null,
+            'data_new'       => $currentData,
         ]);
 
         return [
@@ -109,7 +113,12 @@ class DepartmentService
             ];
         }
 
+        $dataOld   = $department->getOriginal('name');
+
         $department->update($data);
+        $department->refresh();
+
+        $dataNew   = $department->name;
 
         $department->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
@@ -118,6 +127,8 @@ class DepartmentService
             'action_execute' => 'Actualizado',
             'status_old'     => null,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => $dataNew,
         ]);
 
         return [
@@ -155,7 +166,8 @@ class DepartmentService
             ];
         }
 
-        // Guardamos auditoría antes de eliminar
+        $dataOld   = $department->name;
+
         $department->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
@@ -163,6 +175,8 @@ class DepartmentService
             'action_execute' => 'Eliminado',
             'status_old'     => null,
             'status_new'     => null,
+            'data_old'       => $dataOld,
+            'data_new'       => null,
         ]);
 
         $department->delete();
@@ -203,8 +217,9 @@ class DepartmentService
                     'user_name'      => $audit->user_name,
                     'rol'            => $audit->rol_name,
                     'action_execute' => $audit->action_execute,
-                    'status_old'     => $audit->status_old,
-                    'status_new'     => $audit->status_new,
+                    'data_old'       => $audit->data_old,
+                    'data_new'       => $audit->data_new,
+                    'id'             => $audit->id
                 ];
             });
 

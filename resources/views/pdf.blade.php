@@ -209,10 +209,10 @@
         .graficoCont {
             width: 100%;
             height: 900px;
-            background-image: url('{{ public_path('assets/images/cuadricula.jpg') }}');
+            /* background-image: url('{{ public_path(' assets/images/cuadricula.jpg') }}');
             background-repeat: no-repeat;
             background-position: center;
-            background-size: cover;
+            background-size: cover; */
             text-align: center;
             margin-top: 10px;
         }
@@ -247,7 +247,7 @@
 
     <header class="encabezadoDoc">
 
-        <img src="{{ public_path('assets/images/logos/defensa-civil-logo.png') }}" alt='null'>
+        <img src="{{ public_path('assets/images/logos/defensa-civil-logo.png') }}" alt=''>
 
         <p> PLAN FAMILIAR DE EMERGENCIA </p>
 
@@ -344,36 +344,36 @@
 
             @foreach ($familyPlan->vulnerableTest as $test)
 
-            
+
             <tr class="{{ $test->vulnerableQuestion?->question_caution ? 'background_caution' : '' }}">
-                
+
                 <td class="fila_centrada">
                     {{ str_pad($i++, 2, '0', STR_PAD_LEFT) ?? '' }}
                 </td>
-                
+
                 <td class="fila_normal">
                     {{ $test->vulnerableQuestion->description ?? '' }}
                 </td>
-                
+
                 <td class="fila_centrada">
                     {{ $test->answer ? 'X' : '' }}
                 </td>
-                
+
                 <td class="fila_centrada">
                     {{ !$test->answer ? 'X' : '' }}
                 </td>
-                
+
             </tr>
-            
+
             <!-- if ($test->testVulnerableQuestion->question_caution=true) {} -->
-            
+
             @endforeach
 
-            </tbody>
+        </tbody>
 
     </table>
 
-    <p class="nota"><strong>RESULTADO:</strong> Si al menos cinco (5) de las primeras doce (12) preguntas son respondidas afirmativamente (SÍ), el hogar se 
+    <p class="nota"><strong>RESULTADO:</strong> Si al menos cinco (5) de las primeras doce (12) preguntas son respondidas afirmativamente (SÍ), el hogar se
         clasificará como familia vulnerable; de lo contrario, se considerará familia no vulnerable.</p>
 
     <div class="salto"></div>
@@ -382,7 +382,7 @@
     ------------------------------------------------------------------------------------------ --}}
 
     @php
-        $georeferencia = $familyPlan->housingInfo->where('housing_info_type_id', 1)->first();
+    $georeferencia = $familyPlan->housingInfo->where('housing_info_type_id', 1)->first();
     @endphp
 
     <div class="titulo" style="width:100%; margin-bottom:10px;">
@@ -405,7 +405,7 @@
                 <strong>SECCIONAL</strong>
             </td>
             <td class="secciones_tabla_fila" style="width:60%;">
-                <p>{{ $familyPlan->sectional->name ?? 'null' }}</p>
+                <p>{{ $familyPlan->sectional->name ?? '' }}</p>
             </td>
         </tr>
 
@@ -415,7 +415,7 @@
                 <strong>Familia Segura N°</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->id ?? 'null' }}</p>
+                <p>{{ $familyPlan->id ?? '' }}</p>
             </td>
         </tr>
 
@@ -425,7 +425,7 @@
                 <small>(Apellidos)</small>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->last_names ?? 'null' }}</p>
+                <p>{{ $familyPlan->last_names ?? '' }}</p>
             </td>
         </tr>
 
@@ -447,7 +447,7 @@
                 <strong>DIRECCIÓN</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ ($familyPlan->address ?? 'null') . ', ' . ($familyPlan->sector?->name ?? 'null') . ' ' . ($familyPlan->sector_name ?? 'null') . ', ' . ($familyPlan->city?->name ?? 'null') . ', ' . ($familyPlan->city?->department?->name ?? 'null') }}
+                <p>{{ ($familyPlan->address ?? '') . ', ' . ($familyPlan->sector?->name ?? '') . ' ' . ($familyPlan->sector_name ?? '') . ', ' . ($familyPlan->city?->name ?? '') . ', ' . ($familyPlan->city?->department?->name ?? '') }}
                 </p>
             </td>
         </tr>
@@ -457,7 +457,7 @@
                 <strong>BARRIO - COMUNA - LOCALIDAD</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->sector->name ?? 'null' }}</p>
+                <p>{{ $familyPlan->sector->name ?? '' }}</p>
             </td>
         </tr>
 
@@ -466,7 +466,7 @@
                 <strong>TELÉFONO FIJO</strong>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->landline_phone ?? 'null' }}</p>
+                <p>{{ $familyPlan->landline_phone ?? '' }}</p>
             </td>
         </tr>
 
@@ -476,7 +476,7 @@
                 <small>(Arriendo – Propietario)</small>
             </td>
             <td class="secciones_tabla_fila">
-                <p>{{ $familyPlan->housingQuality->name ?? 'null' }}</p>
+                <p>{{ $familyPlan->housingQuality->name ?? '' }}</p>
             </td>
         </tr>
 
@@ -492,9 +492,17 @@
     </p>
 
     <div class="GeoreferenciaCont">
-        @if ($georeferencia && !is_null($georeferencia->path))
-            <img src="{{ public_path('storage/' . $georeferencia->path) }}" alt='null'>
+
+        @if ($georeferencia && !is_null($georeferencia->getRawOriginal('path')))
+
+        @php $rutaGeo = storage_path('app/public/' . $georeferencia->getRawOriginal('path')) @endphp
+
+        @if (file_exists($rutaGeo))
+        <img src="{{ $rutaGeo }}" alt="georeferencia">
         @endif
+
+        @endif
+
     </div>
 
 
@@ -548,56 +556,56 @@
 
         {{-- Filas dinámicas --}}
         @foreach($familyPlan->familyMembers as $member)
-            <tr>
-                <td class="fila_normal">
-                    <p class="margin_null"> {{ ($member->member->last_names ?? 'null') . ' ' . ($member->member->names ?? 'null') }} </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null">
-                        {{ ($member->member->documentType->acronym ?? 'null') . ' ' . ($member->member->document_number ?? 'null') }}
-                    </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->age ?? 'null' }} </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->bloodGroup->name ?? 'null' }} </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->kinship->name ?? 'null' }} </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->eps ?? 'null' }} </p>
-                </td>
-                <td class="fila_normal">
-                    <!-- <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join(', ') ?? 'null' }} </p> -->
-                    @foreach($member->member->conditionMember as $i =>$condition)
-                        <p class="margin_null">
-                            {{ $i + 1 }}. {{ $condition->name ?? 'null' }}
-                        </p>
-                        
-                        @if(!$loop->last)
-                            <p></p>
-                        @endif
-                    @endforeach
-                </td>
+        <tr>
+            <td class="fila_normal">
+                <p class="margin_null"> {{ ($member->member->last_names ?? '') . ' ' . ($member->member->names ?? '') }} </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null">
+                    {{ ($member->member->documentType->acronym ?? '') . ' ' . ($member->member->document_number ?? '') }}
+                </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null"> {{ $member->member->age ?? '' }} </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null"> {{ $member->member->bloodGroup->name ?? '' }} </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null"> {{ $member->member->kinship->name ?? '' }} </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null"> {{ $member->member->eps ?? '' }} </p>
+            </td>
+            <td class="fila_normal">
+                <!-- <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join(', ') ?? '' }} </p> -->
+                @foreach($member->member->conditionMember as $i =>$condition)
+                <p class="margin_null">
+                    {{ $i + 1 }}. {{ $condition->name ?? '' }}
+                </p>
 
-                <td class="fila_normal">
-                    @foreach($member->member->conditionMember as $i => $condition)
-                        <p class="margin_null">
-                            {{ $i + 1 }}. {{ $condition->dose ?? 'null' }}
-                        </p>
-                        
-                        @if(!$loop->last)
-                            <p></p>
-                        @endif
-                    @endforeach
-                </td>
+                @if(!$loop->last)
+                <p></p>
+                @endif
+                @endforeach
+            </td>
 
-                <td class="fila_normal">
-                    <p class="margin_null"> {{ $member->member->phone ?? 'null' }} </p>
-                </td>
-            </tr>
+            <td class="fila_normal">
+                @foreach($member->member->conditionMember as $i => $condition)
+                <p class="margin_null">
+                    {{ $i + 1 }}. {{ $condition->dose ?? '' }}
+                </p>
+
+                @if(!$loop->last)
+                <p></p>
+                @endif
+                @endforeach
+            </td>
+
+            <td class="fila_normal">
+                <p class="margin_null"> {{ $member->member->phone ?? '' }} </p>
+            </td>
+        </tr>
         @endforeach
 
     </table>
@@ -644,35 +652,35 @@
 
         {{-- Filas dinámicas --}}
         @foreach($familyPlan->pets as $pet)
-            <tr>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->species->name ?? 'null' }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->name ?? 'null' }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->breed ?? 'null' }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->animalGender->name ?? 'null' }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <p class="margin_null">{{ $pet->age ?? 'null' }}</p>
-                </td>
-                <td class="secciones_tabla_fila">
-                    <!-- <p class="margin_null">{{ $pet->petVaccine->pluck('name')->join(', ') ?? 'null' }}</p> -->
-                    @foreach ($pet->petVaccine as $i => $vaccine)
-                        <p class="margin_null">
-                            {{ $i + 1 }}. {{ $vaccine->name ?? 'null' }}
-                        </p>
+        <tr>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">{{ $pet->species->name ?? '' }}</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">{{ $pet->name ?? '' }}</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">{{ $pet->breed ?? '' }}</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">{{ $pet->animalGender->name ?? '' }}</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <p class="margin_null">{{ $pet->age ?? '' }}</p>
+            </td>
+            <td class="secciones_tabla_fila">
+                <!-- <p class="margin_null">{{ $pet->petVaccine->pluck('name')->join(', ') ?? '' }}</p> -->
+                @foreach ($pet->petVaccine as $i => $vaccine)
+                <p class="margin_null">
+                    {{ $i + 1 }}. {{ $vaccine->name ?? '' }}
+                </p>
 
-                        @if(!$loop->last)
-                            <p></p>
-                        @endif
-                    @endforeach
-                </td>
-            </tr>
+                @if(!$loop->last)
+                <p></p>
+                @endif
+                @endforeach
+            </td>
+        </tr>
         @endforeach
 
     </table>
@@ -720,64 +728,64 @@
         </tr>
 
         @foreach($familyPlan->riskFactors as $risk)
-            <tr>
-                <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->description ?? 'null' }}</p>
-                </td>
+        <tr>
+            <td class="fila_normal">
+                <p class="margin_null">{{ $risk->description ?? '' }}</p>
+            </td>
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->ubication ?? 'null' }}</p>
-                </td>
+            <td class="fila_normal">
+                <p class="margin_null">{{ $risk->ubication ?? '' }}</p>
+            </td>
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->threatType->name ?? 'null' }}</p>
-                </td>
+            <td class="fila_normal">
+                <p class="margin_null">{{ $risk->threatType->name ?? '' }}</p>
+            </td>
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ $risk->description ?? 'null' }}</p>
-                </td>
+            <td class="fila_normal">
+                <p class="margin_null">{{ $risk->description ?? '' }}</p>
+            </td>
 
-                <td class="fila_normal">
-                    {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('action')->join(', ') }}</p> --}}
-                    @foreach($risk->riskReductionActions as $i => $action)
-                        <p class="margin_null">
-                            {{ $i + 1 }}. {{ $action->action ?? 'null' }}
-                        </p>
+            <td class="fila_normal">
+                {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('action')->join(', ') }}</p> --}}
+                @foreach($risk->riskReductionActions as $i => $action)
+                <p class="margin_null">
+                    {{ $i + 1 }}. {{ $action->action ?? '' }}
+                </p>
 
-                        @if(!$loop->last)
-                            <p></p>
-                        @endif
-                    @endforeach
-                </td>
+                @if(!$loop->last)
+                <p></p>
+                @endif
+                @endforeach
+            </td>
 
-                <td class="fila_normal">
-                    {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('member.names')->join(', ') }}</p>
-                    --}}
-                    @foreach($risk->riskReductionActions as $i => $action)
-                        <p class="margin_null">
-                            {{ $i + 1 }}. {{ $action->member->names . " " . $action->member->last_names ?? '-' }}
-                        </p>
+            <td class="fila_normal">
+                {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('member.names')->join(', ') }}</p>
+                --}}
+                @foreach($risk->riskReductionActions as $i => $action)
+                <p class="margin_null">
+                    {{ $i + 1 }}. {{ $action->member->names . " " . $action->member->last_names ?? '-' }}
+                </p>
 
-                        @if(!$loop->last)
-                            <p></p>
-                        @endif
-                    @endforeach
-                </td>
+                @if(!$loop->last)
+                <p></p>
+                @endif
+                @endforeach
+            </td>
 
-                <td class="fila_normal">
-                    {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('end_date')->join(', ') }}</p> --}}
-                    @foreach($risk->riskReductionActions as $i => $action)
-                        <p class="margin_null">
-                            {{-- {{ $i + 1 }}. {{ $action->end_date->format('d/m/Y') }} --}}
-                            {{ $i + 1 }}.{{ \Carbon\Carbon::parse($action->end_date)->format('d/m/Y') ?? '' }}
-                        </p>
+            <td class="fila_normal">
+                {{-- <p class="margin_null">{{ $risk->riskReductionActions->pluck('end_date')->join(', ') }}</p> --}}
+                @foreach($risk->riskReductionActions as $i => $action)
+                <p class="margin_null">
+                    {{-- {{ $i + 1 }}. {{ $action->end_date->format('d/m/Y') }} --}}
+                    {{ $i + 1 }}.{{ \Carbon\Carbon::parse($action->end_date)->format('d/m/Y') ?? '' }}
+                </p>
 
-                        @if(!$loop->last)
-                            <p></p>
-                        @endif
-                    @endforeach
-                </td>
-            </tr>
+                @if(!$loop->last)
+                <p></p>
+                @endif
+                @endforeach
+            </td>
+        </tr>
         @endforeach
 
     </table>
@@ -821,38 +829,38 @@
         </tr>
 
         @foreach($familyPlan->availableResources as $resource)
-            <tr>
-                <td class="fila_normal">
-                    <p class="margin_null">
-                        {{ $resource->resource->name ?? 'null' }}
-                    </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null">
-                        {{ $resource->location ?? 'null' }}
-                    </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null">
-                        {{ ($resource->distance ?? 'null') . ' metros' }}
-                    </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null">
-                        {{ $resource->resource->service ?? 'null' }}
-                    </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null">
-                        {{ $resource->description ?? 'null' }}
-                    </p>
-                </td>
-                <td class="fila_normal">
-                    <p class="margin_null">
-                        {{ $resource->phone ?? 'null' }}
-                    </p>
-                </td>
-            </tr>
+        <tr>
+            <td class="fila_normal">
+                <p class="margin_null">
+                    {{ $resource->resource->name ?? '' }}
+                </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null">
+                    {{ $resource->location ?? '' }}
+                </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null">
+                    {{ ($resource->distance ?? '') . ' metros' }}
+                </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null">
+                    {{ $resource->resource->service ?? '' }}
+                </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null">
+                    {{ $resource->description ?? '' }}
+                </p>
+            </td>
+            <td class="fila_normal">
+                <p class="margin_null">
+                    {{ $resource->phone ?? '' }}
+                </p>
+            </td>
+        </tr>
         @endforeach
 
     </table>
@@ -868,7 +876,7 @@
 
     @foreach ($familyPlan->housingGraphic as $graphic)
 
-        <div class="graficoCont">
+    <!-- <div class="graficoCont">
 
             @if (!is_null($graphic->path))
                 <img src="{{ public_path('storage/' . $graphic->path) }}">
@@ -877,14 +885,35 @@
             <p style="font-size:16px; margin-top:10px;">
                 <strong>Descripción del Grafico:</strong> {{ $graphic->description ?? '' }}
             </p>
-        </div>
+        </div> -->
 
-        <div class="salto"></div>
+    @foreach ($familyPlan->housingGraphic as $graphic)
+
+    <div class="graficoCont">
+        @php $rutaGraphic = storage_path('app/public/' . $graphic->getRawOriginal('path')) @endphp
+
+        @if (!is_null($graphic->getRawOriginal('path')) && file_exists($rutaGraphic))
+        <img src="{{ $rutaGraphic }}">
+        @endif
+
+        <p style="font-size:16px; margin-top:10px;">
+            <strong>Descripción del Grafico:</strong> {{ $graphic->description ?? '' }}
+        </p>
+    </div>
+
+    @if (!$loop->last)
+
+    <div class="salto"></div>
+    @endif
+
+    @endforeach
+
+    <div class="salto"></div>
 
     @endforeach
 
     @if ($familyPlan->housingGraphic->isEmpty())
-        <div class="salto"></div>
+    <div class="salto"></div>
     @endif
 
     {{-- TABLA PLAN DE ACCIÓN FAMILIAR --------------------------------------------------------------------------------------- --}}
@@ -905,11 +934,11 @@
             <td style="width:30%;" class="fila_normal"><strong>PLAN DE ACCION POR:</strong></td>
             <td colspan="2" class="fila_normal">
                 @foreach($familyPlan->familyMembers as $familyMember)
-                    @foreach ($familyMember->member->actionPlan as $plan)
+                @foreach ($familyMember->member->actionPlan as $plan)
 
-                        <p class="margin_null">{{ ($plan->member->names ?? 'null') . ' ' . ($plan->member->last_names ?? 'null') }}</p>
-                        {{-- <p>{{ $plan->actionPlanAction }}</p> --}}
-                    @endforeach
+                <p class="margin_null">{{ ($plan->member->names ?? '') . ' ' . ($plan->member->last_names ?? '') }}</p>
+                {{-- <p>{{ $plan->actionPlanAction }}</p> --}}
+                @endforeach
                 @endforeach
             </td>
         </tr>
@@ -918,7 +947,7 @@
             <td class="fila_normal"><strong>COORDINADOR:</strong></td>
             <td colspan="2" class="fila_normal">
                 <p class="margin_null">
-                    {{ ($familyPlan->user->profile->names ?? 'null') . ' ' . ($familyPlan->user->profile->last_names ?? 'null') }}
+                    {{ ($familyPlan->user->profile->names ?? '') . ' ' . ($familyPlan->user->profile->last_names ?? '') }}
                 </p>
             </td>
         </tr>
@@ -934,76 +963,76 @@
 
         @php
 
-            $acciones = collect();
+        $acciones = collect();
 
-            foreach ($familyPlan->familyMembers as $familyMember) {
-                foreach ($familyMember->member->actionPlan as $plan) {
-                    $acciones->push($plan->actionPlanAction);
-                }
-            }
+        foreach ($familyPlan->familyMembers as $familyMember) {
+        foreach ($familyMember->member->actionPlan as $plan) {
+        $acciones->push($plan->actionPlanAction);
+        }
+        }
 
-            $acciones = $acciones->flatten();
+        $acciones = $acciones->flatten();
 
-            $antes = $acciones->where('action_type_id', 1)->values();
-            $durante = $acciones->where('action_type_id', 2)->values();
-            $despues = $acciones->where('action_type_id', 3)->values();
+        $antes = $acciones->where('action_type_id', 1)->values();
+        $durante = $acciones->where('action_type_id', 2)->values();
+        $despues = $acciones->where('action_type_id', 3)->values();
 
         @endphp
 
         {{-- @dd($despues) --}}
 
         @foreach($antes as $action)
-            <tr>
-                @if($loop->first)
-                    <td rowspan="{{ $antes->count() }}" class="seccion_accion">
-                        ANTES
-                    </td>
-                @endif
+        <tr>
+            @if($loop->first)
+            <td rowspan="{{ $antes->count() }}" class="seccion_accion">
+                ANTES
+            </td>
+            @endif
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ $action->description ?? 'null' }}</p>
-                </td>
+            <td class="fila_normal">
+                <p class="margin_null">{{ $action->description ?? '' }}</p>
+            </td>
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ ($action->member->names ?? 'null') . ' ' . ($action->member->last_names ?? 'null') }}</p>
-                </td>
-            </tr>
+            <td class="fila_normal">
+                <p class="margin_null">{{ ($action->member->names ?? '') . ' ' . ($action->member->last_names ?? '') }}</p>
+            </td>
+        </tr>
         @endforeach
 
         @foreach($durante as $action)
-            <tr>
-                @if($loop->first)
-                    <td rowspan="{{ $durante->count() }}" class="seccion_accion">
-                        DURANTE
-                    </td>
-                @endif
+        <tr>
+            @if($loop->first)
+            <td rowspan="{{ $durante->count() }}" class="seccion_accion">
+                DURANTE
+            </td>
+            @endif
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ $action->description ?? 'null' }}</p>
-                </td>
+            <td class="fila_normal">
+                <p class="margin_null">{{ $action->description ?? '' }}</p>
+            </td>
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ ($action->member->names ?? 'null') . ' ' . ($action->member->last_names ?? 'null') }}</p>
-                </td>
-            </tr>
+            <td class="fila_normal">
+                <p class="margin_null">{{ ($action->member->names ?? '') . ' ' . ($action->member->last_names ?? '') }}</p>
+            </td>
+        </tr>
         @endforeach
 
         @foreach($despues as $action)
-            <tr>
-                @if($loop->first)
-                    <td rowspan="{{ $despues->count() }}" class="seccion_accion">
-                        DESPUÉS
-                    </td>
-                @endif
+        <tr>
+            @if($loop->first)
+            <td rowspan="{{ $despues->count() }}" class="seccion_accion">
+                DESPUÉS
+            </td>
+            @endif
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ $action->description ?? 'null' }}</p>
-                </td>
+            <td class="fila_normal">
+                <p class="margin_null">{{ $action->description ?? '' }}</p>
+            </td>
 
-                <td class="fila_normal">
-                    <p class="margin_null">{{ ($action->member->names ?? 'null') . ' ' . ($action->member->last_names ?? 'null') }}</p>
-                </td>
-            </tr>
+            <td class="fila_normal">
+                <p class="margin_null">{{ ($action->member->names ?? '') . ' ' . ($action->member->last_names ?? '') }}</p>
+            </td>
+        </tr>
         @endforeach
 
     </table>
@@ -1012,17 +1041,28 @@
 
     {{-- GRAFICO ENTORNO --------------------------------------------------------------------------------------- --}}
 
-    @php
-        $graficoEntorno = $familyPlan->housingInfo->where('housing_info_type_id', 2)->first();
-    @endphp
+    <!-- @php
+    $graficoEntorno = $familyPlan->housingInfo->where('housing_info_type_id', 2)->first();
+    @endphp -->
 
     <div class="titulo">
         <strong>Formato Anexo N° 09 - <em>“GRÁFICO DEL ENTORNO”</em></strong>
     </div>
 
-    <div class="graficoCont">
+    <!-- <div class="graficoCont">
         @if ($graficoEntorno && !is_null($graficoEntorno->path))
-            <img src="{{ public_path('storage/' . $graficoEntorno->path) }}">
+            <img src="{{ storage_path('app/public/' . $graficoEntorno->path) }}">
+        @endif
+    </div> -->
+
+    @php
+    $graficoEntorno = $familyPlan->housingInfo->where('housing_info_type_id', 2)->first();
+    $rutaEntorno = $graficoEntorno ? storage_path('app/public/' . $graficoEntorno->getRawOriginal('path')) : null;
+    @endphp
+
+    <div class="graficoCont">
+        @if ($rutaEntorno && file_exists($rutaEntorno))
+        <img src="{{ $rutaEntorno }}">
         @endif
     </div>
 

@@ -26,6 +26,8 @@ class SectorSeeder extends Seeder
                 'action_execute' => 'Creado',
                 'status_old'     => null,
                 'status_new'     => "Activo",
+                'data_old'       => null,
+                'data_new'       => $sector->name,
             ]);
         }
     }

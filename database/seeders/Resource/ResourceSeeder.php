@@ -31,6 +31,8 @@ class ResourceSeeder extends Seeder
                 'action_execute' => 'Creado',
                 'status_old'     => null,
                 'status_new'     => "Activo",
+                'data_old'       => null,
+                'data_new'       => $resource->name,
             ]);
         }
     }

@@ -55,6 +55,8 @@ class DepartmentSeeder extends Seeder
                 'action_execute' => 'Creado',
                 'status_old'     => null,
                 'status_new'     => null,
+                'data_old'       => null,
+                'data_new'       => $department->name,
             ]);
         }
     }

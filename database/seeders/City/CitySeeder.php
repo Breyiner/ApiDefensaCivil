@@ -272,6 +272,10 @@ class CitySeeder extends Seeder
                 'action_execute' => 'Creado',
                 'status_old'     => null,
                 'status_new'     => null,
+                'data_old'       => null,
+                'data_new'       => $city->name,
+                'subData_old'    => null,
+                'subData_new'    => $city->department?->name,
             ]);
         }
     }

@@ -262,8 +262,8 @@ class CitySeeder extends Seeder
             ['name' => 'Cumaribo',        'department_id' => 32],
         ];
 
-        foreach ($cities as $city) {
-            $city = City::create($city);
+        foreach ($cities as $data) {
+            $city = City::create($data);
             
             $city->audits()->create([
                 'user_name'      => 'Sistema',

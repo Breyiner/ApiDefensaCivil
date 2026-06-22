@@ -74,7 +74,11 @@ class CityService
             'date_time'      => now(),
             'action_execute' => 'Creado',
             'status_old'     => null,
-            'status_new'     => null,
+            'status_new'     => 'Activo',
+            'data_old'       => null,
+            'data_new'       => $city->name,
+            'subData_old'    => null,
+            'subData_new'    => $city->department?->name,
         ]);
 
         return [
@@ -100,15 +104,24 @@ class CityService
             ];
         }
 
+        $statusOld  = $city->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $city->getOriginal('name');
+        $subDataOld = $city->department?->name;
+
         $city->update($data);
+        $city->refresh()->load('department');
 
         $city->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado',
-            'status_old'     => null,
-            'status_new'     => null,
+            'status_old'     => $statusOld,
+            'status_new'     => $city->is_active ? 'Activo' : 'Inactivo',
+            'data_old'       => $dataOld,
+            'data_new'       => $city->name,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $city->department?->name,
         ]);
 
         return [
@@ -134,15 +147,24 @@ class CityService
             ];
         }
 
+        $statusOld  = $city->is_active ? 'Activo' : 'Inactivo';
+        $dataOld    = $city->getOriginal('name');
+        $subDataOld = $city->department?->name;
+
         $city->update($data);
+        $city->refresh()->load('department');
 
         $city->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Actualizado parcialmente',
-            'status_old'     => null,
-            'status_new'     => null,
+            'status_old'     => $statusOld,
+            'status_new'     => $city->is_active ? 'Activo' : 'Inactivo',
+            'data_old'       => $dataOld,
+            'data_new'       => $city->name,
+            'subData_old'    => $subDataOld,
+            'subData_new'    => $city->department?->name,
         ]);
 
         return [
@@ -178,14 +200,19 @@ class CityService
             ];
         }
 
-        // Guardamos auditoría antes de eliminar
+        $city->load('department');
+
         $city->audits()->create([
             'user_name'      => auth()->user()->profile->names . " " . auth()->user()->profile->last_names,
             'rol_name'       => auth()->user()->getRoleNames()->first(),
             'date_time'      => now(),
             'action_execute' => 'Eliminado',
-            'status_old'     => null,
+            'status_old'     => $city->is_active ? 'Activo' : 'Inactivo',
             'status_new'     => null,
+            'data_old'       => $city->name,
+            'data_new'       => null,
+            'subData_old'    => $city->department?->name,
+            'subData_new'    => null,
         ]);
 
         $city->delete();
@@ -226,6 +253,11 @@ class CityService
                     'action_execute' => $audit->action_execute,
                     'status_old'     => $audit->status_old,
                     'status_new'     => $audit->status_new,
+                    'data_old'       => $audit->data_old,
+                    'data_new'       => $audit->data_new,
+                    'subData_old'    => $audit->subData_old,
+                    'subData_new'    => $audit->subData_new,
+                    'id'             => $audit->id
                 ];
             });
 

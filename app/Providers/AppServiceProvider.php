@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
          * Requiere: Al menos una minúscula, una mayúscula, un número y un carácter especial.
          */
         Validator::extend('password_security', function ($attribute, $value) {
-            return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.@$!%*?&]).+$/', $value);
+            return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/', $value);
         });
 
         /**

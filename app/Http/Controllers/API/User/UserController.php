@@ -361,7 +361,7 @@ class UserController extends Controller
     public function rejectAndDeleteRequests(BulkUserIdsRequest $request): JsonResponse
     {
         $userIds = $request->input('user_ids');
-        $async   = $request->boolean('async', true);
+        $async   = $request->boolean('async', false);
 
         $response = $this->service->rejectAndDeleteRequests($userIds, $async);
 

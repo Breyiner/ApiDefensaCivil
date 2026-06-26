@@ -311,7 +311,7 @@ class UserController extends Controller
     public function approveRequests(BulkUserIdsRequest $request): JsonResponse
     {
         $userIds = $request->input('user_ids');
-        $async   = $request->boolean('async', true);
+        $async   = $request->boolean('async', false);
 
         $response = $this->service->approveRequests($userIds, $async);
 

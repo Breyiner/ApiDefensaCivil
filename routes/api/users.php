@@ -50,11 +50,11 @@ Route::prefix('users')->group(function () {
     // -----------------------------------------------------------------------
 
     // Aprobar múltiples peticiones de acceso en un solo request
-    Route::post('/approve', [UserController::class, 'approveBulk'])
+    Route::post('/approve', [UserController::class, 'approveRequests'])
         ->middleware('permission:users.approve-bulk');
 
     // Cambiar el estado de múltiples usuarios simultáneamente
-    Route::patch('/change-status', [UserController::class, 'changeStatusBulk'])
+    Route::patch('/change-status', [UserController::class, 'changeUserStatus'])
         ->middleware('permission:users.change-status-bulk');
 
     // Rechazar y eliminar múltiples peticiones de acceso a la vez

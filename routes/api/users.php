@@ -45,6 +45,24 @@ Route::prefix('users')->group(function () {
     Route::get('/requests/supervisors', [UserController::class, 'getRequestsSupervisors'])
         ->middleware('permission:users.requests-supervisors');
 
+    // -----------------------------------------------------------------------
+    // ACCIONES MASIVAS (BULK)
+    // -----------------------------------------------------------------------
+
+    // Aprobar múltiples peticiones de acceso en un solo request
+    Route::post('/approve', [UserController::class, 'approveRequests'])
+        ->middleware('permission:users.approve-bulk');
+
+    // Cambiar el estado de múltiples usuarios simultáneamente
+    Route::patch('/change-status', [UserController::class, 'changeUserStatus'])
+        ->middleware('permission:users.change-status-bulk');
+
+    // Rechazar y eliminar múltiples peticiones de acceso a la vez
+    Route::delete('/reject-delete', [UserController::class, 'rejectAndDeleteRequests'])
+        ->middleware('permission:users.reject-delete-bulk');
+
+    // -----------------------------------------------------------------------
+
     // Ver el detalle de un usuario específico
     Route::get('/{id}', [UserController::class, 'show'])
         ->middleware('permission:users.show');
@@ -80,22 +98,6 @@ Route::prefix('users')->group(function () {
     // Cambiar el estado de un usuario de forma individual
     Route::patch('/{id}/change-status', [UserController::class, 'changeUserStatus'])
         ->middleware('permission:users.change-status');
-
-    // -----------------------------------------------------------------------
-    // ACCIONES MASIVAS (BULK)
-    // -----------------------------------------------------------------------
-
-    // Aprobar múltiples peticiones de acceso en un solo request
-    Route::post('/approve', [UserController::class, 'approveBulk'])
-        ->middleware('permission:users.approve-bulk');
-
-    // Cambiar el estado de múltiples usuarios simultáneamente
-    Route::patch('/change-status', [UserController::class, 'changeStatusBulk'])
-        ->middleware('permission:users.change-status-bulk');
-
-    // Rechazar y eliminar múltiples peticiones de acceso a la vez
-    Route::delete('/reject-delete', [UserController::class, 'rejectDeleteBulk'])
-        ->middleware('permission:users.reject-delete-bulk');
 });
 
 

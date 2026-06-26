@@ -646,7 +646,7 @@ class UserService
             $role = $authUser?->getRoleNames()?->first() ?? 'Sistema';
 
             foreach ($users as $user) {
-                if (($user->stateUser?->name ?? null) !== 'Peticion') {
+                if (($user->stateUser?->name ?? null) !== 'Pendiente') {
                     continue;
                 }
 
@@ -812,7 +812,11 @@ class UserService
             $role = $authUser?->getRoleNames()?->first() ?? 'Sistema';
 
             foreach ($users as $user) {
-                if (($user->stateUser?->name ?? null) !== 'Peticion') {
+                // if (($user->stateUser?->name ?? null) !== 'Peticion') {
+                //     continue;
+                // }
+
+                if (($user->stateUser?->name ?? null) !== 'Pendiente') {
                     continue;
                 }
 

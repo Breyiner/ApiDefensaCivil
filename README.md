@@ -13,6 +13,7 @@ API backend del sistema **Plan Familiar de Emergencia** para la Defensa Civil Co
 - [🔑 Variables de entorno (.env)](docs/variables-entorno.md)
 - [🔒 Sesiones y tokens](docs/sesiones-tokens.md)
 - [✉️ Correos de verificación y recuperación](docs/correo-queue.md)
+- [🖥️ Supervisor y colas en producción](docs/supervisor-queue.md)
 
 ## Requisitos
 

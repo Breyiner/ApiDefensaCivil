@@ -11,7 +11,7 @@ Los correos de verificación y recuperación no se envían de forma inmediata en
 1. Guarda el envío como un **job** en la tabla `jobs` de la base de datos (según `QUEUE_CONNECTION=database`).
 2. No lo procesa hasta que un **worker** lo tome y lo ejecute.
 
-Si no hay un worker corriendo, el correo nunca sale — el job se queda pendiente en la tabla `jobs` indefinidamente.
+Si no hay un worker corriendo, el correo nunca sale, el job se queda pendiente en la tabla `jobs` indefinidamente.
 
 ## 2. Levantar el worker en local
 
@@ -83,4 +83,4 @@ Estas credenciales se obtienen desde el panel de Mailtrap: **Email Testing → I
 
 ---
 
-[⬅ Volver al índice](../README.md)
+Siguiente: [Supervisor y colas en producción →](supervisor-queue.md)

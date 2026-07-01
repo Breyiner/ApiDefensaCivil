@@ -16,4 +16,4 @@ SESSION_LIFETIME=120
 
 ---
 
-[⬅ Volver al índice](../README.md)
+Siguiente: [Correos de verificación y recuperación →](correo-queue.md)

@@ -55,7 +55,7 @@ class PartialUpdateMemberRequest extends FormRequest
             'kinship_id' => 'sometimes|exists:kinships,id',
 
             // EPS
-            'eps' => 'sometimes|string|max:50',
+            'eps' => 'sometimes|exists:eps,id',
 
             // Teléfono de contacto
             'phone' => 'sometimes|string|max:10',

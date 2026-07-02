@@ -42,7 +42,7 @@ return new class extends Migration
             $table->foreignId('kinship_id')->constrained();
 
             // Entidad prestadora de salud del integrante
-            $table->string('eps', 50);
+            $table->foreignId('eps_id')->constrained();
 
             // Teléfono de contacto del integrante
             $table->string('phone', 10);

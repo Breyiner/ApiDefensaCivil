@@ -4,6 +4,7 @@ namespace App\Models\Member;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * Importación de modelos relacionados para establecer relaciones Eloquent.
@@ -44,10 +45,37 @@ class Member extends Model
         'nationality_id',
         'gender_id',
         'kinship_id',
-        'eps',
+        'eps_id',
         'phone',
         'novelty',
     ];
+
+    protected function names(): Attribute 
+    {
+        return Attribute::make(
+            set: fn ($value) => $this -> normalizeName($value),
+        );
+    }
+
+    protected function lastNames(): Attribute 
+    {
+        return Attribute::make(
+            set: fn ($value) => $this -> normalizeName($value),
+        );
+    }
+
+    private function normalizeName(?string $value): ?string
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        // Colapsa espacios múltiples y quita espacios al inicio/final
+        $value = trim(preg_replace('/\s+/', ' ', $value));
+
+        // minúsculas primero, luego mayúscula inicial en cada palabra
+        return mb_convert_case(mb_strtolower($value, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
+    }
 
     /**
      * --- RELACIONES BELONGS TO (Muchos a Uno) ---

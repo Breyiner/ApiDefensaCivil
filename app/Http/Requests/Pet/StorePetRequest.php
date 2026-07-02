@@ -30,8 +30,8 @@ class StorePetRequest extends FormRequest
             // Nombre de la mascota: obligatorio, texto, máximo 50 caracteres
             'name' => 'required|string|max:50',
             
-            // Raza: obligatoria, texto, máximo 50 caracteres
-            'breed' => 'required|string|max:50',
+            // Raza: no obligatoria, texto, máximo 50 caracteres
+            'breed' => 'string|max:50',
             
             // Fecha de nacimiento: obligatoria, debe ser una fecha válida, no puede ser futura
             'birth_date' => 'required|date|before_or_equal:today',

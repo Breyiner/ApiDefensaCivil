@@ -35,6 +35,26 @@ class Pet extends Model
         'family_plan_id',
     ];
 
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $this->normalizeName($value),
+        );
+    }
+
+    private function normalizeName(?string $value): ?string
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        // Colapsa espacios múltiples y quita espacios al inicio/final
+        $value = trim(preg_replace('/\s+/', ' ', $value));
+
+        // minúsculas primero, luego mayúscula inicial en cada palabra
+        return mb_convert_case(mb_strtolower($value, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
+    }
+
     /**
      * Atributos que deben ser convertidos a tipos nativos
      * 

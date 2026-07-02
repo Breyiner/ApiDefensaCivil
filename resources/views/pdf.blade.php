@@ -575,7 +575,7 @@
                 <p class="margin_null"> {{ $member->member->kinship->name ?? '' }} </p>
             </td>
             <td class="fila_normal">
-                <p class="margin_null"> {{ $member->member->eps ?? '' }} </p>
+                <p class="margin_null"> {{ $member->member->eps->name ?? '' }} </p>
             </td>
             <td class="fila_normal">
                 <!-- <p class="margin_null"> {{ $member->member->conditionMember->pluck('name')->join(', ') ?? '' }} </p> -->

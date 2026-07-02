@@ -27,8 +27,7 @@ use Database\Seeders\BloodGroup\BloodGroupSeeder;
 use Database\Seeders\Nationality\NationalitySeeder;
 use Database\Seeders\Kinship\KinshipSeeder;
 use Database\Seeders\ConditionType\ConditionTypeSeeder;
-use Database\Seeders\Pet\PetsSeeder;
-use Database\Seeders\PetVaccines\PetVaccinesSeeder;
+use Database\Seeders\Eps\EpsSeeder;
 use Database\Seeders\Species\SpeciesSeeder;
 use Database\Seeders\ThreatType\ThreatTypeSeeder;
 use Database\Seeders\Vulnerability\VulnerabilitySeeder;
@@ -67,6 +66,7 @@ class DatabaseSeeder extends Seeder
             NationalitySeeder::class,
             KinshipSeeder::class,
             ConditionTypeSeeder::class,
+            EpsSeeder::class,
             SpeciesSeeder::class,
             AnimalGenderSeeder::class,
             ThreatTypeSeeder::class,

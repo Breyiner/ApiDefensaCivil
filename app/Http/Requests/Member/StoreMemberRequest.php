@@ -55,7 +55,7 @@ class StoreMemberRequest extends FormRequest
             'kinship_id' => 'required|exists:kinships,id',
 
             // Entidad prestadora de salud
-            'eps' => 'required|string|max:50',
+            'eps_id' => 'required|exists:eps,id',
 
             // Teléfono de contacto (se valida longitud, no formato)
             'phone' => 'sometimes|string|max:10',

@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\Member\MemberController;
 use App\Http\Controllers\API\FamilyMember\FamilyMemberController;
 use App\Http\Controllers\API\ConditionMember\ConditionMemberController;
+use App\Http\Controllers\API\Eps\EpsController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -109,4 +110,32 @@ Route::prefix('conditionMembers')->group(function () {
 
     Route::delete('/{id}', [ConditionMemberController::class, 'destroy'])
         ->middleware('permission:condition-members.destroy');
+});
+
+// --------------------------------------------------------------------------
+// EPS MIEMBROS
+// -------------------------------------------------------------------------- 
+
+Route::prefix('eps')->group(function () {
+
+    Route::get('/', [EpsController::class, 'index'])
+        ->middleware('permission:eps.index');
+
+    Route::get('/{id}', [EpsController::class, 'show'])
+        ->middleware('permission:eps.show');
+
+    Route::post('/', [EpsController::class, 'store'])
+        ->middleware('permission:eps.store');
+
+    Route::put('/{id}', [EpsController::class, 'update'])
+        ->middleware('permission:eps.update');
+
+    Route::patch('/{id}', [EpsController::class, 'partialUpdate'])
+        ->middleware('permission:eps.partial-update');
+
+    Route::patch('/change-status/{id}', [EpsController::class, 'changeStatus'])
+        ->middleware('permission:eps.change-status');
+
+    Route::delete('/{id}', [EpsController::class, 'destroy'])
+        ->middleware('permission:eps.destroy');
 });

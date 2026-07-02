@@ -8,6 +8,7 @@ use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Requests\Profile\PartialUpdateProfileRequest;
 use App\Http\Controllers\Controller;
 use App\Services\Profile\ProfileService;
+use Illuminate\Http\Request;
 
 /**
  * Controlador de Perfiles.
@@ -118,5 +119,18 @@ class ProfileController extends Controller
         }
 
         return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? []);
+    }
+
+    public function history(Request $request, string $id)
+    {
+        $perPage = $request->input('per_page', 10);
+
+        $response = $this->service->history($id, $perPage);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? [], $response['paginate'] ?? []);
     }
 }

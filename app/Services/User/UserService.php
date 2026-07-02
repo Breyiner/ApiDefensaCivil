@@ -896,6 +896,18 @@ class UserService
             'status_new' => $newRole ?? 'SIN ROL',
         ]);
 
+        $user->auditUsers()->create([
+            'user_name'      => $fullName,
+            'rol_name'       => $role,
+            'date_time'      => now(),
+            'action_execute' => 'Cambio de Rol',
+            'status_old'     => null,
+            'status_new'     => null,
+
+            'userRol_old'    => $oldRole ?? 'SIN ROL',
+            'userRol_new'    => $newRole ?? 'SIN ROL',
+        ]);
+
         return [
             'error' => false,
             'code' => 200,

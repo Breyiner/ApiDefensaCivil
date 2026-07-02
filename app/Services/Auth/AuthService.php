@@ -68,6 +68,43 @@ class AuthService
                 'status_old'     => null,
                 'status_new'     => 'Peticion',
             ]);
+
+            $auditUser = $user->auditUsers()->create([
+                'user_name'          => "Sistema",
+                'rol_name'           => "Sistema",
+                'date_time'          => now(),
+                'action_execute'     => 'Creado',
+                'status_old'         => null,
+                'status_new'         => 'Activo',
+
+                'userName_old'       => null,
+                'userName_new'       => $data['names'],
+
+                'lastName_old'       => null,
+                'lastName_new'       => $data['last_names'],
+
+                'userRol_old'        => null,
+                'userRol_new'        => 'Solicitante',
+
+                'documentType_old'   => null,
+                'documentType_new'   => $profile->documentType?->name,
+
+                'numberDocument_old' => null,
+                'numberDocument_new' => $profile->document_number,
+
+                'birthDate_old'      => null,
+                'birthDate_new'      => $profile->birth_date,
+
+                'gender_old'         => null,
+                'gender_new'         => $profile->gender?->name,
+
+                'sectional_old'      => null,
+                'sectional_new'      => $profile->organization?->sectional?->name,
+
+                'organization_old'   => null,
+                'organization_new'   => $profile->organization?->name,
+            ]);
+
                 
             DB::commit();
 

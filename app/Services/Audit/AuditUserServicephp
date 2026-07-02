@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Services\Audit;
+
+use App\Models\Audit\AuditUser;
+use App\Models\User\User;
+use Illuminate\Support\Facades\DB;
+
+class AuditUserService
+{
+    /**
+     * Registra un evento de auditoría sobre un usuario.
+     * Recibe directamente los valores viejos y nuevos (sin calcular diffs).
+     */
+    public function register(User $user, string $actionExecute, array $data): array
+    {
+        $audit = $user->auditUsers()->create(array_merge($data, [
+            'user_name'      => auth()->user()->profile->names . ' ' . auth()->user()->profile->last_names,
+            'rol_name'       => auth()->user()->getRoleNames()->first(),
+            'date_time'      => now(),
+            'action_execute' => $actionExecute,
+        ]));
+
+        return [
+            "error" => false,
+            "code" => 201,
+            "message" => "Auditoría de usuario registrada exitosamente",
+            "data" => $audit,
+        ];
+    }
+
+    public function getByUser($userId, $perPage = 10)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Usuario no encontrado",
+            ];
+        }
+
+        $data = $user->auditUsers()
+            ->orderBy('date_time', 'desc')
+            ->paginate($perPage);
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Historial de auditoría de usuario obtenido exitosamente",
+            "data" => $data->items(),
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
+        ];
+    }
+
+    public function delete($id)
+    {
+        $audit = AuditUser::find($id);
+
+        if (!$audit) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "El registro de auditoría no fue encontrado.",
+            ];
+        }
+
+        $audit->delete();
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Se eliminó exitosamente el registro de auditoría.",
+        ];
+    }
+
+    public function bulkDelete(array $auditIds): array
+    {
+        DB::beginTransaction();
+
+        try {
+            $audits = AuditUser::whereIn('id', $auditIds)->get();
+
+            if ($audits->isEmpty()) {
+                DB::rollBack();
+
+                return [
+                    'error' => true,
+                    'code' => 404,
+                    'message' => 'No se encontraron registros de auditoría para eliminar.',
+                ];
+            }
+
+            foreach ($audits as $audit) {
+                $audit->delete();
+            }
+
+            DB::commit();
+
+            return [
+                'error' => false,
+                'code' => 200,
+                'message' => count($auditIds) === 1
+                    ? 'Se eliminó exitosamente el registro de auditoría.'
+                    : 'Se eliminaron exitosamente los registros de auditoría seleccionados.',
+            ];
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return [
+                'error' => true,
+                'code' => 500,
+                'message' => 'Error al intentar eliminar los registros de auditoría.',
+            ];
+        }
+    }
+}

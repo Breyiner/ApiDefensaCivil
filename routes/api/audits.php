@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\Audit\AuditController;
+use App\Http\Controllers\API\Audit\AuditUserController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -27,9 +28,26 @@ Route::prefix('audits')->group(function () {
         ->middleware('permission:audits.dashboard-supervisor');
 
     Route::delete('/bulk_delete', [AuditController::class, 'bulkDestroy'])
-        ->middleware('permission:audits.delete_bulk-admin')
+        ->middleware('permission:audits.delete_bulk')
     ;
     Route::delete('/{id}/delete_audit', [AuditController::class, 'destroy'])
-        ->middleware('permission:audits.delete_id-admin')
+        ->middleware('permission:audits.delete_id')
     ;
+
+    // ------------------------------------------------------------------
+    // AUDITORÍA DE USUARIOS
+    // Historial de cambios realizados sobre un usuario (perfil, rol, etc.)
+    // ------------------------------------------------------------------
+    Route::prefix('users')->group(function () {
+
+        Route::get('/{userId}', [AuditUserController::class, 'getByUser'])
+            ->middleware('permission:audits.show');
+
+        Route::delete('/bulk_delete', [AuditUserController::class, 'bulkDestroy'])
+            ->middleware('permission:audits.delete_bulk')
+        ;
+        Route::delete('/{id}/delete_audit', [AuditUserController::class, 'destroy'])
+            ->middleware('permission:audits.delete_id')
+        ;
+    });
 });

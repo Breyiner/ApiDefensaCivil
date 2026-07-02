@@ -45,6 +45,7 @@ class RolePermissionSeeder extends Seeder
                 'family-plans.has-members',
                 'family-plans.validate-requirements',
                 'family-plans.change-family-type',
+                'audits.dashboard-supervisor',
 
                 'users.requests-supervisors' // permiso solo para supervisores, sera ignorado por el rol admin
             ])->get()
@@ -259,8 +260,13 @@ class RolePermissionSeeder extends Seeder
                 'audits.dashboard-admin',
                 'audits.dashboard-supervisor',
 
+                'audits.delete_id',
+                'audits.delete_bulk',
+
                 'users.requests-supervisors',
-                'users.requests-admins'
+                'users.requests-admins',
+                
+                'profiles.history'
             ])->get()
         ]);
     }

@@ -36,6 +36,7 @@ use Database\Seeders\ActionType\ActionTypeSeeder;
 use Database\Seeders\Resource\ResourceSeeder;
 use Database\Seeders\HousingInfoType\housingInfoTypeSeeder;
 use Database\Seeders\familyType\familyTypeSeeder;
+use Database\Seeders\Audit\AuditUserSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -76,6 +77,7 @@ class DatabaseSeeder extends Seeder
             ResourceSeeder::class,
             housingInfoTypeSeeder::class,
             familyTypeSeeder::class,
+            AuditUserSeeder::class,
         ]);
     }
 }

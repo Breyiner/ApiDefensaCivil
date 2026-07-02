@@ -130,4 +130,7 @@ Route::prefix('profiles')->group(function () {
     // Eliminar un perfil del sistema
     Route::delete('/{id}', [ProfileController::class, 'destroy'])
         ->middleware('permission:profiles.destroy');
+
+    Route::get('/{id}/history', [ProfileController::class, 'history'])
+        ->middleware('permission:profiles.history');
 });

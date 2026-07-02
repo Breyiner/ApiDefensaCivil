@@ -61,6 +61,7 @@ class PermissionSeeder extends Seeder
             ['profiles.update', 'Actualizar perfil'],
             ['profiles.partial-update', 'Actualizar parcialmente perfil'],
             ['profiles.destroy', 'Eliminar perfil'],
+            ['profiles.history', 'Ver historial de cambios de perfil'],
 
             // ================================================================
             // CATÁLOGOS BÁSICOS
@@ -487,8 +488,8 @@ class PermissionSeeder extends Seeder
             // AUDITORÍA Y DASHBOARDS
             // ================================================================
             ['audits.dashboard-admin', 'Ver dashboard de administrador'],
-            ['audits.delete_id-admin', 'Eliminar dato audit'],
-            ['audits.delete_bulk-admin', 'Eliminar datos audit multiple'],
+            ['audits.delete_id', 'Eliminar dato audit'],
+            ['audits.delete_bulk', 'Eliminar datos audit multiple'],
             ['audits.dashboard-supervisor', 'Ver dashboard de supervisor'],
 
             // ================================================================

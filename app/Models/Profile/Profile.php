@@ -4,6 +4,7 @@ namespace App\Models\Profile;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 /**
  * Importación de modelos para las relaciones de identidad y estructura.
@@ -39,6 +40,44 @@ class Profile extends Model
         'gender_id',         // Referencia al catálogo de géneros
         'organization_id'    // Organización a la que pertenece el funcionario
     ];
+
+    /**
+     * --- MUTATORS ---
+     * Normalizan 'names' y 'last_names' antes de guardarlos: quitan espacios
+     * extra y dejan cada palabra con su primera letra en mayúscula.
+     * Ej: "cLAudia   HerNandez" -> "Claudia Hernandez"
+     */
+
+    protected function names(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $this->normalizeName($value),
+        );
+    }
+
+    protected function lastNames(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $this->normalizeName($value),
+        );
+    }
+
+    /**
+     * Limpia espacios múltiples/extremos y aplica formato "Title Case"
+     * respetando tildes y la letra ñ.
+     */
+    private function normalizeName(?string $value): ?string
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        // Colapsa espacios múltiples y quita espacios al inicio/final
+        $value = trim(preg_replace('/\s+/', ' ', $value));
+
+        // minúsculas primero, luego mayúscula inicial en cada palabra
+        return mb_convert_case(mb_strtolower($value, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
+    }
 
     /**
      * --- RELACIONES BELONGS TO (Muchos a Uno / Uno a Uno) ---

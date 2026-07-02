@@ -25,6 +25,7 @@ use App\Models\Pet\Pet;
 use App\Models\RiskFactor\RiskFactor;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -61,6 +62,53 @@ class FamilyPlan extends Model
         'family_type_id',     // Tipo de familia (maestra)
         'authorization'       // Consentimiento o autorización (booleano)
     ];
+
+    protected function sectorName(): Attribute 
+    {
+        return Attribute::make(
+            set: fn ($value) => $this -> normalizeName($value),
+        );
+    }
+
+    protected function address(): Attribute 
+    {
+        return Attribute::make(
+            set: fn ($value) => $this -> normalizeName($value),
+        );
+    }
+
+    protected function lastNames(): Attribute 
+    {
+        return Attribute::make(
+            set: fn ($value) => $this -> normalizeMayus($value),
+        );
+    }
+
+    private function normalizeName(?string $value): ?string
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        // Colapsa espacios múltiples y quita espacios al inicio/final
+        $value = trim(preg_replace('/\s+/', ' ', $value));
+
+        // minúsculas primero, luego mayúscula inicial en cada palabra
+        return mb_convert_case(mb_strtolower($value, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
+    }
+
+    private function normalizeMayus(?string $value): ?string
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        // Colapsa espacios múltiples y quita espacios al inicio/final
+        $value = trim(preg_replace('/\s+/', ' ', $value));
+
+        // Todo a mayúsculas (soporta tildes/ñ)
+        return mb_strtoupper($value, 'UTF-8');
+    }
 
     /**
      * Valores predeterminados para los atributos del modelo.

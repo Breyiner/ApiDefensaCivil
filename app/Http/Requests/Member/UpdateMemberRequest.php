@@ -55,7 +55,7 @@ class UpdateMemberRequest extends FormRequest
             'kinship_id' => 'sometimes|required|exists:kinships,id',
 
             // EPS
-            'eps' => 'sometimes|required|string|max:50',
+            'eps_id' => 'sometimes|required|exists:eps,id',
 
             // Teléfono de contacto
             'phone' => 'sometimes|required|string|max:10',

@@ -293,6 +293,19 @@ class PermissionSeeder extends Seeder
             ['condition-members.destroy', 'Eliminar condición de miembro'],
 
             // ================================================================
+            // EPS
+            // ================================================================
+
+            ['eps.index', 'Listar EPS'],
+            ['eps.show', 'Ver EPS'],
+            ['eps.history', 'Ver historial de cambios de EPS'],
+            ['eps.store', 'Crear EPS'],
+            ['eps.update', 'Actualizar EPS'],
+            ['eps.partial-update', 'Actualizar parcialmente EPS'],
+            ['eps.change-status', 'Cambiar estado de EPS'],
+            ['eps.destroy', 'Eliminar EPS'],
+
+            // ================================================================
             // MASCOTAS
             // ================================================================
             

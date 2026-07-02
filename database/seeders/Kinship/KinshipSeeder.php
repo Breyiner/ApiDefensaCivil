@@ -12,7 +12,6 @@ class KinshipSeeder extends Seeder
     {
         Kinship::create(['name' => 'Cabeza de familia']);
         Kinship::create(['name' => 'Cónyuge']);
-        Kinship::create(['name' => 'Concubino/a']);
         Kinship::create(['name' => 'Hermano/a']);
         Kinship::create(['name' => 'Hijo/a']);
         Kinship::create(['name' => 'Padre/Madre']);
@@ -25,6 +24,7 @@ class KinshipSeeder extends Seeder
         Kinship::create(['name' => 'Nieto/a']);
         Kinship::create(['name' => 'Abuelo/a']);
         Kinship::create(['name' => 'Suegro/a']);
+        Kinship::create(['name' => 'Yerno/Nuera']);
         Kinship::create(['name' => 'Cuñado/a']);
         Kinship::create(['name' => 'Conocido/a']);
     }

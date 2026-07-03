@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Audit\Audit;
+use App\Models\Audit\AuditUser;
 
 /**
  * Importación de modelos para relaciones y Traits de paquetes externos.
@@ -82,6 +83,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function audits()
     {
         return $this->morphMany(Audit::class, 'historiable');
+    }
+
+    public function auditUsers()
+    {
+        return $this->morphMany(AuditUser::class, 'historiable');
     }
 
     /**

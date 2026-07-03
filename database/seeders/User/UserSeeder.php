@@ -41,16 +41,6 @@ class UserSeeder extends Seeder
             
             // Asignar rol
             $user->assignRole($data['role']);
-
-            // Crear auditoría simulando que lo hizo el sistema
-            $user->audits()->create([
-                'user_name'      => "Sistema",
-                'rol_name'       => "Sistema",
-                'date_time'      => now(),
-                'action_execute' => 'Creado',
-                'status_old'     => null,
-                'status_new'     => "Activo",
-            ]);
         }
     }
 }

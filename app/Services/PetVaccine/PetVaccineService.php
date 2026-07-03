@@ -3,6 +3,8 @@
 namespace App\Services\PetVaccine;
 
 use App\Models\PetVaccine\PetVaccine;
+use App\Models\Pet\Pet;
+use Carbon\Carbon;
 
 class PetVaccineService
 {
@@ -75,6 +77,25 @@ class PetVaccineService
 
     public function create(array $data)
     {
+        
+        $pet = Pet::find($data['pet_id']);
+
+        if (!$pet) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Mascota no encontrada",
+            ];
+        }
+
+        if (Carbon::parse($data['date'])->lt(Carbon::parse($pet->birth_date))) {
+            return [
+                "error" => true,
+                "code" => 400,
+                "message" => "La fecha de la vacuna no puede ser anterior a la fecha de nacimiento de la mascota",
+            ];
+        }
+
         $vaccine = PetVaccine::create($data);
 
         return [
@@ -97,6 +118,27 @@ class PetVaccineService
             ];
         }
 
+        $petId = $data['pet_id'] ?? $vaccine->pet_id;
+        $date = $data['date'] ?? $vaccine->date;
+
+        $pet = Pet::find($petId);
+
+        if (!$pet) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Mascota no encontrada",
+            ];
+        }
+
+        if (Carbon::parse($date)->lt(Carbon::parse($pet->birth_date))) {
+            return [
+                "error" => true,
+                "code" => 400,
+                "message" => "La fecha de la vacuna no puede ser anterior a la fecha de nacimiento de la mascota",
+            ];
+        }
+
         $vaccine->update($data);
 
         return [
@@ -116,6 +158,27 @@ class PetVaccineService
                 "error" => true,
                 "code" => 404,
                 "message" => "Vacuna no encontrada",
+            ];
+        }
+
+        $petId = $data['pet_id'] ?? $vaccine->pet_id;
+        $date = $data['date'] ?? $vaccine->date;
+
+        $pet = Pet::find($petId);
+
+        if (!$pet) {
+            return [
+                "error" => true,
+                "code" => 404,
+                "message" => "Mascota no encontrada",
+            ];
+        }
+
+        if (Carbon::parse($date)->lt(Carbon::parse($pet->birth_date))) {
+            return [
+                "error" => true,
+                "code" => 400,
+                "message" => "La fecha de la vacuna no puede ser anterior a la fecha de nacimiento de la mascota",
             ];
         }
 

@@ -5,6 +5,7 @@ namespace Database\Seeders\Audit;
 use Illuminate\Database\Seeder;
 use App\Models\User\User;
 use App\Models\Audit\AuditUser;
+use App\Models\Audit\Audit;
 
 class AuditUserSeeder extends Seeder
 {
@@ -22,6 +23,19 @@ class AuditUserSeeder extends Seeder
             if (!$user->profile) {
                 continue;
             }
+
+            Audit::create([
+                'user_name'      => "Sistema",
+                'rol_name'       => "Sistema",
+                'date_time'      => now(),
+                'action_execute' => 'Creado',
+                'status_old'     => null,
+                'status_new'     => 'Activo',
+                'data_old'       => null,
+                'data_new'       => $user->profile->names . ' ' . $user->profile->last_names,
+                'historiable_id'   => $user->id,
+                'historiable_type' => User::class,
+            ]);
 
             $roleName = $user->getRoleNames()->first() ?? 'Sistema';
 

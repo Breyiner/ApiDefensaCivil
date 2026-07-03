@@ -12,6 +12,8 @@ class PetVaccine extends Model
 
     protected $fillable = ['name','date','pet_id'];
 
+    //la fecha de vacunación
+
     public function pet()
     {
         return $this->belongsTo(Pet::class, 'pet_id');

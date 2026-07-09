@@ -44,8 +44,8 @@ class FamilyPlanController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        // 🔹 Obtener parámetro de paginación (default: 15)
-        $perPage = $request->input('per_page', 15);
+        // 🔹 Obtener parámetro de paginación (default: 6)
+        $perPage = $request->input('per_page', 6);
 
         $response = FamilyPlanService::getAll($perPage);
 

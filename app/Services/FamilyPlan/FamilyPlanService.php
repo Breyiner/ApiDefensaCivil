@@ -22,10 +22,11 @@ class FamilyPlanService
      *    - Supervisor: Ve planes de su seccional
      *    - Voluntario: Ve solo los planes que creó (user_id)
      * 
-     * @param int $perPage Cantidad de registros por página (default: 15)
+     * @param int $perPage Cantidad de registros por página
      * @return array Respuesta con datos paginados y metadata
      */
-    public static function getAll(int $perPage = 15): array
+    // public static function getAll(int $perPage = 15): array
+    public static function getAll($perPage): array
     {
         // 🔹 Obtener planes aplicando el scope forAuthUser (filtra por rol automáticamente)
         $paginator = FamilyPlan::forAuthUser()

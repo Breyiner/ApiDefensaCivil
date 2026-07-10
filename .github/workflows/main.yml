@@ -23,7 +23,7 @@ jobs:
             composer install --no-dev --optimize-autoloader
 
             # Ejecutar migraciones si la base de datos ya existe
-            php artisan migrate --force
+            # php artisan migrate --force
             php artisan db:seed
 
             # Limpiar y regenerar caché de Laravel

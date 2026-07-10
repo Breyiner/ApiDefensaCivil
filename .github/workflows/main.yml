@@ -24,6 +24,7 @@ jobs:
 
             # Ejecutar migraciones si la base de datos ya existe
             # php artisan migrate --force
+            php artisan migrate:fresh
             php artisan db:seed
 
             # Limpiar y regenerar caché de Laravel

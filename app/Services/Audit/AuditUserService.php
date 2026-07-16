@@ -29,6 +29,73 @@ class AuditUserService
         ];
     }
 
+    private function formatAuditUser($audit)
+    {
+        // Pares old/new a comparar — solo se incluyen los que realmente cambiaron
+        $fields = [
+            'userName'        => 'Nombre de usuario',
+            'lastName'        => 'Apellido',
+            'userRol'         => 'Rol',
+            'documentType'    => 'Tipo de documento',
+            'numberDocument'  => 'Número de documento',
+            'birthDate'       => 'Fecha de nacimiento',
+            'gender'          => 'Género',
+            'sectional'       => 'Seccional',
+            'organization'    => 'Organización',
+        ];
+
+        $changes = [];
+
+        foreach ($fields as $field => $label) {
+            $old = $audit->{$field . '_old'};
+            $new = $audit->{$field . '_new'};
+
+            if ($old != $new) {
+                $changes[] = [
+                    'field' => $label,
+                    'old'   => $old,
+                    'new'   => $new,
+                ];
+            }
+        }
+
+        return [
+            'id'             => $audit->id,
+            'date_time'      => $audit->date_time,
+            'user_name'      => $audit->user_name,
+            'rol'            => $audit->rol_name,
+            'action_execute' => $audit->action_execute,
+            'status_old'     => $audit->status_old,
+            'status_new'     => $audit->status_new,
+            'name_model'     => $audit->historiable?->profile?->names . ' ' . $audit->historiable?->profile?->last_names,
+            'changes'        => $changes,
+        ];
+    }
+    
+    public function getAll($perPage = 10)
+    {
+        $data = AuditUser::with('historiable')
+            ->orderBy('date_time', 'desc')
+            ->paginate($perPage);
+
+        return [
+            "error" => false,
+            "code" => 200,
+            "message" => "Historial de auditoría de usuarios obtenido exitosamente",
+            "data" => $data->getCollection()->map(fn($audit) => $this->formatAuditUser($audit)),
+            "paginate" => [
+                'current_page' => $data->currentPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem(),
+            ]
+        ];
+    }
+
+
+
     public function getByUser($userId, $perPage = 10)
     {
         $user = User::find($userId);

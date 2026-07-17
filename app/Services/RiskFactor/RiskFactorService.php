@@ -182,7 +182,18 @@ class RiskFactorService
             ];
         }
 
+        if ($riskFactor->actionPlan()->exists()) {
+            return [
+                "error" => true,
+                "code" => 409,
+                "message" => "No se puede eliminar este factor de riesgo porque ya tiene un Plan de Acción asociado.",
+            ];
+        }
+
+        $riskFactor->riskReductionActions()->delete();
+        $riskFactor->vulnerabilityFactors()->delete();
         $riskFactor->delete();
+
 
         return [
             "error" => false,
@@ -190,4 +201,7 @@ class RiskFactorService
             "message" => "Factor de riesgo eliminado exitosamente",
         ];
     }
+
+    
 }
+

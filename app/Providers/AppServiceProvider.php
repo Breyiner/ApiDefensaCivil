@@ -83,11 +83,20 @@ class AppServiceProvider extends ServiceProvider
                 return false; // Si no hay tipo de documento, la validación falla
             }
 
+            // Captura el ID opcional enviado desde el FormRequest para ignorarse a sí mismo
+            $ignoreProfileId = isset($parameters[0]) ? $parameters[0] : null;
+
             // Verifica si ya existe la combinación número + tipo en la tabla 'profiles'
-            return !DB::table('profiles')
-                ->where('document_number', $value)
-                ->where('document_type_id', $documentTypeId)
-                ->exists();
+            // return !DB::table('profiles') // antes
+            $query = DB::table('profiles')->where('document_number', $value)->where('document_type_id', $documentTypeId);// ->exists();
+
+            // Si hay un ID presente (caso actualización), se excluye de la verificación de duplicados
+            if ($ignoreProfileId) {
+                $query->where('id', '!=', $ignoreProfileId);
+            }
+
+            // Retorna verdadero si no encuentra coincidencias ajenas
+            return !$query->exists();
         });
     }
 }

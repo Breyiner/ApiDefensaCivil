@@ -30,7 +30,8 @@ class PartialUpdateProfileRequest extends FormRequest
          * Obtenemos el ID del perfil (ajusta el nombre del parámetro según tu ruta, 
          * ej: 'profile' o 'id') para las excepciones de unicidad.
          */
-        $profileId = $this->route('profile_id');
+        // $profileId = $this->route('profile_id');
+        $profileId = $this->route('profile_id') ?? $this->route('profile') ?? $this->route('id') ?? head($this->route()->parameters());
 
         return [
             'names'            => 'sometimes|alpha_spaces|string|max:50',
@@ -41,7 +42,8 @@ class PartialUpdateProfileRequest extends FormRequest
              * document_number: Se asume que 'unique_document_by_type' es una regla personalizada 
              * que ya maneja la excepción del ID internamente.
              */
-            'document_number'  => 'required|numeric|max_digits:20|unique_document_by_type',
+            // 'document_number'  => 'required|numeric|max_digits:20|unique_document_by_type',
+            'document_number'  => "required|numeric|max_digits:20|unique_document_by_type:{$profileId}",
             'phone'            => "sometimes|numeric|max_digits:15|unique:profiles,phone,{$profileId}",
             'gender_id'        => 'sometimes|exists:genders,id',
             'organization_id'  => 'sometimes|exists:organizations,id' 

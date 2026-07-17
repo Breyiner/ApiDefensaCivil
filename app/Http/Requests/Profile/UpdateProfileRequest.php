@@ -30,7 +30,9 @@ class UpdateProfileRequest extends FormRequest
          * Capturamos el ID del perfil desde la ruta para permitir que 
          * los datos únicos (como el teléfono) no choquen con el registro actual.
          */
-        $profileId = $this->route('profile_id');
+        // $profileId = $this->route('profile_id');
+        // $profileId = $this->route('profile_id') ?? $this->route('profile');
+        $profileId = $this->route('profile_id') ?? $this->route('profile') ?? $this->route('id') ?? head($this->route()->parameters());
 
         return [
             'names'            => 'required|alpha_spaces|string|max:50',
@@ -40,7 +42,8 @@ class UpdateProfileRequest extends FormRequest
             /** * Se asume que unique_document_by_type maneja la excepción internamente 
              * o mediante parámetros adicionales si es necesario.
              */
-            'document_number'  => 'required|numeric|max_digits:20|unique_document_by_type',
+            // 'document_number'  => 'required|numeric|max_digits:20|unique_document_by_type',
+            'document_number'  => "required|numeric|max_digits:20|unique_document_by_type:{$profileId}",
             'phone'            => "required|numeric|max_digits:15|unique:profiles,phone,{$profileId}",
             'gender_id'        => 'required|exists:genders,id',
             'organization_id'  => 'required|exists:organizations,id' 

@@ -145,6 +145,7 @@ class ProfileService
             'userRol_old'        => $oldUserRol,
             'userRol_new'        => $profile->user?->roles->first()?->name,
 
+            
         ]);
 
         return [

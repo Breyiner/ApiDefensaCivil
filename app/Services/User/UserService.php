@@ -709,7 +709,13 @@ class UserService
         DB::beginTransaction();
 
         try {
-            $users = User::with('stateUser', 'profile.organization')->whereIn('id', $userIds)->get();
+            $users = User::with([
+                'stateUser',
+                'profile.organization.sectional',
+                'profile.documentType',
+                'profile.gender',
+                'roles',
+            ])->whereIn('id', $userIds)->get();
 
             if ($users->isEmpty()) {
                 DB::rollBack();
@@ -735,11 +741,41 @@ class UserService
                 $oldStatus = $user->stateUser?->name ?? 'SIN ESTADO';
                 $oldStatusId = (int) $user->state_user_id;
 
+                $profile = $user->profile;
+
+                $oldUserName       = $profile?->names;
+                $oldLastName       = $profile?->last_names;
+                $oldUserRol        = $user->roles->first()?->name;
+                $oldDocumentType   = $profile?->documentType?->name;
+                $oldNumberDocument = $profile?->document_number;
+                $oldBirthDate      = $profile?->birth_date;
+                $oldGender         = $profile?->gender?->name;
+                $oldSectional      = $profile?->organization?->sectional?->name;
+                $oldOrganization   = $profile?->organization?->name;
+
                 $user->update(['state_user_id' => $stateUserId]);
-                $user->refresh()->load('stateUser');
+                $user->refresh()->load([
+                    'stateUser',
+                    'profile.organization.sectional',
+                    'profile.documentType',
+                    'profile.gender',
+                    'roles',
+                ]);
 
                 $newStatus = $user->stateUser?->name ?? 'SIN ESTADO';
                 $newStatusId = (int) $stateUserId;
+
+                $profile = $user->profile;
+
+                $newUserName       = $profile?->names;
+                $newLastName       = $profile?->last_names;
+                $newUserRol        = $user->roles->first()?->name;
+                $newDocumentType   = $profile?->documentType?->name;
+                $newNumberDocument = $profile?->document_number;
+                $newBirthDate      = $profile?->birth_date;
+                $newGender         = $profile?->gender?->name;
+                $newSectional      = $profile?->organization?->sectional?->name;
+                $newOrganization   = $profile?->organization?->name;
 
                 $audit = $user->audits()->create([
                     'user_name' => $fullName,
@@ -750,9 +786,44 @@ class UserService
                     'status_new' => $newStatus,
                 ]);
 
+                $user->auditUsers()->create([
+                    'user_name'      => $fullName,
+                    'rol_name'       => $role,
+                    'date_time'      => now(),
+                    'action_execute' => 'Cambio de Estado',
+                    'status_old'     => $oldStatus,
+                    'status_new'     => $newStatus,
+
+                    'userName_old'       => $oldUserName,
+                    'userName_new'       => $newUserName,
+
+                    'lastName_old'       => $oldLastName,
+                    'lastName_new'       => $newLastName,
+
+                    'userRol_old'        => $oldUserRol,
+                    'userRol_new'        => $newUserRol,
+
+                    'documentType_old'   => $oldDocumentType,
+                    'documentType_new'   => $newDocumentType,
+
+                    'numberDocument_old' => $oldNumberDocument,
+                    'numberDocument_new' => $newNumberDocument,
+
+                    'birthDate_old'      => $oldBirthDate,
+                    'birthDate_new'      => $newBirthDate,
+
+                    'gender_old'         => $oldGender,
+                    'gender_new'         => $newGender,
+
+                    'sectional_old'      => $oldSectional,
+                    'sectional_new'      => $newSectional,
+
+                    'organization_old'   => $oldOrganization,
+                    'organization_new'   => $newOrganization,
+                ]);
+
                 if ($oldStatusId !== $newStatusId && in_array($newStatusId, [1, 2])) {
-                    
-                    // Extraemos de forma segura el id de la seccional a la que pertenece el usuario editado
+
                     $sectionalId = $user->profile?->organization?->sectional_id;
 
                     if ($sectionalId) {
@@ -771,6 +842,7 @@ class UserService
             ];
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return [
                 'error' => true,
                 'code' => 500,
@@ -868,7 +940,13 @@ class UserService
      */
     public function changeRole(array $data, $id): array
     {
-        $user = User::with(['roles'])->find($id);
+        $user = User::with([
+            'roles',
+            'stateUser',
+            'profile.organization.sectional',
+            'profile.documentType',
+            'profile.gender',
+        ])->find($id);
 
         if (!$user) {
             return [
@@ -879,11 +957,40 @@ class UserService
         }
 
         $oldRole = $user->roles->first()?->name;
+        $oldStatus = $user->stateUser?->name ?? 'SIN ESTADO';
+
+        $profile = $user->profile;
+
+        $oldUserName       = $profile?->names;
+        $oldLastName       = $profile?->last_names;
+        $oldDocumentType   = $profile?->documentType?->name;
+        $oldNumberDocument = $profile?->document_number;
+        $oldBirthDate      = $profile?->birth_date;
+        $oldGender         = $profile?->gender?->name;
+        $oldSectional      = $profile?->organization?->sectional?->name;
+        $oldOrganization   = $profile?->organization?->name;
 
         $user->syncRoles([$data['role']]);
-        $user->refresh()->load('roles');
+        $user->refresh()->load([
+            'roles',
+            'stateUser',
+            'profile.organization.sectional',
+            'profile.documentType',
+            'profile.gender',
+        ]);
 
         $newRole = $user->roles->first()?->name;
+
+        $profile = $user->profile;
+
+        $newUserName       = $profile?->names;
+        $newLastName       = $profile?->last_names;
+        $newDocumentType   = $profile?->documentType?->name;
+        $newNumberDocument = $profile?->document_number;
+        $newBirthDate      = $profile?->birth_date;
+        $newGender         = $profile?->gender?->name;
+        $newSectional      = $profile?->organization?->sectional?->name;
+        $newOrganization   = $profile?->organization?->name;
 
         $authUser = auth()->user();
         $fullName = $authUser?->profile
@@ -906,11 +1013,35 @@ class UserService
             'rol_name'       => $role,
             'date_time'      => now(),
             'action_execute' => 'Cambio de Rol',
-            'status_old'     => null,
-            'status_new'     => null,
+            'status_old'     => $oldStatus,
+            'status_new'     => $oldStatus,
 
-            'userRol_old'    => $oldRole ?? 'SIN ROL',
-            'userRol_new'    => $newRole ?? 'SIN ROL',
+            'userName_old'       => $oldUserName,
+            'userName_new'       => $newUserName,
+
+            'lastName_old'       => $oldLastName,
+            'lastName_new'       => $newLastName,
+
+            'userRol_old'        => $oldRole ?? 'SIN ROL',
+            'userRol_new'        => $newRole ?? 'SIN ROL',
+
+            'documentType_old'   => $oldDocumentType,
+            'documentType_new'   => $newDocumentType,
+
+            'numberDocument_old' => $oldNumberDocument,
+            'numberDocument_new' => $newNumberDocument,
+
+            'birthDate_old'      => $oldBirthDate,
+            'birthDate_new'      => $newBirthDate,
+
+            'gender_old'         => $oldGender,
+            'gender_new'         => $newGender,
+
+            'sectional_old'      => $oldSectional,
+            'sectional_new'      => $newSectional,
+
+            'organization_old'   => $oldOrganization,
+            'organization_new'   => $newOrganization,
         ]);
 
         return [

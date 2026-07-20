@@ -148,32 +148,38 @@ class PetService
             "data" => $Pet,
         ];
     }
-
+    // metodo delete para eliminar una mascota y sus vacunas relacionadas
     public function delete($id)
     {
-        $Pet = Pet::find($id);
+        try{
+            $Pet = Pet::find($id);
 
-        if (!$Pet) {
+            if (!$Pet) {
+                return [
+                    "error" => true,
+                    "code" => 404,
+                    "message" => "Mascota no encontrada",
+                ];
+            }
+            return \DB::transaction(function () use ($Pet) {
+
+                PetVaccine::where('pet_id', $Pet->id)->delete();
+                $Pet->delete();
+
+                return [
+                    "error" => false,
+                    "code" => 200,
+                    "message" => "Mascota y sus vacunas relacionadas fueron eliminadas exitosamente",
+                ];
+            });
+        } catch (\Exception $e) {
             return [
                 "error" => true,
-                "code" => 404,
-                "message" => "Mascota no encontrada",
+                "code" => 500,
+                "message" => "Error al eliminar la mascota: " . $e->getMessage(),
             ];
-        }
-        $PetVaccine = PetVaccine::where('pet_id', $id)->exists();
-        if ($PetVaccine) {
-            return [
-                "error" => true,
-                "code" => 400,
-                "message" => "No se puede eliminar porque posee vacunas registradas",
-            ];
-        }
-        $Pet->delete();
 
-        return [
-            "error" => false,
-            "code" => 200,
-            "message" => "Mascota eliminada exitosamente",
-        ];
+        }
     }
 }
+

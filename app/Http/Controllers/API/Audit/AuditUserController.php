@@ -18,6 +18,19 @@ class AuditUserController extends Controller
         $this->service = $service;
     }
 
+    public function index(Request $request): JsonResponse
+    {
+        $perPage = $request->input('per_page', 10);
+
+        $response = $this->service->getAll($perPage);
+
+        if ($response['error']) {
+            return ResponseFormatter::error($response['message'], $response['code']);
+        }
+
+        return ResponseFormatter::success($response['message'], $response['code'], $response['data'] ?? [], $response['paginate'] ?? []);
+    }
+    
     public function getByUser(Request $request, string $userId)
     {
         $perPage = $request->input('per_page', 10);

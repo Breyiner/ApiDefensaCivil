@@ -98,9 +98,10 @@ class ProfileService
         $oldGender = $profile->gender?->name;
         $oldOrganization = $profile->organization?->name;
         $oldSectional = $profile->organization?->sectional?->name;
+        $oldUserRol = $profile->user?->roles->first()?->name;
 
         $profile->update($data);
-        $profile->refresh()->load(['documentType', 'gender', 'organization.sectional']);
+        $profile->refresh()->load(['documentType', 'gender', 'organization.sectional', 'user.roles']);
 
         $authUser = auth()->user();
 
@@ -110,12 +111,12 @@ class ProfileService
 
         $profile->user?->auditUsers()->create([
 
-            'user_name'      => $fullName,
-            'rol_name'       => $role,
-            'date_time'      => now(),
-            'action_execute' => 'Actualización de Perfil',
-            'status_old'     => null,
-            'status_new'     => null,
+            'user_name'          => $fullName,
+            'rol_name'           => $role,
+            'date_time'          => now(),
+            'action_execute'     => 'Actualización de Perfil',
+            'status_old'         => null,
+            'status_new'         => null,
 
             'userName_old'       => $oldNames,
             'userName_new'       => $profile->names,
@@ -140,6 +141,11 @@ class ProfileService
 
             'organization_old'   => $oldOrganization,
             'organization_new'   => $profile->organization?->name,
+
+            'userRol_old'        => $oldUserRol,
+            'userRol_new'        => $profile->user?->roles->first()?->name,
+
+            
         ]);
 
         return [
@@ -174,9 +180,10 @@ class ProfileService
         $oldGender = $profile->gender?->name;
         $oldOrganization = $profile->organization?->name;
         $oldSectional = $profile->organization?->sectional?->name;
+        $oldUserRol = $profile->user?->roles->first()?->name;
 
         $profile->update($data);
-        $profile->refresh()->load(['documentType', 'gender', 'organization.sectional']);
+        $profile->refresh()->load(['documentType', 'gender', 'organization.sectional', 'user.roles']);
 
         $authUser = auth()->user();
 
@@ -185,12 +192,12 @@ class ProfileService
         $role = $authUser?->getRoleNames()?->first() ?? 'Sistema';
 
         $profile->user?->auditUsers()->create([
-            'user_name'      => $fullName,
-            'rol_name'       => $role,
-            'date_time'      => now(),
-            'action_execute' => 'Actualización Parcial de Perfil',
-            'status_old'     => null,
-            'status_new'     => null,
+            'user_name'          => $fullName,
+            'rol_name'           => $role,
+            'date_time'          => now(),
+            'action_execute'     => 'Actualización Parcial de Perfil',
+            'status_old'         => null,
+            'status_new'         => null,
 
             'userName_old'       => $oldNames,
             'userName_new'       => $profile->names,
@@ -215,6 +222,9 @@ class ProfileService
 
             'organization_old'   => $oldOrganization,
             'organization_new'   => $profile->organization?->name,
+
+            'userRol_old'        => $oldUserRol,
+            'userRol_new'        => $profile->user?->roles->first()?->name,
         ]);
 
         return [

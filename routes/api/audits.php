@@ -40,6 +40,8 @@ Route::prefix('audits')->group(function () {
     // ------------------------------------------------------------------
     Route::prefix('users')->group(function () {
 
+        Route::get('', [AuditUserController::class, 'index']);
+
         Route::get('/{userId}', [AuditUserController::class, 'getByUser'])
             ->middleware('permission:audits.show');
 

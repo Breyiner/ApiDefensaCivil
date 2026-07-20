@@ -170,24 +170,47 @@ class RiskFactorService
     }
 
     // Eliminar factor de riesgo
-    public function delete($id)
-    {
-        $riskFactor = RiskFactor::find($id);
+    public function delete($id){
 
-        if (!$riskFactor) {
+        try{
+            $riskFactor = RiskFactor::find($id);
+
+            if (!$riskFactor) {
+                return [
+                    "error" => true,
+                    "code" => 404,
+                    "message" => "Factor de riesgo no encontrado",
+                ];
+            }
+
+            if ($riskFactor->actionPlan()->exists()) {
+                return [
+                    "error" => true,
+                    "code" => 409,
+                    "message" => "No se puede eliminar este factor de riesgo porque ya tiene un Plan de Acción asociado.",
+                ];
+            }
+
+            return \DB::transaction(function () use ($riskFactor) {
+
+            $riskFactor->riskReductionActions()->delete();
+            $riskFactor->vulnerabilityFactors()->delete();
+            $riskFactor->delete();
+
+            return [
+                "error" => false,
+                "code" => 200,
+                "message" => "Factor de riesgo eliminado exitosamente",
+            ];
+            });
+        
+        } catch (\Exception $e) {
             return [
                 "error" => true,
-                "code" => 404,
-                "message" => "Factor de riesgo no encontrado",
+                "code" => 500,
+                "message" => "Error al eliminar el factor de riesgo: " . $e->getMessage(),
             ];
         }
-
-        $riskFactor->delete();
-
-        return [
-            "error" => false,
-            "code" => 200,
-            "message" => "Factor de riesgo eliminado exitosamente",
-        ];
     }
 }
+

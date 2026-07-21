@@ -23,7 +23,9 @@ return [
     'https://defensa.johnbecerra.dev'],
 
   'allowed_origins_patterns' => [
-    '^http://localhost:[0-9]+$',
+    '#^http://localhost:[0-9]+$#',
+    '#^http://192\.168\.[0-9]+\.[0-9]+:[0-9]+$#', // Permite cualquier IP local en la red 192.168.x.x con cualquier puerto
+    '#^http://10\.[0-9]+\.[0-9]+\.[0-9]+:[0-9]+$#', // Permite cualquier IP local en la red 10.x.x.x con cualquier puerto
   ],
 
   'allowed_headers' => ['*'],

@@ -619,8 +619,8 @@ class FamilyPlanService
 
 
         // Debe al menos existir un grafico (plano) de la vivienda registrado
-        $housingGraphicsCount = $familyPlan->housingInfo()->count();
-        $hasMinHousingGraphics = $housingGraphicsCount >= 1;
+        // $housingGraphicsCount = $familyPlan->housingInfo()->count();
+        // $hasMinHousingGraphics = $housingGraphicsCount >= 1;
 
 
         // Verificar si el plan de acción al menos tienes un antes, durante y después registrado
@@ -645,7 +645,7 @@ class FamilyPlanService
             && $hasMinRiskFactors
             && $hasMinResources
             && $hasMinPhotos
-            && $hasMinHousingGraphics
+            // && $hasMinHousingGraphics
             && $hasActionPlan;
 
 
@@ -672,8 +672,8 @@ class FamilyPlanService
                 'has_photos'         => $hasMinPhotos,
                 'photos_count'       => $photosCount,
 
-                'has_graphics'       => $hasMinHousingGraphics,
-                'graphics_count'     => $housingGraphicsCount,
+                // 'has_graphics'       => $hasMinHousingGraphics,
+                // 'graphics_count'     => $housingGraphicsCount,
 
                 'has_action_before'  => $hasActionBefore,
                 'has_action_during'  => $hasActionDuring,

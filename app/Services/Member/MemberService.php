@@ -57,10 +57,13 @@ class MemberService
                 'full_name'        => $item->member->names . ' ' . $item->member->last_names,
                 'birth_date'       => $item->member->birth_date,
                 'blood_group'      => $item->member->bloodGroup->name,
+                'document_acronym' => $item->member->documentType->acronym,
                 'document_number'  => $item->member->document_number,
                 'gender_id'        => $item->member->gender_id,
+                'gender'           => $item->member->gender->name,
                 'kinship'          => $item->member->kinship->name,
                 'phone'            => $item->member->phone,
+                'nationality'      => $item->member->nationality->name
             ];
         });
 

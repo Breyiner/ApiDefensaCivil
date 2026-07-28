@@ -18,9 +18,9 @@ use App\Models\Kinship\Kinship;
 use App\Models\FamilyMember\FamilyMember;
 use App\Models\ConditionMember\ConditionMember;
 use App\Models\ActionPlan\ActionPlan;
+use App\Models\Eps\Eps;
 use App\Models\RiskReductionAction\RiskReductionAction;
 use Carbon\Carbon;
-
 /**
  * Clase Member
  * * Representa a un integrante del grupo familiar.
@@ -119,6 +119,12 @@ class Member extends Model
     public function kinship()
     {
         return $this->belongsTo(Kinship::class);
+    }
+
+    // relacion con eps
+    public function eps()
+    {
+        return $this->belongsTo(Eps::class);
     }
 
     // Relación con los planes familiares a los que pertenece el integrante.

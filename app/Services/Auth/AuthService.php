@@ -219,16 +219,17 @@ class AuthService
             "code" => 200,
             "message" => "Logueo exitoso",
             "data" => [
-                'id' => $user->id,
-                'full_name' => "$profile->names $profile->last_names",
-                'gender' => "$profile->gender_id",
-                'role_id' => $roleUser->id,
-                'permissions' => $permissions->pluck('name'),
-                'cookieToken' => $cookieToken,
+                'id'                 => $user->id,
+                'full_name'          => "$profile->names $profile->last_names",
+                'gender'             => "$profile->gender_id",
+                'role_id'            => $roleUser->id,
+                'role'               => $roleUser->name,
+                'permissions'        => $permissions->pluck('name'),
+                'cookieToken'        => $cookieToken,
                 'cookieRefreshToken' => $cookieRefreshToken,
-                'token' => $accessToken,
-                'refresh_token' => $refreshToken,  // ← se agrega temporalmente
-                'sectional_id' => $profile->organization?->sectional_id
+                'token'              => $accessToken,
+                'refresh_token'      => $refreshToken,  // ← se agrega temporalmente
+                'sectional_id'       => $profile->organization?->sectional_id
             ],
         ];
     }

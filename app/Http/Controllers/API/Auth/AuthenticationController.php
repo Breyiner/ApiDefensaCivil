@@ -75,29 +75,67 @@ class AuthenticationController extends Controller
     /**
      * Renueva la validez de la sesión usando el Refresh Token.
      */
+
     public function refreshToken(Request $request) 
     {
-        $user = Auth::user();
-        $currentRefreshToken = $request->bearerToken();
+        $currentRefreshToken = $request->bearerToken() ?? $request->cookie('refresh_token');
 
-        $result = $this->authService->refreshToken($currentRefreshToken, $user);
+        if (!$currentRefreshToken) {
+            return ResponseFormatter::error('No se proporcionó token de refresco', 401);
+        }
 
-        //---
+        $result = $this->authService->refreshToken($currentRefreshToken);
+
         if (isset($result['error']) && $result['error']) {
-            
             return ResponseFormatter::error($result['message'], $result['code']);
         }
-        //---
 
-        // Se envían los nuevos tokens mediante cookies actualizadas
-        return response()->json([
-            'success' => true,
-            'message' => 'Token refrescado exitosamente',
-            'data' => []
-        ])
-        ->withCookie($result['cookieToken'])
-        ->withCookie($result['cookieRefreshToken']);
+        return ResponseFormatter::success(
+            'Token refrescado exitosamente',
+            200,
+            [
+                'token'         => $result['token'] ?? null,
+                'refresh_token' => $result['refresh_token'] ?? null,
+            ]
+        );
     }
+
+    // public function refreshToken(Request $request) 
+    // {
+    //     // $user = Auth::user();
+
+    //     // 1. Obtener el token del Header Bearer o de la Cookie 'refresh_token'
+    //     $currentRefreshToken = $request->bearerToken() ?? $request->cookie('refresh_token');
+
+    //     // $result = $this->authService->refreshToken($currentRefreshToken, $user);
+
+    //     if (!$currentRefreshToken) {
+    //         return ResponseFormatter::error('No se proporcionó token de refresco', 401);
+    //     }
+
+    //     //---
+    //     // if (isset($result['error']) && $result['error']) {
+            
+    //     //     return ResponseFormatter::error($result['message'], $result['code']);
+    //     // }
+    //     //---
+
+    //     // 2. No pasamos $user al servicio (el servicio lo obtendrá del token en BD)
+    //     $result = $this->authService->refreshToken($currentRefreshToken);
+
+    //     if (isset($result['error']) && $result['error']) {
+    //         return ResponseFormatter::error($result['message'], $result['code']);
+    //     }
+
+    //     // Se envían los nuevos tokens mediante cookies actualizadas
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Token refrescado exitosamente',
+    //         'data' => []
+    //     ])
+    //     ->withCookie($result['cookieToken'])
+    //     ->withCookie($result['cookieRefreshToken']);
+    // }
 
     /**
      * Cierra la sesión del usuario.

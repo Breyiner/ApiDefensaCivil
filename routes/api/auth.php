@@ -29,6 +29,9 @@ Route::post('/register', [AuthenticationController::class, 'register']);
 // Inicio de sesión con credenciales
 Route::post('/login', [AuthenticationController::class, 'login']);
 
+// Renovación del access token usando el refresh token 
+// (Debe ser pública y sin middleware, ya que Laravel ejecuta el middleware de autenticación de Sanctum antes de que la petición llegue a tu controlador o a tu servicio.)
+Route::post('/refresh-token', [AuthenticationController::class, 'refreshToken']);
 
 // -------------------------------------------------------------------------
 // VERIFICACIÓN DE EMAIL
@@ -79,6 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Renovación del access token usando el refresh token
     // Solo disponible para tokens con la habilidad 'issue-access-token'
-    Route::post('/refresh-token', [AuthenticationController::class, 'refreshToken'])
-        ->middleware('ability:' . \App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value);
+    // Route::post('/refresh-token', [AuthenticationController::class, 'refreshToken'])
+    //     ->middleware('ability:' . \App\Enums\TokenAbility::ISSUE_ACCESS_TOKEN->value);
 });

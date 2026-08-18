@@ -45,9 +45,8 @@ class FamilyPlanService
         $items = $paginator->map(function ($plan) {
             return [
                 'id'             => $plan->id,
-                'name'           => $plan->name,
                 'last_names'     => $plan->last_names,
-                'address'        => $plan->address,
+                'address'        => $plan->address ?? 'Sin dirección',
                 'comentary'      => $plan->comentary ?? 'No hay comentarios',
                 'zone'           => $plan->zone?->name,              // Usar null safe operator
                 'city'           => $plan->city?->name,
@@ -56,6 +55,7 @@ class FamilyPlanService
                 'status_id'      => $plan->statusPlan?->id,
                 'sectional'      => $plan->sectional?->name,
                 'responsable'    => $plan->user?->profile->names,
+                'responsable_id' => $plan->user?->id,  
                 'date_create'    => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
                 'family_type'    => $plan->familyType?->name,
                 'family_type_id' => $plan->familyType?->id,
@@ -115,7 +115,6 @@ class FamilyPlanService
         // 🔹 Transformar datos manualmente
         $data = [
             'id'                 => $familyPlan->id,
-            'name'               => $familyPlan->name,
             'last_names'         => $familyPlan->last_names,
             'address'            => $familyPlan->address,
             'landline_phone'     => $familyPlan->landline_phone,
@@ -143,7 +142,8 @@ class FamilyPlanService
             'sector_name'        => $familyPlan->sector_name ?? $familyPlan->sector?->name,
             'status'             => $familyPlan->statusPlan?->name,
             'sectional'          => $familyPlan->sectional?->name,
-            'responsable'        => $familyPlan->user?->name,
+            'responsable'        => $familyPlan->user?->profile->names,
+            'responsable_id'     => $familyPlan->user?->id,  
 
             // Fechas
             'created_at'         => $familyPlan->created_at->format('d/m/Y'),
@@ -706,12 +706,12 @@ class FamilyPlanService
         // Transforma cada plan al formato de respuesta esperado
         $plans = $data->map(function ($plan) {
             return [
-                "id" => $plan->id,
-                "last_names" => $plan->last_names,
-                "city" => $plan->city->name,
-                "department" => $plan->city->department->name,
-                "status" => $plan->statusPlan->name,
-                "status_id" => $plan->statusPlan->id,
+                "id"          => $plan->id,
+                "last_names"  => $plan->last_names,
+                "city"        => $plan->city->name,
+                "department"  => $plan->city->department->name,
+                "status"      => $plan->statusPlan->name,
+                "status_id"   => $plan->statusPlan->id,
                 "date_create" => $plan->created_at->format('d/m/Y'),
             ];
         });

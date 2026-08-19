@@ -164,9 +164,11 @@ class VulnerableQuestionController extends Controller
      * Devuelve las preguntas en formato paginado.
      * Ideal para vistas de administración con grandes volúmenes de datos.
      */
-    public function paginate()
-    {
-        $response = $this->service->paginate();
+    public function paginate(Request $request) {
+        
+        $perPage = $request->input('per_page', 3);
+
+        $response = $this->service->paginate($perPage);
 
         if ($response['error']) {
             return ResponseFormatter::error($response['message'], $response['code']);
@@ -175,7 +177,9 @@ class VulnerableQuestionController extends Controller
         return ResponseFormatter::success(
             $response['message'],
             $response['code'],
-            $response['data'] ?? [],$response['paginate']);
+            $response['data'] ?? [],
+            $response['paginate']
+        );
     }
 
     public function history(Request $request, string $id)

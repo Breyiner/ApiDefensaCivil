@@ -219,16 +219,17 @@ class AuthService
             "code" => 200,
             "message" => "Logueo exitoso",
             "data" => [
-                'id' => $user->id,
-                'full_name' => "$profile->names $profile->last_names",
-                'gender' => "$profile->gender_id",
-                'role_id' => $roleUser->id,
-                'permissions' => $permissions->pluck('name'),
-                'cookieToken' => $cookieToken,
+                'id'                 => $user->id,
+                'full_name'          => "$profile->names $profile->last_names",
+                'gender'             => "$profile->gender_id",
+                'role_id'            => $roleUser->id,
+                'role'               => $roleUser->name,
+                'permissions'        => $permissions->pluck('name'),
+                'cookieToken'        => $cookieToken,
                 'cookieRefreshToken' => $cookieRefreshToken,
-                'token' => $accessToken,
-                'refresh_token' => $refreshToken,  // ← se agrega temporalmente
-                'sectional_id' => $profile->organization?->sectional_id
+                'token'              => $accessToken,
+                'refresh_token'      => $refreshToken,  // ← se agrega temporalmente
+                'sectional_id'       => $profile->organization?->sectional_id
             ],
         ];
     }
@@ -253,7 +254,9 @@ class AuthService
         )->plainTextToken;
     }
 
-    public function refreshToken(string $currentRefreshToken, User $user)
+    // public function refreshToken(string $currentRefreshToken, User $user)
+    public function refreshToken(string $currentRefreshToken)
+
     {
 
         $refreshToken = PersonalAccessToken::findToken($currentRefreshToken);
@@ -262,6 +265,13 @@ class AuthService
             return ['error' => true, 'code' => 401, 'message' => 'Token inválido o expirado.'];
         }
 
+        // Verificar habilidad (reemplaza el middleware 'ability:issue-access-token')
+        if (!$refreshToken->can(TokenAbility::ISSUE_ACCESS_TOKEN->value)) {
+            return ['error' => true, 'code' => 403, 'message' => 'Token no autorizado para esta acción.'];
+        }
+
+        // Obtener el usuario dueño del refresh token
+        $user = $refreshToken->tokenable;
 
         $accessToken = $this->generateAccessToken($user);
 
@@ -293,8 +303,15 @@ class AuthService
             'lax'
         );
 
+        // return [
+        //     'cookieToken' => $cookieToken,
+        //     'cookieRefreshToken' => $cookieRefreshToken,
+        // ];
+
         return [
-            'cookieToken' => $cookieToken,
+            'token'              => $accessToken,
+            'refresh_token'      => $refreshToken,
+            'cookieToken'        => $cookieToken,
             'cookieRefreshToken' => $cookieRefreshToken,
         ];
     }

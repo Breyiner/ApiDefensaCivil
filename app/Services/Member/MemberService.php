@@ -47,7 +47,7 @@ class MemberService
     public function getMembersForPlan($family_plan_id)
     {
         $paginator = FamilyMember::where('family_plan_id', $family_plan_id)
-            ->with(['member.bloodGroup', 'member.documentType', 'member.kinship'])
+            ->with(['member.bloodGroup', 'member.documentType', 'member.kinship', 'member.eps'])
             ->paginate(10);
 
         // Transformar aunque esté vacío (no rompe)
@@ -57,10 +57,14 @@ class MemberService
                 'full_name'        => $item->member->names . ' ' . $item->member->last_names,
                 'birth_date'       => $item->member->birth_date,
                 'blood_group'      => $item->member->bloodGroup->name,
+                'document_acronym' => $item->member->documentType->acronym,
                 'document_number'  => $item->member->document_number,
                 'gender_id'        => $item->member->gender_id,
+                'gender'           => $item->member->gender->name,
                 'kinship'          => $item->member->kinship->name,
                 'phone'            => $item->member->phone,
+                'nationality'      => $item->member->nationality->name,
+                'eps'              => $item->member->eps->name
             ];
         });
 

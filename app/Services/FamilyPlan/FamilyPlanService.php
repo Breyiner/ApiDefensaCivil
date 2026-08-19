@@ -45,9 +45,8 @@ class FamilyPlanService
         $items = $paginator->map(function ($plan) {
             return [
                 'id'             => $plan->id,
-                'name'           => $plan->name,
                 'last_names'     => $plan->last_names,
-                'address'        => $plan->address,
+                'address'        => $plan->address ?? 'Sin dirección',
                 'comentary'      => $plan->comentary ?? 'No hay comentarios',
                 'zone'           => $plan->zone?->name,              // Usar null safe operator
                 'city'           => $plan->city?->name,
@@ -56,6 +55,7 @@ class FamilyPlanService
                 'status_id'      => $plan->statusPlan?->id,
                 'sectional'      => $plan->sectional?->name,
                 'responsable'    => $plan->user?->profile->names,
+                'responsable_id' => $plan->user?->id,  
                 'date_create'    => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
                 'family_type'    => $plan->familyType?->name,
                 'family_type_id' => $plan->familyType?->id,
@@ -115,7 +115,6 @@ class FamilyPlanService
         // 🔹 Transformar datos manualmente
         $data = [
             'id'                 => $familyPlan->id,
-            'name'               => $familyPlan->name,
             'last_names'         => $familyPlan->last_names,
             'address'            => $familyPlan->address,
             'landline_phone'     => $familyPlan->landline_phone,
@@ -143,7 +142,8 @@ class FamilyPlanService
             'sector_name'        => $familyPlan->sector_name ?? $familyPlan->sector?->name,
             'status'             => $familyPlan->statusPlan?->name,
             'sectional'          => $familyPlan->sectional?->name,
-            'responsable'        => $familyPlan->user?->name,
+            'responsable'        => $familyPlan->user?->profile->names,
+            'responsable_id'     => $familyPlan->user?->id,  
 
             // Fechas
             'created_at'         => $familyPlan->created_at->format('d/m/Y'),
@@ -602,6 +602,15 @@ class FamilyPlanService
         // $hasMembers = $familyPlan->familyMembers()->exists();
 
 
+        $hasBasicData = $familyPlan->address
+        && $familyPlan->sector_id
+        && $familyPlan->sector_name
+        && $familyPlan->last_names
+        && $familyPlan->city_id
+        && $familyPlan->department_id
+        && $familyPlan->zone_id;
+
+
         // Verifica que haya al menos 1 factor de riesgo registrado
         $riskFactorsCount = $familyPlan->riskFactors()->count();
         $hasMinRiskFactors = $riskFactorsCount >= 1;
@@ -619,8 +628,8 @@ class FamilyPlanService
 
 
         // Debe al menos existir un grafico (plano) de la vivienda registrado
-        $housingGraphicsCount = $familyPlan->housingInfo()->count();
-        $hasMinHousingGraphics = $housingGraphicsCount >= 1;
+        // $housingGraphicsCount = $familyPlan->housingInfo()->count();
+        // $hasMinHousingGraphics = $housingGraphicsCount >= 1;
 
 
         // Verificar si el plan de acción al menos tienes un antes, durante y después registrado
@@ -645,7 +654,8 @@ class FamilyPlanService
             && $hasMinRiskFactors
             && $hasMinResources
             && $hasMinPhotos
-            && $hasMinHousingGraphics
+            && $hasBasicData
+            // && $hasMinHousingGraphics
             && $hasActionPlan;
 
 
@@ -672,8 +682,16 @@ class FamilyPlanService
                 'has_photos'         => $hasMinPhotos,
                 'photos_count'       => $photosCount,
 
-                'has_graphics'       => $hasMinHousingGraphics,
-                'graphics_count'     => $housingGraphicsCount,
+                'has_basic_data' => $hasBasicData,
+                'missing_basic_data' => array_filter([
+                    !$familyPlan->address ? 'address' : null,
+                    !$familyPlan->sector_id ? 'sector_id' : null,
+                    !$familyPlan->sector_name ? 'sector_name' : null,
+                    !$familyPlan->last_names ? 'last_names' : null,
+                    !$familyPlan->city_id ? 'city_id' : null,
+                    !$familyPlan->department_id ? 'department_id' : null,
+                    !$familyPlan->zone_id ? 'zone_id' : null,
+                ]),
 
                 'has_action_before'  => $hasActionBefore,
                 'has_action_during'  => $hasActionDuring,
@@ -706,12 +724,12 @@ class FamilyPlanService
         // Transforma cada plan al formato de respuesta esperado
         $plans = $data->map(function ($plan) {
             return [
-                "id" => $plan->id,
-                "last_names" => $plan->last_names,
-                "city" => $plan->city->name,
-                "department" => $plan->city->department->name,
-                "status" => $plan->statusPlan->name,
-                "status_id" => $plan->statusPlan->id,
+                "id"          => $plan->id,
+                "last_names"  => $plan->last_names,
+                "city"        => $plan->city->name,
+                "department"  => $plan->city->department->name,
+                "status"      => $plan->statusPlan->name,
+                "status_id"   => $plan->statusPlan->id,
                 "date_create" => $plan->created_at->format('d/m/Y'),
             ];
         });

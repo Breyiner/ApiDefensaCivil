@@ -300,9 +300,10 @@ class VulnerableQuestionService
         ];
     }
 
-    public function paginate()
+    public function paginate($perPage = 3)
     {
-        $paginator = VulnerableQuestion::where('is_active', true)->paginate(3);
+        // $paginator = VulnerableQuestion::where('is_active', true)->paginate(3);
+        $paginator = VulnerableQuestion::where('is_active', true)->paginate($perPage);
 
         $items = $paginator->getCollection()->transform(function ($item) {
             return [

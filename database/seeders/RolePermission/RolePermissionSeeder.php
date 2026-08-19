@@ -47,7 +47,10 @@ class RolePermissionSeeder extends Seeder
                 'family-plans.change-family-type',
                 'audits.dashboard-supervisor',
 
-                'users.requests-supervisors' // permiso solo para supervisores, sera ignorado por el rol admin
+                'users.requests-supervisors', // permiso solo para supervisores, sera ignorado por el rol admin
+                
+                'home-frontend.voluntario',
+                'home-frontend.supervisor',
             ])->get()
         );
 
@@ -154,7 +157,10 @@ class RolePermissionSeeder extends Seeder
 
                 'audits.dashboard-admin',
 
-                'users.requests-admins'
+                'users.requests-admins',
+
+                'home-frontend.voluntario',
+                'home-frontend.administrador',
             ])->get()
         ]);
 
@@ -266,7 +272,10 @@ class RolePermissionSeeder extends Seeder
                 'users.requests-supervisors',
                 'users.requests-admins',
                 
-                'profiles.history'
+                'profiles.history',
+
+                'home-frontend.supervisor',
+                'home-frontend.administrador',
             ])->get()
         ]);
     }

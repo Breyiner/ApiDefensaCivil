@@ -602,6 +602,15 @@ class FamilyPlanService
         // $hasMembers = $familyPlan->familyMembers()->exists();
 
 
+        $hasBasicData = $familyPlan->address
+        && $familyPlan->sector_id
+        && $familyPlan->sector_name
+        && $familyPlan->last_names
+        && $familyPlan->city_id
+        && $familyPlan->department_id
+        && $familyPlan->zone_id;
+
+
         // Verifica que haya al menos 1 factor de riesgo registrado
         $riskFactorsCount = $familyPlan->riskFactors()->count();
         $hasMinRiskFactors = $riskFactorsCount >= 1;
@@ -645,6 +654,7 @@ class FamilyPlanService
             && $hasMinRiskFactors
             && $hasMinResources
             && $hasMinPhotos
+            && $hasBasicData
             // && $hasMinHousingGraphics
             && $hasActionPlan;
 
@@ -672,8 +682,16 @@ class FamilyPlanService
                 'has_photos'         => $hasMinPhotos,
                 'photos_count'       => $photosCount,
 
-                // 'has_graphics'       => $hasMinHousingGraphics,
-                // 'graphics_count'     => $housingGraphicsCount,
+                'has_basic_data' => $hasBasicData,
+                'missing_basic_data' => array_filter([
+                    !$familyPlan->address ? 'address' : null,
+                    !$familyPlan->sector_id ? 'sector_id' : null,
+                    !$familyPlan->sector_name ? 'sector_name' : null,
+                    !$familyPlan->last_names ? 'last_names' : null,
+                    !$familyPlan->city_id ? 'city_id' : null,
+                    !$familyPlan->department_id ? 'department_id' : null,
+                    !$familyPlan->zone_id ? 'zone_id' : null,
+                ]),
 
                 'has_action_before'  => $hasActionBefore,
                 'has_action_during'  => $hasActionDuring,

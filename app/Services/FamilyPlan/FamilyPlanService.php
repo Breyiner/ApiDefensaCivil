@@ -56,7 +56,7 @@ class FamilyPlanService
                 'status'         => $plan->statusPlan?->name,
                 'status_id'      => $plan->statusPlan?->id,
                 'sectional'      => $plan->sectional?->name,
-                'responsable'    => $plan->user?->profile->names,
+                'responsable'    => $plan->user?->profile?->names,
                 'responsable_id' => $plan->user?->id,  
                 'date_create'    => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
                 'family_type'    => $plan->familyType?->name,
@@ -151,7 +151,7 @@ class FamilyPlanService
             'sector_name'        => $familyPlan->sector_name ?? $familyPlan->sector?->name,
             'status'             => $familyPlan->statusPlan?->name,
             'sectional'          => $familyPlan->sectional?->name,
-            'responsable'        => $familyPlan->user?->profile->names,
+            'responsable'        => $familyPlan->user?->profile?->names,
             'responsable_id'     => $familyPlan->user?->id,  
 
             // Coordenadas geográficas

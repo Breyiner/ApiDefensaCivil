@@ -36,7 +36,9 @@ class FamilyPlanService
                 'city.department',       // Departamento a través de city
                 'statusPlan',            // Estado actual del plan
                 'sectional',             // Seccional administrativa
-                'user'                   // Usuario responsable/creador
+                'user',                  // Usuario responsable/creador
+                'familyType',
+                'coordinates',
             ])
             ->orderBy('created_at', 'desc') // Ordenar por fecha de creación (más reciente primero)
             ->paginate($perPage);
@@ -59,6 +61,11 @@ class FamilyPlanService
                 'date_create'    => $plan->created_at->format('d/m/Y'), // Formato DD/MM/YYYY
                 'family_type'    => $plan->familyType?->name,
                 'family_type_id' => $plan->familyType?->id,
+                'coordinates'   => [
+                    'id'        => $plan->coordinates?->id,
+                    'latitude'  => $plan->coordinates?->latitude,
+                    'longitude' => $plan->coordinates?->longitude,
+                ],
             ];
         });
 
@@ -102,6 +109,8 @@ class FamilyPlanService
                 'user',
                 'housingQuality',
                 'sector',
+                'familyType',
+                'coordinates',
             ])->find($id);
 
         if (!$familyPlan) {
@@ -144,6 +153,13 @@ class FamilyPlanService
             'sectional'          => $familyPlan->sectional?->name,
             'responsable'        => $familyPlan->user?->profile->names,
             'responsable_id'     => $familyPlan->user?->id,  
+
+            // Coordenadas geográficas
+            'coordinates'        => [
+                'id'        => $familyPlan->coordinates?->id,
+                'latitude'  => $familyPlan->coordinates?->latitude,
+                'longitude' => $familyPlan->coordinates?->longitude,
+            ],
 
             // Fechas
             'created_at'         => $familyPlan->created_at->format('d/m/Y'),

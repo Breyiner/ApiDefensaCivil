@@ -5,10 +5,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('coordinates')->group(function () {
     Route::get('/', [CoordinatesController::class, 'index'])
-        ->middleware('permission:coordinates.index');
+        ->middleware('permission:coordinates.show');
 
     Route::get('/familyPlan/{familyPlanId}', [CoordinatesController::class, 'getByFamilyPlan'])
-        ->middleware('permission:coordinates.show');
+    ->middleware('permission:coordinates.by-family-plan');
 
     Route::get('/{id}', [CoordinatesController::class, 'show'])
         ->middleware('permission:coordinates.show');
